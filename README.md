@@ -41,3 +41,7 @@ KiPouCuit/
 │   ├── templates/adminpanel/
 │
 └── analytics/ (optional)
+
+Git commands:
+1.Create a new branch
+<img width="1211" height="833" alt="image" src="https://github.com/user-attachments/assets/29cabb41-c2bc-4733-a22a-d391330a89a9" />
