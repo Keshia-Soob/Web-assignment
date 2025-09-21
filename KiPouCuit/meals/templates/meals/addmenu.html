@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}AddMenu{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'meals/AddMenuStyle.css' %}">
+
+<div class="container">
+    <div class="page-title">
+        <h1>Add New Menu Item</h1>
+        <p>Share your delicious creation with our community</p>
+    </div>
+    
+    <div class="form-container">
+        <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i> Your menu item has been added successfully!
+        </div>
+        
+        <form id="menuForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" name="itemName" required placeholder="e.g., Butter Chicken">
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemPrice">Price (Rs)</label>
+                    <input type="number" id="itemPrice" name="itemPrice" required placeholder="e.g., 650">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="itemDescription">Description</label>
+                <textarea id="itemDescription" name="itemDescription" required placeholder="Brief description of your dish..."></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="itemCuisine">Cuisine Type</label>
+                    <select id="itemCuisine" name="itemCuisine" required>
+                        <option value="">Select Cuisine</option>
+                        <option value="indian">Indian</option>
+                        <option value="mauritian">Mauritian</option>
+                        <option value="english">English</option>
+                        <option value="french">French</option>
+                        <option value="asian">Asian</option>
+                        <option value="thai">Thai</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemType">Dish Type</label>
+                    <select id="itemType" name="itemType" required>
+                        <option value="">Select Type</option>
+                        <option value="starters">Starters</option>
+                        <option value="main-courses">Main Courses</option>
+                        <option value="seafood">Seafood Specialties</option>
+                        <option value="desserts">Desserts</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="itemImage">Upload Image</label>
+                <div class="image-upload">
+                    <input type="file" id="itemImage" name="itemImage" accept="image/*">
+                    <label for="itemImage" class="image-upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i> Click to upload an image
+                    </label>
+                </div>
+                <div class="image-preview" id="imagePreview"></div>
+            </div>
+            
+            <button type="submit" class="submit-btn">Add Menu Item</button>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+<!-- Footer -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-section">
+            <div class="footer-logo">
+                <img src="https://z-cdn-media.chatglm.cn/files/94983d49-6c55-48f4-be31-b074e266c6d9_pasted_image_1758311233175.png?auth_key=1789847270-737b568224d0401da25318df032362dd-0-fd888af56c0f48c26b26894dfac39d7d" alt="KiPouCuit Logo">
+                <h3 style="display: inline-block; margin-left: 10px;">KiPouCuit</h3>
+            </div>
+            <p>Bringing authentic flavors to your table since 2023.</p>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+        
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="add-menu-item.html">Add Menu Item</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-section">
+            <h3>Legal</h3>
+            <ul>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Refund Policy</a></li>
+                <li><a href="#">Next...</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-section">
+            <h3>Contact Us</h3>
+            <ul>
+                <li><i class="fas fa-map-marker-alt"></i> 123 Food Street, Port Louis</li>
+                <li><i class="fas fa-phone"></i> (230) 123-4567</li>
+                <li><i class="fas fa-envelope"></i> info@kipoucuit.mu</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="copyright">
+        <p>&copy; Copyright 2023 - KiPouCuit. All Rights Reserved.</p>
+    </div>
+</footer>
+
+
+
+
+
+{% comment %} <script>
+    // Image preview functionality
+    const itemImage = document.getElementById('itemImage');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    itemImage.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            
+            reader.addEventListener('load', function() {
+                const image = document.createElement('img');
+                image.src = reader.result;
+                imagePreview.innerHTML = '';
+                imagePreview.appendChild(image);
+            });
+            
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Form submission
+    const menuForm = document.getElementById('menuForm');
+    const successMessage = document.getElementById('successMessage');
+    
+    menuForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const itemName = document.getElementById('itemName').value;
+        const itemPrice = document.getElementById('itemPrice').value;
+        const itemDescription = document.getElementById('itemDescription').value;
+        const itemCuisine = document.getElementById('itemCuisine').value;
+        const itemType = document.getElementById('itemType').value;
+        const itemImageFile = document.getElementById('itemImage').files[0];
+        
+        // Create a unique ID for the menu item
+        const itemId = 'user-' + Date.now();
+        
+        // If image is uploaded, read it as data URL
+        if (itemImageFile) {
+            const reader = new FileReader();
+            
+            reader.addEventListener('load', function() {
+                // Create menu item object
+                const menuItem = {
+                    id: itemId,
+                    name: itemName,
+                    price: parseInt(itemPrice),
+                    description: itemDescription,
+                    cuisine: itemCuisine,
+                    type: itemType,
+                    image: reader.result
+                };
+                
+                // Save to localStorage
+                saveMenuItem(menuItem);
+                
+                // Show success message
+                successMessage.style.display = 'block';
+                
+                // Reset form
+                menuForm.reset();
+                imagePreview.innerHTML = '';
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            });
+            
+            reader.readAsDataURL(itemImageFile);
+        } else {
+            // If no image is uploaded, use a placeholder
+            const menuItem = {
+                id: itemId,
+                name: itemName,
+                price: parseInt(itemPrice),
+                description: itemDescription,
+                cuisine: itemCuisine,
+                type: itemType,
+                image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3'
+            };
+            
+            // Save to localStorage
+            saveMenuItem(menuItem);
+            
+            // Show success message
+            successMessage.style.display = 'block';
+            
+            // Reset form
+            menuForm.reset();
+            imagePreview.innerHTML = '';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+        }
+    });
+    
+    // Function to save menu item to localStorage
+    function saveMenuItem(menuItem) {
+        // Get existing menu items or initialize empty array
+        let menuItems = JSON.parse(localStorage.getItem('menuItems')) || [];
+        
+        // Add new menu item
+        menuItems.push(menuItem);
+        
+        // Save back to localStorage
+        localStorage.setItem('menuItems', JSON.stringify(menuItems));
+    }
+</script> {% endcomment %}
+
+{% endblock %}
