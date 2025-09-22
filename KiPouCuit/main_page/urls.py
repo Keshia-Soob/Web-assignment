@@ -3,4 +3,6 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),   # root page shows KiPouCuit
+    path('about/', views.about, name='about'),
+    path('contact/', views.contact, name='contact'),
 ]
