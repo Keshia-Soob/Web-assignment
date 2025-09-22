@@ -1,8 +1,93 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}KiPouCuit{% endblock %}
 
 {% block content %}
-<h1>Our title</h1>
-<p>Herekajsfiawhiueb.</p>
+
+<link rel="stylesheet" href="{% static 'main_page/style.css' %}"> 
+
+<section class="hero">
+    <img src="{% static 'main_page/assets/bg2.jpg' %}" alt="">
+        <div class="hero-content">
+            <h1>Ki Pou Cuit??</h1>
+            <p>Delicious food delivered to your doorstep</p>
+            <a href="{% url 'order' %}">Order Now</a>
+        </div>
+</section>
+
+    <!-- Best Sellers Section -->
+<section class="best-sellers center">
+    <div class="container">
+        <h2>Our Best Sellers</h2>
+        <div class="menu-grid">
+            <div class="menu-item">
+                <img src="https://picsum.photos/seed/chicken-briani/400/300.jpg" alt="Chicken Briani">
+                <div class="menu-item-content">
+                    <h3>Chicken Briani</h3>
+                    <p>Aromatic rice dish with tender chicken, fragrant spices, and caramelized onions. Our signature briani is slow-cooked to perfection.</p>
+                    <div class="price">Rs 200</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <img src="https://picsum.photos/seed/buffalo-wings/400/300.jpg" alt="Buffalo Wings">
+                <div class="menu-item-content">
+                    <h3>Buffalo Wings</h3>
+                    <p>Crispy chicken wings tossed in our famous spicy buffalo sauce. Served with celery sticks and blue cheese dressing.</p>
+                    <div class="price">Rs 450</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <img src="https://picsum.photos/seed/lasagna/400/300.jpg" alt="Lasagna">
+                <div class="menu-item-content">
+                    <h3>Lasagna</h3>
+                    <p>Layers of pasta, rich meat sauce, creamy béchamel, and melted mozzarella cheese. Our comfort food classic.</p>
+                    <div class="price">Rs 400</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <img src="https://picsum.photos/seed/thai-fried-rice/400/300.jpg" alt="Thai Fried Rice">
+                <div class="menu-item-content">
+                    <h3>Thai Fried Rice</h3>
+                    <p>Stir-fried jasmine rice with eggs, vegetables, and our special Thai spices. Garnished with lime and cilantro.</p>
+                    <div class="price">Rs 300</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Process Section -->
+<section class="our-process center">
+    <div class="container">
+        <h2>Our Process</h2>
+        <div class="process-steps">
+            <div class="step">
+                <div class="step-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h3>Select & Order</h3>
+                <p>Browse our menu and select your favorite dishes. Place your order through our website or mobile app.</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <h3>Craft & Prepare</h3>
+                <p>Our expert chefs prepare your food with the freshest ingredients. Quality is our top priority.</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3>Deliver To Your Door</h3>
+                <p>Our delivery team ensures your food arrives hot and fresh at your doorstep in no time.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
 {% endblock %}
