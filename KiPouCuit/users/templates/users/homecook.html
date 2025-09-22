@@ -1,8 +1,140 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Homecooks{% endblock %}
+{% block title %}Create a Homecook Account{% endblock %}
 
 {% block content %}
-<h1>Our Homecooks</h1>
-<p>Here are all the homecooks.</p>
+<link rel="stylesheet" href="{% static 'users/css/homecook.css' %}">
+
+<h1 class="page-title">Create your Home Cook account</h1>
+
+<div class="profile-container">
+    <!-- Profile Form -->
+    <div class="profile-form">
+        <form id="homeCookForm">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="surname">Surname</label>
+                <input type="text" id="surname" name="surname" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone">
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input type="text" id="address" name="address">
+            </div>
+
+            <div class="form-group">
+                <label for="cuisine">Cuisine Specialty</label>
+                <select id="cuisine" name="cuisine" required>
+                    <option value="">Select a cuisine</option>
+                    <option value="italian">Italian</option>
+                    <option value="mexican">Mexican</option>
+                    <option value="indian">Indian</option>
+                    <option value="chinese">Chinese</option>
+                    <option value="french">French</option>
+                    <option value="american">American</option>
+                    <option value="mediterranean">Mediterranean</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">Bio</label>
+                <textarea id="bio" name="bio" placeholder="Tell us about yourself and your cooking style..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Create Account</button>
+        </form>
+    </div>
+
+    <!-- Profile Info Sidebar -->
+    <div class="profile-info">
+        <!-- Profile Picture -->
+        <div class="profile-picture">
+            <h3 class="section-title">Add a profile picture</h3>
+            
+            <div class="profile-img-container">
+                <i class="fas fa-user profile-img-placeholder"></i>
+            </div>
+            
+            <label for="profilePic" class="upload-btn">
+                <i class="fas fa-upload"></i> Upload Photo
+            </label>
+            <input type="file" id="profilePic" class="file-input" accept="image/*">
+        </div>
+        
+        <!-- About Section -->
+        <div class="about-section">
+            <h3 class="section-title">About Us</h3>
+            <div class="about-content">
+                <p>KiPouCuit is an online platform that connects customers with talented home cooks in their local area.</p>
+                <p>We believe that home-cooked meals are not only delicious but also carry the warmth and love that restaurant food often lacks.</p>
+                <p>By becoming a home cook on our platform, you can share your culinary skills with your community, earn income doing what you love, and build meaningful connections with food lovers.</p>
+                <p>Join our growing family of home cooks today and start sharing your passion for food!</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
+{% comment %} {% block extra_js %}
+<script>
+    // Profile picture preview
+    document.getElementById('profilePic').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                const profileImgContainer = document.querySelector('.profile-img-container');
+                profileImgContainer.innerHTML = `<img src="${event.target.result}" alt="Profile Picture" class="profile-img">`;
+            }
+            
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Form submission
+    document.getElementById('homeCookForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (password !== confirmPassword) {
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'alert alert-danger';
+            errorMsg.textContent = 'Passwords do not match!';
+            this.prepend(errorMsg);
+            setTimeout(() => errorMsg.remove(), 3000);
+            return;
+        }
+
+        alert("Account created successfully!");
+        this.reset();
+        document.querySelector('.profile-img-container').innerHTML = '<i class="fas fa-user profile-img-placeholder"></i>';
+    });
+</script>
+{% endblock %} {% endcomment %}

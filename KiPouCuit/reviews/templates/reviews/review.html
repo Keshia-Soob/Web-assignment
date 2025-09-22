@@ -1,8 +1,62 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Reviews{% endblock %}
+{% block title %}Post A Review{% endblock %}
 
 {% block content %}
-<h2>Reviews about us</h2>
-<p>This is the review page.</p>
+<link rel="stylesheet" href="{% static 'users/css/reviews.css' %}">
+<div class="container">
+    <div class="review-container">
+        <h1 class="page-title">Post A Review</h1>
+        
+        <form id="reviewForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First name</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Last name</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="rating">Stars</label>
+                <div class="rating-container">
+                    <select id="rating" name="rating" required>
+                        <option value="">Select a rating</option>
+                        <option value="1">1 Star</option>
+                        <option value="2">2 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="5">5 Stars</option>
+                    </select>
+                    
+                    <div class="rating-stars">
+                        <i class="fas fa-star" data-rating="1"></i>
+                        <i class="fas fa-star" data-rating="2"></i>
+                        <i class="fas fa-star" data-rating="3"></i>
+                        <i class="fas fa-star" data-rating="4"></i>
+                        <i class="fas fa-star" data-rating="5"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" placeholder="Share your experience..." required></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">Post your Review</button>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
