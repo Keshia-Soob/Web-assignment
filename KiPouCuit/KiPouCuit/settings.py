@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'orders',
     'reviews',
     'users',
-    'main_page'
+    'main_page',
+    'homecook'
 ]
 
 MIDDLEWARE = [
