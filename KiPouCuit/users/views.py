@@ -48,8 +48,3 @@ def forgot_password_view(request):
         return render(request, 'users/forgot_password.html')
 
     return render(request, 'users/forgot_password.html')
-
-#------------homecook------------
-def homecook_view(request):
-    # Render the homecook page template
-    return render(request, 'users/homecook.html')
