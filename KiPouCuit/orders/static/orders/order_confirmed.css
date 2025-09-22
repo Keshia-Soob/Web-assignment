@@ -1,0 +1,45 @@
+/* Order Confirmation Page */
+.order-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+}
+
+.order-box {
+    display: flex;
+    gap: 50px;
+    align-items: center;
+}
+
+.order-image {
+    width: 250px;
+}
+
+.order-message {
+    display: flex;
+    align-items: center;
+}
+
+.order-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.order-card h2 {
+    font-size: 22px;
+    margin: 15px 0;
+    color: #333;
+}
+
+.order-icon {
+    font-size: 40px;
+    color: #c6a05e;
+}
+.center{
+    max-width: 1400px;
+    margin: 0 auto;
+}

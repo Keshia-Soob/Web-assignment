@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'orders/order_confirmed.css' %}">
+<div class="order-container center">
+    <div class="order-box">
+        <img src="{% static 'images/order_confirmed.png' %}" alt="Order Confirmed" class="order-image">
+        <div class="order-message">
+            <div class="order-card">
+                <div class="order-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Your Order is Confirmed</h2>
+                <a href="{% url 'menu' %}" class="btn-continue">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
