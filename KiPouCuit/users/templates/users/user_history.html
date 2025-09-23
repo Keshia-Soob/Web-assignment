@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User History{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'users/css/user_history.css' %}">
+
+<div class="history-container">
+    <!-- Banner -->
+    <div class="banner">
+        <img src="{% static 'users/images/banner.png' %}" alt="Banner">
+    </div>
+
+    <!-- Profile Section -->
+    <div class="profile-section">
+        <div class="profile-pic">
+            <img src="{% static 'users/images/profile.png' %}" alt="Profile Picture">
+        </div>
+        <h2 class="profile-name">Claudia Dias</h2>
+    </div>
+
+    <!-- Menu -->
+    <div class="history-menu">
+        <ul>
+            <li><a href="#">Addresses</a></li>
+            <li><a href="#">User History</a></li>
+        </ul>
+    </div>
+
+    <div class="order-history">
+        <div class="order-item">
+            <img src="{% static 'users/images/meal1.png' %}" alt="Meal 1">
+            <div class="order-info">
+                <h4>Pizza Margherita</h4>
+                <p>Classic pizza with tomato, mozzarella, and basil.</p>
+                <p><small>Company Name</small></p>
+                <p><small>12 Sept 2025</small></p>
+            </div>
+            <div class="order-price">
+                <p>Qty: 1</p>
+                <p class="price">$12.00</p>
+            </div>
+            <button class="remove">×</button>
+        </div>
+
+        <div class="order-item">
+            <img src="{% static 'users/images/meal2.png' %}" alt="Meal 2">
+            <div class="order-info">
+                <h4>Pasta Carbonara</h4>
+                <p>Spaghetti with creamy sauce, pancetta, and parmesan.</p>
+                <p><small>Company Name</small></p>
+                <p><small>10 Sept 2025</small></p>
+            </div>
+            <div class="order-price">
+                <p>Qty: 2</p>
+                <p class="price">$24.00</p>
+            </div>
+            <button class="remove">×</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

@@ -1,0 +1,73 @@
+/* === Order Summary Page === */
+.order-summary-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 2rem;
+  flex-wrap: wrap;
+}
+
+.order-items {
+  flex: 2;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1rem;
+}
+
+.order-item img {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  margin-right: 1rem;
+  object-fit: cover;
+}
+
+.item-details {
+  flex: 2;
+}
+
+.item-details h4 {
+  margin: 0 0 0.5rem 0;
+}
+
+.item-price {
+  font-weight: bold;
+  margin-right: 1rem;
+}
+
+.item-qty {
+  color: #555;
+}
+
+.summary-box {
+  flex: 1;
+  background: #f8f8f8;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-left: 2rem;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  min-width: 250px;
+}
+
+.summary-box h3 {
+  margin-top: 0;
+}
+
+.checkout-btn {
+  width: 100%;
+  padding: 0.8rem;
+  background: #111a2c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.checkout-btn:hover {
+  background: #222;
+}
