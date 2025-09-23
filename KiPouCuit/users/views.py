@@ -48,3 +48,12 @@ def forgot_password_view(request):
         return render(request, 'users/forgot_password.html')
 
     return render(request, 'users/forgot_password.html')
+
+
+
+
+def user_history_view(request):
+    return render(request, 'users/user_history.html')
+
+
+
