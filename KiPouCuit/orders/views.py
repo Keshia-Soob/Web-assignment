@@ -6,3 +6,6 @@ def order(request):
 
 def order_confirmed(request):
     return render(request, 'orders/order_confirmed.html')
+
+def order_summary(request):
+    return render(request, 'orders/order_summary.html')
