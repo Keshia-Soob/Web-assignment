@@ -49,8 +49,15 @@ def forgot_password_view(request):
 
     return render(request, 'users/forgot_password.html')
 
-
-
+def create_account(request):
+    days = range(1, 32)   # 1–31
+    months = range(1, 13) # 1–12
+    years = range(1900, 2026)  # adjust as needed
+    return render(request, "users/create_account.html", {
+        "days": days,
+        "months": months,
+        "years": years,
+    })
 
 def user_history_view(request):
     return render(request, 'users/user_history.html')

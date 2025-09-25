@@ -1,0 +1,135 @@
+body {
+  font-family: 'Nunito', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.account-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.account-title {
+  font-family: 'Kaushan Script', cursive;
+  color: #CEA35A;
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+}
+
+.profile-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.profile-image-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-image {
+  width: 100%;
+  max-width: 250px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.edit-button {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: #CEA35A;
+  border: none;
+  color: white;
+  font-size: 1.2rem;   /* slightly bigger */
+  padding: 10px 14px;
+  border-radius: 50%;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #b5894b;
+  transform: scale(1.1); /* slight zoom */
+}
+
+.profile-add-text {
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+.about-section {
+  margin-top: 2rem;
+}
+
+.account-form-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  background: #F6F6F6;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+}
+
+.small-select {
+  width: 32%;
+}
+
+.dob-selects {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-button {
+  background: #CEA35A;
+  border: none;
+  color: white;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.save-button:hover {
+  background: #b48841;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  text-align: right;
+}
