@@ -55,5 +55,6 @@ def forgot_password_view(request):
 def user_history_view(request):
     return render(request, 'users/user_history.html')
 
-
+def user_profile_view(request):
+    return render(request, 'users/user_profile.html')
 
