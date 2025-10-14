@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,37 +9,92 @@
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <header>
         <div class="header-content">
             <div class="logo">
-                <a href="{% url 'home' %}"><img src="{% static 'main_page/assets/KiPouCuit_logo.png' %}" alt="KiPouCuit Logo"></a>
+                <a href="{% url 'home' %}"><img src="{% static 'main_page/assets/KiPouCuit_logo.png' %}"
+                        alt="KiPouCuit Logo"></a>
             </div>
-            
+
             <nav class="navbar">
                 <li><a href="{% url 'menu' %}">KiPouCuit</a></li>
-                <li><a href="{% url 'order' %}">Order</a></li>
+                <li><a href="{% url 'order_summary' %}">Order</a></li>
                 <li><a href="{% url 'login' %}">Login</a></li>
                 <li><a href="{% url 'signup' %}">Sign Up</a></li>
                 <li><a href="{% url 'homecook' %}">Become a Home Cook</a></li>
             </nav>
 
-            <div class="header-right">
+            <!-- <div class="header-right">
                 <div class="header-cart">
                     <div><a href=""><i class="fas fa-shopping-cart"></i></a></div>
                 </div>
                 <div class="header-profile">
                     <a href=""><i class="fas fa-user"></i></a>
                 </div>
+            </div>    -->
+            <div class="header-right">
+                <div class="header-cart">
+                    <div class="cart-container">
+                        <div>
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count">3</span>
+                        </div>
+                        <div class="cart-dropdown" id="cartDropdown">
+                            <div class="cart-header">Cart</div>
+                            <div class="cart-items">
+                                <div class="cart-item">
+                                    <div class="item-details">
+                                        <div class="item-name">Mutton Curry</div>
+                                        <div class="item-quantity">1份</div>
+                                        <div class="item-price">Rs 400</div>
+                                    </div>
+                                </div>
+                                <div class="cart-item">
+                                    <div class="item-details">
+                                        <div class="item-name">Buffalo Wings</div>
+                                        <div class="item-quantity">1份</div>
+                                        <div class="item-price">Rs 325</div>
+                                    </div>
+                                </div>
+                                <div class="cart-item">
+                                    <div class="item-details">
+                                        <div class="item-name">Tacos</div>
+                                        <div class="item-quantity">1份</div>
+                                        <div class="item-price">Rs 275</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cart-footer">
+                                <div class="cart-subtotal">
+                                    <span>小计:</span>
+                                    <span>Rs 1000</span>
+                                </div>
+                                <div class="cart-buttons">
+                                    <a href="{% url 'order_summary' %}" class="cart-button btn-checkout">Checkout</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="header-profile">
+                        <a href=""><i class="fas fa-user"></i></a>
+                    </div>
+                </div>
+
+
+
             </div>
-        </div>
-       
+
+
+
     </header>
 
     <main class="content">
         {% block content %}{% endblock %}
     </main>
-    
+
     <footer class="footer-container">
 
         <div class="center-container">
@@ -53,7 +109,7 @@
                 <ul>
                     <li><a href="{% url 'home' %}">Home</a></li>
                     <li><a href="{% url 'menu' %}">Menu</a></li>
-                    <li><a href="{% url 'order' %}">Order</a></li>
+                    <li><a href="{% url 'order_summary' %}">Order</a></li>
                     <li><a href="{% url 'about' %}">About Us</a></li>
                 </ul>
             </div>
@@ -61,9 +117,9 @@
             <div class="footer-column">
                 <h3><a href="{% url 'contact' %}">Contact Us</a></h3>
                 <ul>
-                        <li><i class="fas fa-phone"></i> (123) 456-7890</li>
-                        <li><i class="fas fa-envelope"></i> info@kipoucuit.com</li>
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Route Royale Reduit, Mauritius</li>
+                    <li><i class="fas fa-phone"></i> (123) 456-7890</li>
+                    <li><i class="fas fa-envelope"></i> info@kipoucuit.com</li>
+                    <li><i class="fas fa-map-marker-alt"></i> 123 Route Royale Reduit, Mauritius</li>
                 </ul>
             </div>
 
@@ -84,23 +140,59 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-        // Function to check scroll position and toggle 'scrolled' class
-        function checkScroll() {
-            var header = document.querySelector('header');
-            if (window.scrollY > 0) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to check scroll position and toggle 'scrolled' class
+            function checkScroll() {
+                var header = document.querySelector('header');
+                if (window.scrollY > 0) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
             }
-        }
 
-        checkScroll();
+            checkScroll();
 
-        window.addEventListener('scroll', checkScroll);
+            window.addEventListener('scroll', checkScroll);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to check scroll position and toggle 'scrolled' class
+            function checkScroll() {
+                var header = document.querySelector('header');
+                if (window.scrollY > 0) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            }
+
+            checkScroll();
+            window.addEventListener('scroll', checkScroll);
+            
+            // Cart dropdown functionality
+            const cartContainer = document.querySelector('.cart-container');
+            const cartDropdown = document.getElementById('cartDropdown');
+            
+            // Toggle cart dropdown when clicking on the cart icon
+            cartContainer.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                cartDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!cartContainer.contains(e.target)) {
+                    cartDropdown.classList.remove('active');
+                }
+            });
         });
     </script>
 
     
+
+
 </body>
+
 </html>

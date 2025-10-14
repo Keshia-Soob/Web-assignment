@@ -40,7 +40,9 @@
         <p>Tax: € 5</p>
         <hr>
         <h2>Total: € 52.25</h2>
-        <button class="checkout-btn">Pay and Checkout</button>
+        <button class="checkout-btn">
+            <a href="{% url 'order_confirmed' %}"></a>
+            Pay and Checkout</button>
     </aside>
 
 </div>
