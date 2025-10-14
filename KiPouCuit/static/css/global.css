@@ -196,7 +196,7 @@ header{
     top: 100%;
     right: 0;
     width: 350px;
-    background-color: #131315;
+    background-color: #F2F2F2;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     z-index: 1000;
@@ -215,9 +215,9 @@ header{
     border-bottom: 1px solid #333;
     font-weight: bold;
     font-size: 18px;
-    background-color: #1a1a1a;
+    background-color: #F2F2F2;
     border-radius: 8px 8px 0 0;
-    color: #ffffff;
+    color: #2D2F2F;
 }
 
 .cart-items {
@@ -228,7 +228,7 @@ header{
 .cart-item {
     display: flex;
     padding: 15px;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid #F2F2F2;
 }
 
 .cart-item:last-child {
@@ -242,11 +242,11 @@ header{
 .item-name {
     font-weight: 600;
     margin-bottom: 5px;
-    color: #ffffff;
+    color: #2D2F2F
 }
 
 .item-quantity {
-    color: #cccccc;
+    color: #2D2F2F;
     font-size: 14px;
 }
 
@@ -259,7 +259,7 @@ header{
 .cart-footer {
     padding: 15px;
     border-top: 1px solid #333;
-    background-color: #1a1a1a;
+    background-color: #F2F2F2;
 }
 
 .cart-subtotal {
@@ -267,7 +267,7 @@ header{
     justify-content: space-between;
     margin-bottom: 15px;
     font-weight: 600;
-    color: #ffffff;
+    color: #2D2F2F;
 }
 
 .cart-buttons {
@@ -285,31 +285,15 @@ header{
     transition: background-color 0.3s;
     text-align: center;
     text-decoration: none;
-    color: white;
-}
-
-.btn-cart {
-    background-color: #F76F1E;
-}
-
-.btn-cart:hover {
-    background-color: #e05f1a;
+    color: rgb(0, 0, 0);
 }
 
 .btn-checkout {
-    background-color: #28a745;
+    background-color: #F76F1E;
 }
 
 .btn-checkout:hover {
-    background-color: #218838;
-}
-
-.btn-comparison {
-    background-color: #17a2b8;
-}
-
-.btn-comparison:hover {
-    background-color: #138496;
+    background-color: #fc975d;
 }
 
 .cart-count {
@@ -317,7 +301,7 @@ header{
     top: -8px;
     right: -8px;
     background-color: #F76F1E;
-    color: white;
+    color: rgb(0, 0, 0);
     border-radius: 50%;
     width: 20px;
     height: 20px;
