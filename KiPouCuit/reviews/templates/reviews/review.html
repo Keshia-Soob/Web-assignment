@@ -59,4 +59,48 @@
     </div>
 </div>
 
+<script>
+        // Star rating functionality
+        const stars = document.querySelectorAll('.rating-stars i');
+        const ratingSelect = document.getElementById('rating');
+        
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = star.getAttribute('data-rating');
+                ratingSelect.value = rating;
+                updateStars(rating);
+            });
+            
+            star.addEventListener('mouseover', () => {
+                const rating = star.getAttribute('data-rating');
+                highlightStars(rating);
+            });
+        });
+        
+        document.querySelector('.rating-stars').addEventListener('mouseleave', () => {
+            const currentRating = ratingSelect.value;
+            updateStars(currentRating);
+        });
+        
+        function updateStars(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+        
+        function highlightStars(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+</script>
+
 {% endblock %}
