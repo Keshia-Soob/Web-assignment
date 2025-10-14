@@ -1,682 +1,80 @@
 {% extends 'base.html' %}
-
-{% load static %} 
+{% load static %}
 
 {% block title %}Menu{% endblock %}
 
-
-
 {% block content %}
+<link rel="stylesheet" href="{% static 'meals/MenuStyle.css' %}">
 
-<link rel="stylesheet" href="{% static 'meals/MenuStyle.css' %}"> 
-
-<!-- Main Content -->
 <div class="menu-container">
-    <div class="menu-title">
-        <h1>Our Delicious Menu</h1>
-        <p>Explore our wide variety of mouth-watering dishes</p>
-    </div>
-    
-    <!-- Menu Controls -->
-    <div class="menu-controls">
-        <div class="cuisine-selector">
-            <select id="cuisineFilter">
-                <option value="all">All Cuisines</option>
-                <option value="indian">Indian</option>
-                <option value="mauritian">Mauritian</option>
-                <option value="english">English</option>
-                <option value="french">French</option>
-                <option value="asian">Asian</option>
-                <option value="thai">Thai</option>
-            </select>
-        </div>
-    </div>
-    
-    <!-- Starters Section -->
-    <div class="category-section">
-        <div class="category-title">
-            <h2>Starters</h2>
-        </div>
-        
-        <div class="food-grid">
-            <!-- Food Item 1 -->
-            <div class="food-item" data-cuisine="indian" data-id="9" data-name="Tandoori Chicken" data-price="550">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1623689048105-0d8a1a8f12b1?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Tandoori Chicken</h3>
-                    <p class="food-description">Marinated chicken roasted in a tandoor oven with yogurt and spices.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 550</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 2 -->
-            <div class="food-item" data-cuisine="indian" data-id="10" data-name="Onion Bhaji" data-price="350">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1589227365533-cee630bd59bd?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Onion Bhaji</h3>
-                    <p class="food-description">Crispy fried onion fritters seasoned with spices and herbs.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 350</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 3 -->
-            <div class="food-item" data-cuisine="indian" data-id="11" data-name="Chicken Pakora" data-price="450">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1613478223717-7b6e5f22b0a4?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Chicken Pakora</h3>
-                    <p class="food-description">Spiced chicken pieces coated in gram flour batter and deep-fried.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 450</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 4 -->
-            <div class="food-item" data-cuisine="indian" data-id="12" data-name="Paneer Tikka" data-price="500">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1628835345594-1f6336069b0c?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Paneer Tikka</h3>
-                    <p class="food-description">Marinated cottage cheese cubes grilled in a tandoor oven.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 500</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 5 - English -->
-            <div class="food-item" data-cuisine="english" data-id="13" data-name="Scotch Eggs" data-price="400">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Scotch Eggs</h3>
-                    <p class="food-description">Hard-boiled eggs wrapped in sausage meat, coated in breadcrumbs.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 400</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 6 - French -->
-            <div class="food-item" data-cuisine="french" data-id="14" data-name="French Onion Soup" data-price="450">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">French Onion Soup</h3>
-                    <p class="food-description">Rich beef broth with caramelized onions, topped with Gruyère cheese.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 450</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 7 - Asian -->
-            <div class="food-item" data-cuisine="asian" data-id="15" data-name="Spring Rolls" data-price="350">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Spring Rolls</h3>
-                    <p class="food-description">Crispy rolls filled with vegetables and served with sweet chili sauce.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 350</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 8 - Thai -->
-            <div class="food-item" data-cuisine="thai" data-id="16" data-name="Tom Yum Soup" data-price="450">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Tom Yum Soup</h3>
-                    <p class="food-description">Hot and sour soup with shrimp, mushrooms, and lemongrass.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 450</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Main Courses Section -->
-    <div class="category-section">
-        <div class="category-title">
-            <h2>Main Courses</h2>
-        </div>
-        
-        <div class="food-grid">
-            <!-- Food Item 9 -->
-            <div class="food-item" data-cuisine="indian" data-id="1" data-name="Butter Chicken" data-price="650">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1603133872878-684f208fb84b?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Butter Chicken</h3>
-                    <p class="food-description">Tender chicken in a creamy tomato-based sauce with aromatic spices.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 650</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 10 -->
-            <div class="food-item" data-cuisine="indian" data-id="2" data-name="Chicken Biryani" data-price="700">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1589302168068-9640a9a8e07c?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Chicken Biryani</h3>
-                    <p class="food-description">Fragrant basmati rice cooked with marinated chicken and spices.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 700</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 11 -->
-            <div class="food-item" data-cuisine="indian" data-id="3" data-name="Palak Paneer" data-price="600">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Palak Paneer</h3>
-                    <p class="food-description">Fresh spinach and cottage cheese in a creamy, spiced sauce.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 600</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 12 -->
-            <div class="food-item" data-cuisine="indian" data-id="4" data-name="Lamb Curry" data-price="800">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1598622228894-6e93f8134e8a?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Lamb Curry</h3>
-                    <p class="food-description">Tender lamb pieces slow-cooked in a rich, aromatic curry sauce.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 800</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 13 - English -->
-            <div class="food-item" data-cuisine="english" data-id="5" data-name="Fish and Chips" data-price="550">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Fish and Chips</h3>
-                    <p class="food-description">Crispy battered fish served with golden chips and mushy peas.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 550</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 14 - English -->
-            <div class="food-item" data-cuisine="english" data-id="6" data-name="Shepherd's Pie" data-price="650">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Shepherd's Pie</h3>
-                    <p class="food-description">Minced lamb and vegetables topped with creamy mashed potatoes.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 650</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 15 - French -->
-            <div class="food-item" data-cuisine="french" data-id="7" data-name="Coq au Vin" data-price="850">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Coq au Vin</h3>
-                    <p class="food-description">Chicken braised with wine, mushrooms, and aromatic vegetables.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 850</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 16 - French -->
-            <div class="food-item" data-cuisine="french" data-id="8" data-name="Beef Bourguignon" data-price="900">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Beef Bourguignon</h3>
-                    <p class="food-description">Slow-cooked beef stewed in red wine with carrots and onions.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 900</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Seafood Section -->
-    <div class="category-section">
-        <div class="category-title">
-            <h2>Seafood Specialties</h2>
-        </div>
-        
-        <div class="food-grid">
-            <!-- Food Item 17 -->
-            <div class="food-item" data-cuisine="mauritian" data-id="17" data-name="Fish Curry" data-price="750">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1580984969071-a8da5656c2fb?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Fish Curry</h3>
-                    <p class="food-description">Fresh fish cooked in a tangy coconut-based curry with Mauritian spices.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 750</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 18 -->
-            <div class="food-item" data-cuisine="mauritian" data-id="18" data-name="Prawn Masala" data-price="850">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1623689048105-0d8a1a8f12b1?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Prawn Masala</h3>
-                    <p class="food-description">Juicy prawns cooked in a rich, spiced tomato and onion sauce.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 850</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 19 -->
-            <div class="food-item" data-cuisine="mauritian" data-id="19" data-name="Octopus Curry" data-price="900">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1589227365533-cee630bd59bd?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Octopus Curry</h3>
-                    <p class="food-description">Tender octopus in a flavorful Mauritian curry with tomatoes and spices.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 900</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 20 -->
-            <div class="food-item" data-cuisine="mauritian" data-id="20" data-name="Grilled Fish" data-price="700">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1613478223717-7b6e5f22b0a4?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Grilled Fish</h3>
-                    <p class="food-description">Fresh catch of the day grilled to perfection with lemon and herbs.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 700</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 21 - French -->
-            <div class="food-item" data-cuisine="french" data-id="21" data-name="Moules Frites" data-price="800">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Moules Frites</h3>
-                    <p class="food-description">Mussels steamed in white wine and herbs, served with fries.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 800</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 22 - Thai -->
-            <div class="food-item" data-cuisine="thai" data-id="22" data-name="Green Curry" data-price="750">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1623689048105-0d8a1a8f12b1?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Green Curry</h3>
-                    <p class="food-description">Spicy coconut curry with fish, eggplant, and Thai basil.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 750</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Desserts Section -->
-    <div class="category-section">
-        <div class="category-title">
-            <h2>Desserts</h2>
-        </div>
-        
-        <div class="food-grid">
-            <!-- Food Item 23 -->
-            <div class="food-item" data-cuisine="indian" data-id="23" data-name="Kheer" data-price="250">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1628835345594-1f6336069b0c?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Kheer</h3>
-                    <p class="food-description">Traditional rice pudding cooked with milk, sugar, and flavored with cardamom.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 250</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 24 -->
-            <div class="food-item" data-cuisine="indian" data-id="24" data-name="Rasmalai" data-price="300">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1589227365533-cee630bd59bd?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Rasmalai</h3>
-                    <p class="food-description">Soft cottage cheese balls soaked in sweet, flavored milk.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 300</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 25 -->
-            <div class="food-item" data-cuisine="indian" data-id="25" data-name="Kulfi" data-price="280">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1623689048105-0d8a1a8f12b1?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Kulfi</h3>
-                    <p class="food-description">Traditional Indian ice cream with pistachios and cardamom flavor.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 280</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 26 -->
-            <div class="food-item" data-cuisine="indian" data-id="26" data-name="Halwa" data-price="220">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1613478223717-7b6e5f22b0a4?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Halwa</h3>
-                    <p class="food-description">Sweet semolina pudding with nuts and aromatic spices.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 220</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 27 - English -->
-            <div class="food-item" data-cuisine="english" data-id="27" data-name="Sticky Toffee Pudding" data-price="350">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Sticky Toffee Pudding</h3>
-                    <p class="food-description">Moist sponge cake covered in toffee sauce, served with vanilla ice cream.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 350</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 28 - French -->
-            <div class="food-item" data-cuisine="french" data-id="28" data-name="Crème Brûlée" data-price="400">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Crème Brûlée</h3>
-                    <p class="food-description">Rich vanilla custard topped with a layer of hardened caramelized sugar.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 400</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 29 - Asian -->
-            <div class="food-item" data-cuisine="asian" data-id="29" data-name="Mochi Ice Cream" data-price="300">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Mochi Ice Cream</h3>
-                    <p class="food-description">Japanese rice cake filled with sweet ice cream in various flavors.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 300</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Food Item 30 - Thai -->
-            <div class="food-item" data-cuisine="thai" data-id="30" data-name="Mango Sticky Rice" data-price="320">
-                <div class="food-image" style="background-image: url('https://images.unsplash.com/photo-1623689048105-0d8a1a8f12b1?ixlib=rb-4.0.3');"></div>
-                <div class="food-details">
-                    <h3 class="food-name">Mango Sticky Rice</h3>
-                    <p class="food-description">Sweet coconut sticky rice served with fresh mango slices.</p>
-                    <div class="food-footer">
-                        <span class="food-price">Rs 320</span>
-                        <button class="add-btn">Add</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-    
-    {% comment %} <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <div class="footer-logo">
-                    <img src="https://z-cdn-media.chatglm.cn/files/94983d49-6c55-48f4-be31-b074e266c6d9_pasted_image_1758311233175.png?auth_key=1789847270-737b568224d0401da25318df032362dd-0-fd888af56c0f48c26b26894dfac39d7d" alt="KiPouCuit Logo">
-                    <h3 style="display: inline-block; margin-left: 10px;">KiPouCuit</h3>
-                </div>
-                <p>Bringing authentic flavors to your table since 2023.</p>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
-                </div>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="menu.html">Menu</a></li>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Legal</h3>
-                <ul>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Refund Policy</a></li>
-                    <li><a href="#">Next...</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Contact Us</h3>
-                <ul>
-                    <li><i class="fas fa-map-marker-alt"></i> 123 Food Street, Port Louis</li>
-                    <li><i class="fas fa-phone"></i> (230) 123-4567</li>
-                    <li><i class="fas fa-envelope"></i> info@kipoucuit.mu</li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="copyright">
-            <p>&copy; Copyright 2023 - KiPouCuit. All Rights Reserved.</p>
-        </div>
-    </footer> {% endcomment %}
+  <div class="menu-title">
+    <h1>Our Delicious Menu</h1>
+    <p>Explore our wide variety of mouth-watering dishes</p>
+  </div>
 
-    {% comment %} <script>
-        // Cart functionality
-        let cart = [];
-        
-        // DOM Elements
-        const cartBtn = document.getElementById('cartBtn');
-        const sideCart = document.getElementById('sideCart');
-        const closeCart = document.getElementById('closeCart');
-        const overlay = document.getElementById('overlay');
-        const cartItems = document.getElementById('cartItems');
-        const cartCount = document.getElementById('cartCount');
-        const cartTotal = document.getElementById('cartTotal');
-        
-        // Open cart
-        cartBtn.addEventListener('click', () => {
-            sideCart.classList.add('open');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-        
-        // Close cart
-        closeCart.addEventListener('click', closeCartFunction);
-        overlay.addEventListener('click', closeCartFunction);
-        
-        function closeCartFunction() {
-            sideCart.classList.remove('open');
-            overlay.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-        
-        // Add to cart
-        document.querySelectorAll('.add-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const foodItem = this.closest('.food-item');
-                const itemId = foodItem.getAttribute('data-id');
-                const itemName = foodItem.getAttribute('data-name');
-                const itemPrice = parseInt(foodItem.getAttribute('data-price'));
-                const itemImage = foodItem.querySelector('.food-image').style.backgroundImage;
-                
-                // Check if item already in cart
-                const existingItem = cart.find(item => item.id === itemId);
-                
-                if (existingItem) {
-                    existingItem.quantity += 1;
-                } else {
-                    cart.push({
-                        id: itemId,
-                        name: itemName,
-                        price: itemPrice,
-                        image: itemImage,
-                        quantity: 1
-                    });
-                }
-                
-                updateCart();
-                showNotification(`${itemName} added to cart!`);
-            });
-        });
-        
-        // Update cart display
-        function updateCart() {
-            // Update cart count
-            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-            cartCount.textContent = totalItems;
-            
-            // Update cart items
-            if (cart.length === 0) {
-                cartItems.innerHTML = `
-                    <div class="cart-empty">
-                        <i class="fas fa-shopping-cart"></i>
-                        <p>Your cart is empty</p>
-                    </div>
-                `;
-            } else {
-                cartItems.innerHTML = cart.map(item => `
-                    <div class="cart-item">
-                        <div class="cart-item-image" style="background-image: ${item.image}"></div>
-                        <div class="cart-item-details">
-                            <div class="cart-item-name">${item.name}</div>
-                            <div class="cart-item-price">Rs ${item.price} x ${item.quantity}</div>
-                        </div>
-                        <button class="cart-item-remove" data-id="${item.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `).join('');
-                
-                // Add remove event listeners
-                document.querySelectorAll('.cart-item-remove').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const itemId = this.getAttribute('data-id');
-                        removeFromCart(itemId);
-                    });
-                });
-            }
-            
-            // Update cart total
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            cartTotal.textContent = `Rs ${total}`;
-        }
-        
-        // Remove from cart
-        function removeFromCart(itemId) {
-            cart = cart.filter(item => item.id !== itemId);
-            updateCart();
-        }
-        
-        // Show notification
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.textContent = message;
-            notification.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: #e67e22;
-                color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 1000;
-                animation: slideIn 0.3s ease;
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-        
-        // Cuisine filter
-        const cuisineFilter = document.getElementById('cuisineFilter');
-        cuisineFilter.addEventListener('change', function() {
-            const selectedCuisine = this.value;
-            
-            // Get all food items
-            const foodItems = document.querySelectorAll('.food-item');
-            
-            // Loop through all food items
-            foodItems.forEach(item => {
-                // Get the cuisine of the current item
-                const itemCuisine = item.getAttribute('data-cuisine');
-                
-                // If the selected cuisine is "all" or matches the item's cuisine, show it
-                if (selectedCuisine === 'all' || itemCuisine === selectedCuisine) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-            
-            // Check if any category sections are now empty and hide them
-            const categorySections = document.querySelectorAll('.category-section');
-            categorySections.forEach(section => {
-                const visibleItems = section.querySelectorAll('.food-item:not([style*="display: none"])');
-                if (visibleItems.length === 0) {
-                    section.style.display = 'none';
-                } else {
-                    section.style.display = 'block';
-                }
-            });
-        });
-    </script> {% endcomment %}
-</body>
-</html>
+  <!-- Menu Controls -->
+  <div class="menu-controls">
+    <div class="cuisine-selector">
+      <select id="cuisineFilter">
+        <option value="all">All Cuisines</option>
+        <option value="indian">Indian</option>
+        <option value="mauritian">Mauritian</option>
+        <option value="english">English</option>
+        <option value="french">French</option>
+        <option value="asian">Asian</option>
+        <option value="thai">Thai</option>
+      </select>
+    </div>
+  </div>
+
+  {% for category in categories %}
+  <div class="category-section">
+    <div class="category-title">
+      <h2>{{ category.name }}</h2>
+    </div>
+
+    <div class="food-grid">
+      {% for item in category.items.all %}
+      <div class="food-item"
+           data-cuisine="{{ item.cuisine|lower }}"
+           data-id="{{ item.id }}"
+           data-name="{{ item.name }}"
+           data-price="{{ item.price|floatformat:0 }}">
+        <div class="food-image"
+             style="background-image: url('{{ item.display_image_url }}');">
+        </div>
+        <div class="food-details">
+          <h3 class="food-name">{{ item.name }}</h3>
+          <p class="food-description">{{ item.description }}</p>
+          <div class="food-footer">
+            <span class="food-price">Rs {{ item.price|floatformat:0 }}</span>
+            <button class="add-btn">Add</button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+        <p>No items in this category yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Tiny client-side cuisine filter to match your data-* attributes -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const filter = document.getElementById("cuisineFilter");
+  const items  = document.querySelectorAll(".food-item");
+
+  function applyFilter() {
+    const val = filter.value;
+    items.forEach(it => {
+      const ok = (val === "all") || (it.dataset.cuisine === val);
+      it.style.display = ok ? "" : "none";
+    });
+  }
+  filter.addEventListener("change", applyFilter);
+  applyFilter();
+});
+</script>
 {% endblock %}
