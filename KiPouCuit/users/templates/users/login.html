@@ -11,6 +11,13 @@
         <div class="form-container">
             <h2>Welcome Back!</h2>
             <p>Today is a new day. It's your day. You shape it.<br>Sign in to order.</p>
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li style="color: red;">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
 
             <form action="{% url 'login' %}" method="POST">
                 {% csrf_token %}
