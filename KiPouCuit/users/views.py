@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from .models import UserProfile
 from django.contrib.auth import login
+from django.contrib.auth import logout
 
 def signup_view(request):
     if request.method == "POST":
@@ -60,6 +61,11 @@ def login_view(request):
             return render(request, 'users/login.html')
 
     return render(request, 'users/login.html')
+
+#------------log out------------
+def logout_view(request):
+    logout(request)
+    return redirect('login')  # Redirect to login page
 
 #------------forgot password------------
 def forgot_password_view(request):
