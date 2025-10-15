@@ -1,0 +1,54 @@
+{# templates/cart.html #}
+{% load static %}
+
+<div class="header-cart">
+    <div class="cart-container" style="position: relative;">
+        <!-- Cart clickable area -->
+        <div class="cart-icon" id="cartIcon">
+            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+            <span class="cart-count">{{ cart_count|default:"0" }}</span>
+        </div>
+
+        <!-- Dropdown -->
+        <div class="cart-dropdown" id="cartDropdown" aria-hidden="true" role="region" aria-label="Shopping cart dropdown">
+            <div class="cart-header">Cart</div>
+
+            <div class="cart-items" id="cartItemsContainer">
+                {% if cart %}
+                    {% for key, item in cart.items %}
+                        <div class="cart-item">
+                            <div class="item-details">
+                                <div class="item-name">{{ item.name }}</div>
+                                <div class="item-quantity">Qty: {{ item.quantity }}</div>
+                                <div class="item-price">Rs {{ item.price }} x {{ item.quantity }}</div>
+                            </div>
+                            <!-- <form method="POST" action="{% url 'remove_from_cart' item_id=key %}">
+                                {% csrf_token %}
+                                <button type="submit">Remove</button>
+                            </form> -->
+                            <button class="remove-item-btn" data-item-id="{{ key }}">Remove</button>
+
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="cart-item">
+                        <div class="item-details">
+                            <div class="item-name">Your cart is empty</div>
+                            <div class="item-quantity">Add items to see them here</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="cart-footer">
+                <div class="cart-subtotal">
+                    <span>Subtotal:</span>
+                    <span id="cartSubtotal">Rs {{ subtotal|default:"0" }}</span>
+                </div>
+                <div class="cart-buttons">
+                    <a href="{% url 'order_summary' %}" class="cart-button btn-checkout">Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

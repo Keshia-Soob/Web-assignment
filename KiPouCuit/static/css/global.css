@@ -187,7 +187,7 @@ header{
 }
 
 
-.cart-container {
+/* .cart-container {
     position: relative;
 }
 
@@ -312,7 +312,6 @@ header{
     font-weight: bold;
 }
 
-/* Scrollbar styling */
 .cart-items::-webkit-scrollbar {
     width: 6px;
 }
@@ -329,3 +328,31 @@ header{
 .cart-items::-webkit-scrollbar-thumb:hover {
     background: #888;
 }
+
+.remove-item-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.remove-item-btn:hover {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item .item-details {
+    flex-grow: 1;
+} */

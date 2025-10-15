@@ -56,7 +56,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 # Optional but handy for debugging template vars:
-                # 'django.template.context_processors.debug',
+                'django.template.context_processors.debug',
+                'meals.context_processors.cart_context'
             ],
         },
     },

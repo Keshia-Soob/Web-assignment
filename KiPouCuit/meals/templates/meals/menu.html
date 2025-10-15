@@ -48,7 +48,10 @@
           <p class="food-description">{{ item.description }}</p>
           <div class="food-footer">
             <span class="food-price">Rs {{ item.price|floatformat:0 }}</span>
-            <button class="add-btn">Add</button>
+            <form action="{% url 'add_to_cart' item.id %}" method="POST" class="add-to-cart-form">
+                {% csrf_token %}
+                <button type="submit" class="add-btn">Add</button>
+            </form>
           </div>
         </div>
       </div>
@@ -76,5 +79,57 @@ document.addEventListener("DOMContentLoaded", function() {
   filter.addEventListener("change", applyFilter);
   applyFilter();
 });
+
+
+
+function addToCart(itemId) {
+    fetch(`/menu/add_to_cart/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update cart count
+        document.querySelector('.cart-count').textContent = data.cart_count;
+        
+        // Show success feedback
+        showAddToCartFeedback();
+        
+        // Optional: Update cart dropdown content
+        updateCartDropdown();
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showAddToCartFeedback() {
+    // You can add a temporary visual feedback here
+    // For example, a small toast notification
+    console.log('Item added to cart!');
+}
+
+function updateCartDropdown() {
+    // Optional: Fetch and update cart dropdown content
+    // This would require an additional endpoint to get cart HTML
+}
+
+
 </script>
 {% endblock %}

@@ -1,5 +1,7 @@
 from decimal import Decimal, InvalidOperation
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.http import JsonResponse
 from .models import Category, MenuItem
 
 # Map your dropdown values to Category names
@@ -104,3 +106,114 @@ def addmenu(request):
             "form_data": {},
         },
     )
+
+def add_to_cart(request, item_id):
+    if request.method == 'POST':
+        item = get_object_or_404(MenuItem, id=item_id)
+        cart = request.session.get('cart', {})
+
+        item_id_str = str(item_id)
+        
+        if item_id_str in cart:
+            cart[item_id_str]['quantity'] += 1
+        else:
+            cart[item_id_str] = {
+                'name': item.name,
+                'price': float(item.price),  # Ensure it's serializable
+                'quantity': 1
+            }
+
+        request.session['cart'] = cart
+        request.session.modified = True
+
+        # Calculate updated cart info
+        cart_count = sum(item['quantity'] for item in cart.values())
+        cart_subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'cart_count': cart_count,
+                'cart_subtotal': cart_subtotal,
+                'success': True
+            })
+
+        return redirect(reverse('menu'))
+    else:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'Invalid request method'}, status=400)
+        return redirect(reverse('menu'))
+
+def view_cart(request):
+    cart = request.session.get('cart', {})
+    subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
+    return render(request, 'cart.html', {'cart': cart, 'subtotal': subtotal})
+
+def clear_cart(request):
+    if request.method == 'POST':
+        request.session['cart'] = {}
+        request.session.modified = True
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'cart_count': 0})
+            
+        return redirect(reverse('menu'))
+    return redirect(reverse('menu'))
+
+def get_cart_data(request):
+    cart = request.session.get('cart', {})
+    cart_count = sum(item['quantity'] for item in cart.values())
+    cart_subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
+    
+    return JsonResponse({
+        'cart_count': cart_count,
+        'cart_subtotal': cart_subtotal,
+        'cart_items': cart
+    })
+
+# In meals/views.py
+
+# def remove_from_cart(request, item_id):
+#     cart = request.session.get('cart', {})
+#     item_id_str = str(item_id)
+
+#     if request.method == 'POST' and item_id_str in cart:
+#         del cart[item_id_str]
+#         request.session['cart'] = cart
+#         request.session.modified = True
+
+#         cart_count = sum(item['quantity'] for item in cart.values())
+#         cart_subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
+
+#         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#             return JsonResponse({
+#                 'success': True,
+#                 'cart_count': cart_count,
+#                 'cart_subtotal': cart_subtotal
+#             })
+#         return redirect('view_cart')
+
+#     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+#         return JsonResponse({'success': False, 'error': 'Invalid request'})
+#     return redirect('view_cart')
+
+def remove_from_cart(request, item_id):
+    if request.method == 'POST':
+        cart = request.session.get('cart', {})
+        item_id_str = str(item_id)
+
+        if item_id_str in cart:
+            del cart[item_id_str]
+            request.session['cart'] = cart
+            request.session.modified = True
+
+            cart_count = sum(item['quantity'] for item in cart.values())
+            cart_subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
+
+            # JSON response for AJAX
+            return JsonResponse({
+                'success': True,
+                'cart_count': cart_count,
+                'cart_subtotal': cart_subtotal
+            })
+
+    return JsonResponse({'success': False, 'error': 'Item not found in cart'})
