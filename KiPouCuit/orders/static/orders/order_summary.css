@@ -71,3 +71,16 @@
 .checkout-btn:hover {
   background: #222;
 }
+
+.item-actions { margin-left: 12px; display: flex; align-items: center; }
+.remove-btn {
+  background: #dc2626;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+.remove-btn:hover { opacity: 0.9; }
+
+.order-item { display: flex; align-items: center; gap: 12px; }
