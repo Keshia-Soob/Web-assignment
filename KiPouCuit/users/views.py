@@ -15,15 +15,30 @@ def signup_view(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
+        # 1️⃣ Check if passwords match
         if password != confirm_password:
             messages.error(request, "Passwords do not match.")
-            return render(request, 'users/signup.html')
+            # 2️⃣ Return the same form with filled-in values
+            return render(request, 'users/signup.html', {
+                'first_name': first_name,
+                'last_name': last_name,
+                'email': email,
+                'phone': phone,
+                'address': address
+            })
 
+        # 3️⃣ Check if user already exists
         if User.objects.filter(username=email).exists():
             messages.error(request, "Email is already registered.")
-            return render(request, 'users/signup.html')
+            return render(request, 'users/signup.html', {
+                'first_name': first_name,
+                'last_name': last_name,
+                'email': email,
+                'phone': phone,
+                'address': address
+            })
 
-        # Create user
+        # 4️⃣ Create user
         user = User.objects.create_user(
             username=email,
             email=email,
@@ -32,18 +47,21 @@ def signup_view(request):
             last_name=last_name
         )
 
-        # Create UserProfile manually
-        profile = UserProfile.objects.create(
+        # 5️⃣ Create profile
+        UserProfile.objects.create(
             user=user,
             phone=phone,
             address=address
-        )   
+        )
 
-        login(request, user)  # Log the new user in automatically
+        # 6️⃣ Log in user automatically
+        login(request, user)
         messages.success(request, "Welcome! Your account has been created.")
-        return redirect('home')  # Replace 'home' with your home view name
+        return redirect('home')
 
+    # 7️⃣ Normal page load (GET request)
     return render(request, 'users/signup.html')
+
 
 #------------log in------------
 def login_view(request):
@@ -85,4 +103,7 @@ def user_history_view(request):
 
 def user_profile_view(request):
     return render(request, 'users/user_profile.html')
+
+
+
 
