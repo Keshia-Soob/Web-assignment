@@ -32,11 +32,12 @@ def signup_view(request):
             last_name=last_name
         )
 
-        # Update profile fields created by signal
-        profile = user.userprofile
-        profile.phone = phone
-        profile.address = address
-        profile.save()
+        # Create UserProfile manually
+        profile = UserProfile.objects.create(
+            user=user,
+            phone=phone,
+            address=address
+        )   
 
         login(request, user)  # Log the new user in automatically
         messages.success(request, "Welcome! Your account has been created.")
