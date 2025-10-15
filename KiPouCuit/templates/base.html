@@ -26,50 +26,45 @@
                 <li><a href="{% url 'homecook' %}">Become a Home Cook</a></li>
             </nav>
 
-            <!-- <div class="header-right">
-                <div class="header-cart">
-                    <div><a href=""><i class="fas fa-shopping-cart"></i></a></div>
-                </div>
-                <div class="header-profile">
-                    <a href=""><i class="fas fa-user"></i></a>
-                </div>
-            </div>    -->
             <div class="header-right">
                 <div class="header-cart">
-                    <div class="cart-container">
-                        <div>
-                            <i class="fas fa-shopping-cart"></i>
-                            <span class="cart-count">3</span>
+                    <div class="cart-container" style="position: relative;">
+                        <!-- Cart clickable area -->
+                        <div class="cart-icon" id="cartIcon" style="cursor:pointer; padding:6px; display:inline-block;">
+                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                            <span class="cart-count">{{ cart_count|default:"0" }}</span>
                         </div>
-                        <div class="cart-dropdown" id="cartDropdown">
+
+                        <!-- ALWAYS render the dropdown. If cart empty, show fallback message -->
+                        <div class="cart-dropdown" id="cartDropdown" aria-hidden="true" role="region"
+                            aria-label="Shopping cart dropdown">
                             <div class="cart-header">Cart</div>
-                            <div class="cart-items">
+
+                            <div class="cart-items" id="cartItemsContainer">
+                                {% if cart %}
+                                {% for key, item in cart.items %}
                                 <div class="cart-item">
                                     <div class="item-details">
-                                        <div class="item-name">Mutton Curry</div>
-                                        <div class="item-quantity">1份</div>
-                                        <div class="item-price">Rs 400</div>
+                                        <div class="item-name">{{ item.name }}</div>
+                                        <div class="item-quantity">Qty: {{ item.quantity }}</div>
+                                        <div class="item-price">Rs {{ item.price }} x {{ item.quantity }} </div>
                                     </div>
                                 </div>
+                                {% endfor %}
+                                {% else %}
                                 <div class="cart-item">
                                     <div class="item-details">
-                                        <div class="item-name">Buffalo Wings</div>
-                                        <div class="item-quantity">1份</div>
-                                        <div class="item-price">Rs 325</div>
+                                        <div class="item-name">Your cart is empty</div>
+                                        <div class="item-quantity">Add items to see them here</div>
                                     </div>
                                 </div>
-                                <div class="cart-item">
-                                    <div class="item-details">
-                                        <div class="item-name">Tacos</div>
-                                        <div class="item-quantity">1份</div>
-                                        <div class="item-price">Rs 275</div>
-                                    </div>
-                                </div>
+                                {% endif %}
                             </div>
+
                             <div class="cart-footer">
                                 <div class="cart-subtotal">
-                                    <span>小计:</span>
-                                    <span>Rs 1000</span>
+                                    <span>Subtotal:</span>
+                                    <span id="cartSubtotal">Rs {{ cart_subtotal|default:"0" }}</span>
                                 </div>
                                 <div class="cart-buttons">
                                     <a href="{% url 'order_summary' %}" class="cart-button btn-checkout">Checkout</a>
@@ -77,18 +72,12 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="header-profile">
-                        <a href=""><i class="fas fa-user"></i></a>
-                    </div>
                 </div>
-
-
-
+                <div class="header-profile">
+                    <a href=""><i class="fas fa-user"></i></a>
+                </div>
             </div>
-
-
-
+        </div>
     </header>
 
     <main class="content">
@@ -110,6 +99,7 @@
                     <li><a href="{% url 'home' %}">Home</a></li>
                     <li><a href="{% url 'menu' %}">Menu</a></li>
                     <li><a href="{% url 'order_summary' %}">Order</a></li>
+                    <li><a href="{% url 'review' %}">Post A Review</a></li>
                     <li><a href="{% url 'about' %}">About Us</a></li>
                 </ul>
             </div>
@@ -156,41 +146,92 @@
             window.addEventListener('scroll', checkScroll);
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Function to check scroll position and toggle 'scrolled' class
-            function checkScroll() {
-                var header = document.querySelector('header');
-                if (window.scrollY > 0) {
-                    header.classList.add('scrolled');
-                } else {
-                    header.classList.remove('scrolled');
-                }
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     // Function to check scroll position and toggle 'scrolled' class
+        //     function checkScroll() {
+        //         var header = document.querySelector('header');
+        //         if (window.scrollY > 0) {
+        //             header.classList.add('scrolled');
+        //         } else {
+        //             header.classList.remove('scrolled');
+        //         }
+        //     }
+
+        //     checkScroll();
+        //     window.addEventListener('scroll', checkScroll);
+
+        //     // Cart dropdown functionality
+        //     const cartContainer = document.querySelector('.cart-container');
+        //     const cartDropdown = document.getElementById('cartDropdown');
+
+        //     // Toggle cart dropdown when clicking on the cart icon
+        //     cartContainer.addEventListener('click', function (e) {
+        //         e.preventDefault();
+        //         e.stopPropagation();
+        //         cartDropdown.classList.toggle('active');
+        //     });
+
+        //     // Close dropdown when clicking outside
+        //     document.addEventListener('click', function (e) {
+        //         if (!cartContainer.contains(e.target)) {
+        //             cartDropdown.classList.remove('active');
+        //         }
+        //     });
+        // });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Cart script starting...');
+
+            const cartIcon = document.getElementById('cartIcon');
+            const cartDropdown = document.getElementById('cartDropdown');
+            const cartContainer = document.querySelector('.cart-container');
+
+            if (!cartIcon) console.warn('cartIcon element NOT found');
+            if (!cartDropdown) console.warn('cartDropdown element NOT found');
+
+            // Safety: if not found, bail out
+            if (!cartIcon || !cartDropdown || !cartContainer) {
+                console.error('Cart toggle aborted: required DOM elements missing.');
+                return;
             }
 
-            checkScroll();
-            window.addEventListener('scroll', checkScroll);
-            
-            // Cart dropdown functionality
-            const cartContainer = document.querySelector('.cart-container');
-            const cartDropdown = document.getElementById('cartDropdown');
-            
-            // Toggle cart dropdown when clicking on the cart icon
-            cartContainer.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+            // Ensure dropdown is hidden initially and has correct z-index
+            cartDropdown.classList.remove('active');
+            cartDropdown.style.zIndex = 1000; // ensure it appears above most things
+
+            // Toggle on click
+            cartIcon.addEventListener('click', function (event) {
+                event.stopPropagation(); // prevent document click from closing immediately
                 cartDropdown.classList.toggle('active');
+                // For accessibility
+                const isShown = cartDropdown.classList.contains('active');
+                cartDropdown.setAttribute('aria-hidden', isShown ? 'false' : 'true');
+                console.log('Cart icon clicked. Dropdown active:', isShown);
             });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!cartContainer.contains(e.target)) {
-                    cartDropdown.classList.remove('active');
+
+            // Close when clicking outside
+            document.addEventListener('click', function (event) {
+                if (!cartContainer.contains(event.target)) {
+                    if (cartDropdown.classList.contains('active')) {
+                        cartDropdown.classList.remove('active');
+                        cartDropdown.setAttribute('aria-hidden', 'true');
+                        console.log('Clicked outside cart. Dropdown hidden.');
+                    }
                 }
             });
+
+            // Helpful debug: show bounding rects if click seems not to register
+            cartIcon.addEventListener('mouseenter', function () {
+                // small visual debug in console when hovering
+                const rect = cartIcon.getBoundingClientRect();
+                console.log('Cart icon bounding rect:', rect);
+            });
+
         });
     </script>
 
-    
+
 
 
 </body>
