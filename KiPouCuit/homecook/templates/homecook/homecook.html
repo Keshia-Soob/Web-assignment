@@ -9,9 +9,21 @@
 <h1 class="page-title">Create your Home Cook account</h1>
 
 <div class="profile-container center">
-    <!-- Profile Form -->
+    <!-- Profile Form (Left) -->
     <div class="profile-form">
-        <form id="homeCookForm">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" id="homeCookForm">
+            {% csrf_token %}
+            
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" id="name" name="name" required>
@@ -71,23 +83,21 @@
         </form>
     </div>
 
-    <!-- Profile Info Sidebar -->
+    <!-- Profile Info Sidebar (Right) -->
     <div class="profile-info">
-        <!-- Profile Picture -->
         <div class="profile-picture">
             <h3 class="section-title">Add a profile picture</h3>
             
-            <div class="profile-img-container">
+            <div class="profile-img-container" id="profilePreview">
                 <i class="fas fa-user profile-img-placeholder"></i>
             </div>
             
             <label for="profilePic" class="upload-btn">
                 <i class="fas fa-upload"></i> Upload Photo
             </label>
-            <input type="file" id="profilePic" class="file-input" accept="image/*">
+            <input type="file" id="profilePic" name="profilePic" class="file-input" accept="image/*">
         </div>
-        
-        <!-- About Section -->
+
         <div class="about-section">
             <h3 class="section-title">About Us</h3>
             <div class="about-content">
@@ -99,42 +109,20 @@
         </div>
     </div>
 </div>
-{% endblock %}
-{% comment %} {% block extra_js %}
+
 <script>
-    // Profile picture preview
+    // Show profile picture preview
     document.getElementById('profilePic').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            
             reader.onload = function(event) {
-                const profileImgContainer = document.querySelector('.profile-img-container');
-                profileImgContainer.innerHTML = `<img src="${event.target.result}" alt="Profile Picture" class="profile-img">`;
-            }
-            
+                document.getElementById('profilePreview').innerHTML =
+                    `<img src="${event.target.result}" alt="Profile Picture" class="profile-img">`;
+            };
             reader.readAsDataURL(file);
         }
     });
-
-    // Form submission
-    document.getElementById('homeCookForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (password !== confirmPassword) {
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'alert alert-danger';
-            errorMsg.textContent = 'Passwords do not match!';
-            this.prepend(errorMsg);
-            setTimeout(() => errorMsg.remove(), 3000);
-            return;
-        }
-
-        alert("Account created successfully!");
-        this.reset();
-        document.querySelector('.profile-img-container').innerHTML = '<i class="fas fa-user profile-img-placeholder"></i>';
-    });
 </script>
-{% endblock %} {% endcomment %}
+{% endblock %}
+

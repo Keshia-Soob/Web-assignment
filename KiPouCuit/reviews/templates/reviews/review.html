@@ -5,28 +5,39 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'reviews/reviews.css' %}">
+
 <div class="container">
     <div class="review-container">
         <h1 class="page-title">Post A Review</h1>
-        
-        <form id="reviewForm">
+
+        <!-- Display success/error messages -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form id="reviewForm" method="POST">
+            {% csrf_token %}
             <div class="form-row">
                 <div class="form-group">
                     <label for="firstName">First name</label>
                     <input type="text" id="firstName" name="firstName" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="lastName">Last name</label>
                     <input type="text" id="lastName" name="lastName" required>
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
             </div>
-            
+
             <div class="form-group">
                 <label for="rating">Stars</label>
                 <div class="rating-container">
@@ -38,7 +49,7 @@
                         <option value="4">4 Stars</option>
                         <option value="5">5 Stars</option>
                     </select>
-                    
+
                     <div class="rating-stars">
                         <i class="fas fa-star" data-rating="1"></i>
                         <i class="fas fa-star" data-rating="2"></i>
@@ -48,59 +59,59 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label for="message">Message</label>
                 <textarea id="message" name="message" placeholder="Share your experience..." required></textarea>
             </div>
-            
+
             <button type="submit" class="submit-btn">Post your Review</button>
         </form>
     </div>
 </div>
 
 <script>
-        // Star rating functionality
-        const stars = document.querySelectorAll('.rating-stars i');
-        const ratingSelect = document.getElementById('rating');
-        
-        stars.forEach(star => {
-            star.addEventListener('click', () => {
-                const rating = star.getAttribute('data-rating');
-                ratingSelect.value = rating;
-                updateStars(rating);
-            });
-            
-            star.addEventListener('mouseover', () => {
-                const rating = star.getAttribute('data-rating');
-                highlightStars(rating);
-            });
+    // Star rating functionality
+    const stars = document.querySelectorAll('.rating-stars i');
+    const ratingSelect = document.getElementById('rating');
+
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const rating = star.getAttribute('data-rating');
+            ratingSelect.value = rating;
+            updateStars(rating);
         });
-        
-        document.querySelector('.rating-stars').addEventListener('mouseleave', () => {
-            const currentRating = ratingSelect.value;
-            updateStars(currentRating);
+
+        star.addEventListener('mouseover', () => {
+            const rating = star.getAttribute('data-rating');
+            highlightStars(rating);
         });
-        
-        function updateStars(rating) {
-            stars.forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
-                }
-            });
-        }
-        
-        function highlightStars(rating) {
-            stars.forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
-                }
-            });
-        }
+    });
+
+    document.querySelector('.rating-stars').addEventListener('mouseleave', () => {
+        const currentRating = ratingSelect.value;
+        updateStars(currentRating);
+    });
+
+    function updateStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    function highlightStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
 </script>
 
 {% endblock %}
