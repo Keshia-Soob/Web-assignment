@@ -4,7 +4,9 @@ from django.urls import reverse
 from django.http import JsonResponse
 from .models import Category, MenuItem
 
-# Map your dropdown values to Category names
+# ---------------------------
+# MAPPINGS
+# ---------------------------
 TYPE_MAP = {
     "starters": "Starters",
     "main-courses": "Main Courses",
@@ -12,12 +14,17 @@ TYPE_MAP = {
     "desserts": "Desserts",
 }
 
+# ---------------------------
+# MENU PAGE
+# ---------------------------
 def menu(request):
     categories = Category.objects.prefetch_related("items").all()
     return render(request, "meals/menu.html", {"categories": categories})
 
+# ---------------------------
+# ADD MENU ITEM (ADMIN/FORM)
+# ---------------------------
 def addmenu(request):
-    # Helper to keep user inputs on error
     def _form_data():
         return {
             "itemName": request.POST.get("itemName", "").strip(),
@@ -31,7 +38,7 @@ def addmenu(request):
         errors = []
         data = _form_data()
 
-        # Basic validation
+        # Validate
         for field, label in [
             ("itemName", "Item name"),
             ("itemPrice", "Price"),
@@ -42,7 +49,7 @@ def addmenu(request):
             if not data[field]:
                 errors.append(f"{label} is required.")
 
-        # Price validation
+        # Price
         price_val = None
         if data["itemPrice"]:
             try:
@@ -50,19 +57,19 @@ def addmenu(request):
             except InvalidOperation:
                 errors.append("Price must be a valid number (e.g., 650).")
 
-        # Cuisine validation
+        # Cuisine check
         valid_cuisines = dict(MenuItem.CUISINE_CHOICES)
         if data["itemCuisine"] and data["itemCuisine"] not in valid_cuisines:
             errors.append("Invalid cuisine type selected.")
 
-        # Category mapping
+        # Category
         cat_name = TYPE_MAP.get(data["itemType"])
         if not cat_name:
             errors.append("Invalid dish type selected.")
 
         if not errors:
             category, _ = Category.objects.get_or_create(name=cat_name)
-            image_file = request.FILES.get("itemImage")  # optional
+            image_file = request.FILES.get("itemImage")
 
             item = MenuItem(
                 category=category,
@@ -75,7 +82,6 @@ def addmenu(request):
                 item.image = image_file
             item.save()
 
-            # Show success banner on the same page
             return render(
                 request,
                 "meals/addmenu.html",
@@ -86,7 +92,7 @@ def addmenu(request):
                 },
             )
 
-        # Return errors + prefilled data
+        # If errors
         return render(
             request,
             "meals/addmenu.html",
@@ -97,7 +103,6 @@ def addmenu(request):
             },
         )
 
-    # GET
     return render(
         request,
         "meals/addmenu.html",
@@ -107,113 +112,99 @@ def addmenu(request):
         },
     )
 
+# ---------------------------
+# ADD TO CART
+# ---------------------------
 def add_to_cart(request, item_id):
-    if request.method == 'POST':
-        item = get_object_or_404(MenuItem, id=item_id)
-        cart = request.session.get('cart', {})
+    """Adds an item to the cart — keeps cart format { '2': 1 }."""
+    item = get_object_or_404(MenuItem, id=item_id)
+    cart = request.session.get("cart", {})
 
-        item_id_str = str(item_id)
-        
-        if item_id_str in cart:
-            cart[item_id_str]['quantity'] += 1
-        else:
-            cart[item_id_str] = {
-                'name': item.name,
-                'price': float(item.price),  # Ensure it's serializable
-                'quantity': 1
-            }
+    item_id_str = str(item_id)
 
-        request.session['cart'] = cart
+    # Convert old dict-style to int
+    current_val = cart.get(item_id_str, 0)
+    if isinstance(current_val, dict):
+        current_val = current_val.get("quantity", 1)
+
+    # Increment or set quantity
+    new_qty = int(current_val) + 1
+    cart[item_id_str] = new_qty
+
+    request.session["cart"] = cart
+    request.session.modified = True
+
+    # Compute subtotal for AJAX
+    items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
+    cart_subtotal = sum(float(i.price) * cart[str(i.id)] for i in items)
+    cart_count = sum(cart.values())
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({
+            "success": True,
+            "cart_count": cart_count,
+            "cart_subtotal": cart_subtotal
+        })
+
+    return redirect(reverse("menu"))
+
+# ---------------------------
+# REMOVE FROM CART
+# ---------------------------
+def remove_from_cart(request, item_id):
+    """Removes an item from the cart."""
+    cart = request.session.get("cart", {})
+    item_id_str = str(item_id)
+
+    if item_id_str in cart:
+        del cart[item_id_str]
+        request.session["cart"] = cart
         request.session.modified = True
 
-        # Calculate updated cart info
-        cart_count = sum(item['quantity'] for item in cart.values())
-        cart_subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        cart_count = sum(cart.values())
+        cart_subtotal = 0
+        if cart:
+            items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
+            cart_subtotal = sum(float(i.price) * cart[str(i.id)] for i in items)
+        return JsonResponse({
+            "success": True,
+            "cart_count": cart_count,
+            "cart_subtotal": cart_subtotal
+        })
 
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({
-                'cart_count': cart_count,
-                'cart_subtotal': cart_subtotal,
-                'success': True
-            })
+    return redirect("order_summary")
 
-        return redirect(reverse('menu'))
-    else:
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'error': 'Invalid request method'}, status=400)
-        return redirect(reverse('menu'))
-
+# ---------------------------
+# VIEW CART
+# ---------------------------
 def view_cart(request):
-    cart = request.session.get('cart', {})
-    subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
-    return render(request, 'cart.html', {'cart': cart, 'subtotal': subtotal})
+    cart = request.session.get("cart", {})
+    items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
+    subtotal = sum(float(i.price) * cart[str(i.id)] for i in items)
+    return render(request, "cart.html", {"cart": cart, "items": items, "subtotal": subtotal})
 
+# ---------------------------
+# CLEAR CART
+# ---------------------------
 def clear_cart(request):
-    if request.method == 'POST':
-        request.session['cart'] = {}
-        request.session.modified = True
-        
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'success': True, 'cart_count': 0})
-            
-        return redirect(reverse('menu'))
-    return redirect(reverse('menu'))
+    request.session["cart"] = {}
+    request.session.modified = True
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({"success": True, "cart_count": 0})
+    return redirect(reverse("menu"))
 
+# ---------------------------
+# CART DATA (AJAX)
+# ---------------------------
 def get_cart_data(request):
-    cart = request.session.get('cart', {})
-    cart_count = sum(item['quantity'] for item in cart.values())
-    cart_subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
-    
+    cart = request.session.get("cart", {})
+    items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
+    cart_subtotal = sum(float(i.price) * cart[str(i.id)] for i in items)
+    cart_count = sum(cart.values())
     return JsonResponse({
-        'cart_count': cart_count,
-        'cart_subtotal': cart_subtotal,
-        'cart_items': cart
+        "cart_count": cart_count,
+        "cart_subtotal": cart_subtotal,
+        "cart_items": cart,
     })
 
-# In meals/views.py
-
-# def remove_from_cart(request, item_id):
-#     cart = request.session.get('cart', {})
-#     item_id_str = str(item_id)
-
-#     if request.method == 'POST' and item_id_str in cart:
-#         del cart[item_id_str]
-#         request.session['cart'] = cart
-#         request.session.modified = True
-
-#         cart_count = sum(item['quantity'] for item in cart.values())
-#         cart_subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
-
-#         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-#             return JsonResponse({
-#                 'success': True,
-#                 'cart_count': cart_count,
-#                 'cart_subtotal': cart_subtotal
-#             })
-#         return redirect('view_cart')
-
-#     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-#         return JsonResponse({'success': False, 'error': 'Invalid request'})
-#     return redirect('view_cart')
-
-def remove_from_cart(request, item_id):
-    if request.method == 'POST':
-        cart = request.session.get('cart', {})
-        item_id_str = str(item_id)
-
-        if item_id_str in cart:
-            del cart[item_id_str]
-            request.session['cart'] = cart
-            request.session.modified = True
-
-            cart_count = sum(item['quantity'] for item in cart.values())
-            cart_subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
-
-            # JSON response for AJAX
-            return JsonResponse({
-                'success': True,
-                'cart_count': cart_count,
-                'cart_subtotal': cart_subtotal
-            })
-
-    return JsonResponse({'success': False, 'error': 'Item not found in cart'})
