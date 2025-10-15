@@ -1,0 +1,403 @@
+/* Main Content */
+.main-content {
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Hero Section */
+.about-hero {
+    padding: 80px 0;
+    background: #fff;
+}
+
+.about-hero .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.label {
+    display: block;
+    font-size: 13px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.hero-content h1 {
+    font-size: 48px;
+    color: #e67e22;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.hero-content p {
+    font-size: 17px;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.btn {
+    display: inline-block;
+    background: #e67e22;
+    color: white;
+    padding: 14px 40px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background: #d35400;
+}
+
+.hero-image img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    object-fit: contain;
+}
+
+/* Features Section */
+.features {
+    padding: 80px 0;
+    background: #f9f9f9;
+}
+
+.features h2 {
+    text-align: center;
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 50px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.feature-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-card .icon {
+    font-size: 50px;
+    margin-bottom: 20px;
+}
+
+.feature-card h3 {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.feature-card p {
+    font-size: 15px;
+    color: #777;
+    line-height: 1.6;
+}
+
+/* Delivery Section */
+.delivery {
+    padding: 80px 0;
+    background: white;
+}
+
+.delivery .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.delivery-content h2 {
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.delivery-content p {
+    font-size: 17px;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.btn-outline {
+    display: inline-block;
+    background: transparent;
+    color: #e67e22;
+    padding: 14px 40px;
+    border: 2px solid #e67e22;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-outline:hover {
+    background: #e67e22;
+    color: white;
+}
+
+.delivery-image img {
+    width: 100%;
+    height: 450px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* Testimonial Section */
+.testimonial {
+    padding: 80px 0;
+    background: #f9f9f9;
+}
+
+.testimonial h2 {
+    text-align: center;
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 50px;
+}
+
+.testimonial-card {
+    background: white;
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 40px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-card img {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.testimonial-content h3 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.testimonial-content p {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+.rating {
+    color: #ffc107;
+    font-size: 20px;
+    letter-spacing: 2px;
+}
+
+/* App Download Section */
+.app-download {
+    padding: 80px 0;
+    background: #fff;
+}
+
+.app-download-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.app-visual img {
+    width: 100%;
+    height: 500px;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.app-info h2 {
+    font-size: 36px;
+    color: #e67e22;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.app-info p {
+    font-size: 17px;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.app-info .placeholder {
+    font-size: 15px;
+    color: #999;
+    font-style: italic;
+    margin-bottom: 30px;
+}
+
+.store-buttons {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.store-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 12px 24px;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: #E67E22;
+    border-style: solid;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.store-btn:hover {
+    background: #ffffff;
+}
+
+.store-btn img {
+    width: 24px;
+    height: 24px;
+}
+
+/* Chef Delivery Section */
+.chef-delivery {
+    padding: 80px 0;
+    background: #fff;
+}
+
+.chef-delivery-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.chef-image img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    object-fit: contain;
+}
+
+
+.chef-content h2 {
+    font-size: 36px;
+    color: #e67e22;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.chef-content p {
+    font-size: 17px;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.bike-highlight {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.bike-highlight img {
+    width: 80px;
+    height: 80px;
+}
+
+.bike-highlight span {
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .about-hero .container,
+    .delivery .container,
+    .app-download-container,
+    .chef-delivery-container {
+        grid-template-columns: 1fr;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .testimonial-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .testimonial-card img {
+        margin: 0 auto;
+    }
+
+    .hero-content h1,
+    .chef-content h2 {
+        font-size: 36px;
+    }
+
+    .app-visual img,
+    .chef-image img {
+        height: auto;
+        margin-bottom: 30px;
+    }
+
+    .store-buttons,
+    .bike-highlight {
+        justify-content: center;
+    }
+
+    .chef-content h2 {
+        font-size: 32px;
+    }
+
+    .chef-content p,
+    .bike-highlight span {
+        font-size: 16px;
+    }
+}
+

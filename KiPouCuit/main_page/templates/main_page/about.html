@@ -1,8 +1,114 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}KiPouCuit{% endblock %}
+{% block title %}KiPouCuit - About{% endblock %}
 
 {% block content %}
-<h1>Our about page</h1>
-<p>Herekajsfiawhiueb.</p>
+<link rel="stylesheet" href="{% static 'main_page/about.css' %}">
+
+<main class="main-content">
+    <!-- Hero Section -->
+    <section class="about-hero">
+        <div class="container">
+            <div class="hero-content">
+                <span class="label">Proven strategies backed by science</span>
+                <h1>About KiPouCuit</h1>
+                <p>We help people discover their true potential and live a fulfilling life. Discover the simple steps we use to create delicious, homemade meals backed by tradition and science. Ready to transform your dining experience?</p>
+                <a href="{% url 'menu' %}" class="btn">Explore More</a>
+            </div>
+            <div class="hero-image">
+                <img src="{% static 'main_page/assets/about1.png'%}" alt="About Us">
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2>What Makes Us Different</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="icon">
+                        <img src="{% static 'main_page/assets/about2.jpg'%}" alt="Free Shipping">
+                    </div>
+                    <h3>Free Shipping</h3>
+                    <p>Orders over $100 get free shipping on all groceries</p>
+                </div>
+                <div class="feature-card featured">
+                    <div class="icon">
+                        <img src="{% static 'main_page/assets/about3.jpg'%}" alt="15 Days Returns">
+                    </div>
+                    <h3>15 Days Returns</h3>
+                    <p>Easy returns using the freshness guarantee</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">
+                        <img src="{% static 'main_page/assets/about4.jpg'%}" alt="Secure Checkout">
+                    </div>
+                    <h3>Secure Checkout</h3>
+                    <p>Your data is protected with secure payments</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chef Delivery Section -->
+    <section class="chef-delivery">
+        <div class="container chef-delivery-container">
+            <div class="chef-image">
+                <img src="{% static 'main_page/assets/about10.jpg'%}" alt="Smiling Chef">
+            </div>
+            <div class="chef-content">
+                <span class="label">Home Delivery</span>
+                <h2>Sit at Home, We'll Take Care of Your Order</h2>
+                <p>From our kitchen to your doorstep-fresh, fast, and full of flavor. Let us handle the cooking while you enjoy the comfort.</p>
+                <div class="bike-highlight">
+                    <img src="{% static 'main_page/assets/about9.jpg'%}" alt="Bike Icon">
+                    <span>We deliver your food by bike as quickly as possible.</span>
+                </div>
+                <a href="{% url 'menu' %}" class="btn">Order Now</a>
+            </div>
+        </div>
+    </section>
+</main>
+
+    <!-- Testimonial Section -->
+    <section class="testimonial">
+        <div class="container">
+            <h2>What Our Customers Say</h2>
+            <div class="testimonial-card">
+                <img src="{% static 'main_page/assets/about5.jpg'%}" alt="Customer">
+                <div class="testimonial-content">
+                    <h3>Justin Alins</h3>
+                    <p>"Really satisfied with KiPouCuit! The food quality is amazing and their support is awesome. They really care about delivering the best experience."</p>
+                    <div class="rating">★★★★★</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- App Download Section -->
+    <section class="app-download">
+        <div class="container app-download-container">
+            <div class="app-visual">
+                <img src="{% static 'main_page/assets/about6.jpg'%}" alt="Download App">
+            </div>
+            <div class="app-info">
+                <h2>Download Our App</h2>
+                <p>Get the Food app order more easily. Enjoy seamless ordering, exclusive deals, and fast checkout—all from your phone.</p>
+                <p class="placeholder">Your cravings, delivered—fast, fresh, and fuss-free.</p>
+                <div class="store-buttons">
+                    <a href="#" class="store-btn">
+                        <img src="{% static 'main_page/assets/about7.jpg'%}" alt="App Store">
+                        App Store
+                    </a>
+                    <a href="#" class="store-btn">
+                        <img src="{% static 'main_page/assets/about8.jpg'%}" alt="Play Store">
+                        Play Store
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
 {% endblock %}
