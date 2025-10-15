@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
+from .models import UserProfile
+from django.contrib.auth import login
 
-#------------sign up------------
 def signup_view(request):
     if request.method == "POST":
-        name = request.POST.get('name')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
         address = request.POST.get('address')
@@ -17,10 +19,28 @@ def signup_view(request):
             messages.error(request, "Passwords do not match.")
             return render(request, 'users/signup.html')
 
-        # create user
-        user = User.objects.create_user(username=email, email=email, password=password)
-        messages.success(request, "Account created successfully!")
-        return redirect('login')
+        if User.objects.filter(username=email).exists():
+            messages.error(request, "Email is already registered.")
+            return render(request, 'users/signup.html')
+
+        # Create user
+        user = User.objects.create_user(
+            username=email,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
+
+        # Update profile fields created by signal
+        profile = user.userprofile
+        profile.phone = phone
+        profile.address = address
+        profile.save()
+
+        login(request, user)  # Log the new user in automatically
+        messages.success(request, "Welcome! Your account has been created.")
+        return redirect('home')  # Replace 'home' with your home view name
 
     return render(request, 'users/signup.html')
 
