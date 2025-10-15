@@ -1,5 +1,5 @@
 from django.db import models
-
+'''iugafuigvafi'''
 class Category(models.Model):
     name = models.CharField(max_length=60, unique=True)
     sort_order = models.PositiveIntegerField(default=0)
