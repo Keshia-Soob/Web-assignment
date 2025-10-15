@@ -104,3 +104,32 @@ button:hover {
 .login-text a:hover {
     text-decoration: underline;
 }
+.messages {
+  margin-bottom: 1rem;
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.messages p {
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.messages .error {
+  background-color: #ffe0e0;
+  color: #b10000;
+  border: 1px solid #ffb3b3;
+}
+
+.messages .success {
+  background-color: #e7ffe7;
+  color: #057a05;
+  border: 1px solid #a0e6a0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
