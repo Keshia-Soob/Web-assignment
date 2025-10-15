@@ -16,6 +16,13 @@
     <div class="form-side">
         <div class="form-container">
             <h2>Welcome to <span style="color:black;">KiPouCuit</span></h2>
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p class="{{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
 
             <form action="{% url 'signup' %}" method="POST">
                 {% csrf_token %}
@@ -27,19 +34,38 @@
                 <input type="text" id="last_name" name="last_name" placeholder="Last name" required>
 
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Email" required>
+                <input type="email" id="email" name="email"
+                       placeholder="Email (must end with .com)"
+                       pattern="^[^@\s]+@[^@\s]+\.com$"
+                       title="Enter a valid email ending with .com"
+                       required>
+
 
                 <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" placeholder="+230" required>
+                <input type="tel" id="phone" name="phone"
+                       value="+230"
+                       pattern="^\+230[0-9]{8}$"
+                       title="Phone number must start with +230 and be followed by 8 digits"
+                       placeholder="+23012345678"
+                       required>
+
+                
+
 
                 <label for="address">Address</label>
                 <input type="text" id="address" name="address" placeholder="Add your delivery address" required>
 
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="At least 8 characters" required>
+                <input type="password" id="password" name="password"
+                       placeholder="At least 8 characters"
+                       pattern=".{8,}"
+                       title="Password must be at least 8 characters long"
+                       required>
 
                 <label for="confirm_password">Confirm Password</label>
-                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm password" required>
+                <input type="password" id="confirm_password" name="confirm_password"
+                       placeholder="Confirm password" required>
+                <p id="password-message" style="font-size: 0.9rem; margin-top: 4px;"></p>
 
                 <button type="submit">Sign up</button>
             </form>
@@ -49,4 +75,6 @@
         </div>
     </div>
 </div>
+
+
 {% endblock %}
