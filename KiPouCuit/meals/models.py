@@ -1,5 +1,9 @@
 from django.db import models
-'''iugafuigvafi'''
+'''iugafuigvafioihfoihsfoihshfioshfshfipohsfihsihfioshfoh
+shfsihfiophsifhsf
+sihfishf[shfs
+ishfpishfpish
+siphfpishfpshfpih]'''
 class Category(models.Model):
     name = models.CharField(max_length=60, unique=True)
     sort_order = models.PositiveIntegerField(default=0)
