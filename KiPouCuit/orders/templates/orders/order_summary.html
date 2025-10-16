@@ -6,48 +6,55 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'orders/order_summary.css' %}">
 
-<div class="order-summary-container">
-    <h2>Order Summary</h2>
+<div class="order-summary-container center">
+    <h1>Order Summary</h1>
 
     <section class="order-items">
         {% if items %}
-            {% for item in items %}
-            <div class="order-item">
-                <img src="{{ item.image }}" alt="{{ item.name }}">
-                <div class="item-details">
-                    <h4>{{ item.name }}</h4>
-                </div>
-                <div class="item-price">Rs {{ item.price|floatformat:0 }}</div>
-                <div class="item-qty">Qty: {{ item.quantity }}</div>
-
-                <!-- Remove button -->
-                <div class="item-actions">
-                    <a href="{% url 'remove_from_order' item.id %}"
-                       class="remove-btn"
-                       onclick="return confirm('Remove {{ item.name }} from your order?');">
-                        Remove
-                    </a>
-                </div>
+        {% for item in items %}
+        <div class="order-item">
+            <img src="{{ item.image }}" alt="{{ item.name }}">
+            <div class="item-details">
+                <h4>{{ item.name }}</h4>
             </div>
-            {% endfor %}
+            <div class="item-price">Rs {{ item.price|floatformat:0 }}</div>
+            <div class="item-qty">Qty: {{ item.quantity }}</div>
+            <!-- Remove button -->
+            <div class="item-actions">
+                <a href="{% url 'remove_from_order' item.id %}" class="remove-btn"
+                    onclick="return confirm('Remove {{ item.name }} from your order?');">
+                    Remove
+                </a>
+            </div>
+        </div>
+        {% endfor %}
         {% else %}
-            <p>Your order is empty. <a href="{% url 'menu' %}">Go back to the menu</a>.</p>
+        <p>Your order is empty. <a href="{% url 'menu' %}">Go back to the menu</a>.</p>
         {% endif %}
     </section>
 
     <!-- Summary Sidebar -->
-    <aside class="summary-box">
-        <h3>Summary</h3>
-        <p>Subtotal: Rs {{ subtotal|floatformat:0 }}</p>
-        <hr>
-        <h2>Total: Rs {{ total|floatformat:0 }}</h2>
+    <div class="summary-box">
+        <div class="sum-left">
+            <h2>Summary</h2>
+            <!-- <p>Subtotal: Rs {{ subtotal|floatformat:0 }}</p> -->
+            {% for item in items %}
+                <p> {{ item.quantity }} x {{ item.price }} </p>
+            {% endfor %}
+        </div>
 
-        {% if items %}
-        <button class="checkout-btn">
-            <a href="{% url 'order_confirmed' %}"></a>
-            Pay and Checkout
-        </button>
-        {% endif %}
-    </aside>
+        <div class="sum-right">
+            <h2>Total: Rs {{ total|floatformat:0 }}</h2>
+
+            {% if items %}
+            <button class="checkout-btn">
+                <a href="{% url 'order_confirmed' %}"></a>
+                Pay and Checkout
+            </button>
+            {% endif %}
+        </div>
+
+    </div>
+
 </div>
 {% endblock %}
