@@ -16,13 +16,22 @@ def signup_view(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
+        # Prepare context to keep user input in case of error
+        context = {
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'phone': phone,
+            'address': address
+        }
+
         if password != confirm_password:
             messages.error(request, "Passwords do not match.")
-            return render(request, 'users/signup.html')
+            return render(request, 'users/signup.html', context)
 
         if User.objects.filter(username=email).exists():
             messages.error(request, "Email is already registered.")
-            return render(request, 'users/signup.html')
+            return render(request, 'users/signup.html', context)
 
         # Create user
         user = User.objects.create_user(
@@ -33,7 +42,7 @@ def signup_view(request):
             last_name=last_name
         )
 
-        # Create UserProfile manually
+        # Create UserProfile
         profile = UserProfile.objects.create(
             user=user,
             phone=phone,
@@ -42,7 +51,7 @@ def signup_view(request):
 
         login(request, user)  # Log the new user in automatically
         messages.success(request, "Welcome! Your account has been created.")
-        return redirect('home')  # Replace 'home' with your home view name
+        return redirect('home')
 
     return render(request, 'users/signup.html')
 
