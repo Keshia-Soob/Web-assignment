@@ -66,29 +66,29 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')  # Redirect to login page
-
+    
 #------------forgot password------------
 def forgot_password_view(request):
     if request.method == "POST":
         email = request.POST.get('email')
-        messages.success(request, f"Password reset link sent to {email}!")
+
+        try:
+            user = User.objects.get(email=email)
+            # For assignment purposes, we just simulate sending an email.
+            messages.success(request, f"A password reset link has been sent to {email}. Please check your inbox.")
+        except User.DoesNotExist:
+            messages.error(request, "No account found with that email address.")
+
         return render(request, 'users/forgot_password.html')
 
     return render(request, 'users/forgot_password.html')
 
-def create_account(request):
-    days = range(1, 32)   # 1–31
-    months = range(1, 13) # 1–12
-    years = range(1900, 2026)  # adjust as needed
-    return render(request, "users/create_account.html", {
-        "days": days,
-        "months": months,
-        "years": years,
-    })
-
+#------------user history------------
 def user_history_view(request):
     return render(request, 'users/user_history.html')
 
+#------------user profile------------
 def user_profile_view(request):
     return render(request, 'users/user_profile.html')
 
+'''cagskloagjnlsagnsglsdglsgnsg'''
