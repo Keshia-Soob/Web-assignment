@@ -1,22 +1,55 @@
-.profile-container {
+/* ✅ Added: Wrapper for the whole profile page */
+.profile-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 20px;
 }
 
+/* ✅ Added: Banner section at the top */
+.profile-banner {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ✅ Updated: Profile container now acts like a card overlapping banner */
+.profile-container {
+  background-color: #ffffff; /* changed from transparent to white card */
+  margin-top: -70px; /* pulls the card upward to overlap the banner */
+  border-radius: 12px;
+  padding: 40px 50px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  width: 380px;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* ⚠️ Replaces your old profile-container definition */
+}
+
+/* ✅ Updated: Profile photo now floats above card */
 .profile-photo-container {
-  background: #f0e3e6;
+  position: absolute;
+  top: -65px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid #ffffff;
   border-radius: 50%;
   width: 130px;
   height: 130px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   overflow: hidden;
-  border: 3px solid #ccc; /* light grey border */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background: #f0e3e6; /* ⚠️ kept your soft pink tone */
 }
-
 
 .profile-photo {
   width: 100%;
@@ -25,62 +58,46 @@
   border-radius: 50%;
 }
 
-.profile-name-container {
-  margin-top: 20px;
+/* ✅ Updated: name simplified */
+.profile-name {
+  margin-top: 80px; /* added space for floating photo */
+  color: #222;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
   text-align: center;
 }
 
-.profile-name-container h2 {
-  color: #222;
-  font-size: 1.4rem;
-  font-weight: 600;
-  font-family: 'Nunito', sans-serif;
-}
-
+/* ✅ Updated: details card look */
 .profile-details-container {
-  background:  #F6F6F6;
+  background: #F6F6F6;
   padding: 25px 40px;
   margin-top: 25px;
   border-radius: 16px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   width: 350px;
   font-family: 'Nunito', sans-serif;
+  text-align: left;
 }
 
 .detail-row {
   display: flex;
+  justify-content: space-between; /* ✅ added for alignment */
   margin-bottom: 12px;
 }
 
 .detail-label {
   font-weight: 600;
   color: #333;
-  width: 90px;
 }
 
 .detail-value {
   color: #555;
 }
 
-.edit-btn {
-  display: block;
-  margin: 25px auto 0;
-  background-color: #e67e22;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 30px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.edit-btn:hover {
-  background-color: #8c692a;
-}
-
+/* ⚠️ Keep your upload button (just adjusted spacing slightly) */
 .upload-btn {
-  margin-top: 15px;
+  margin-top: 90px; /* ✅ pushed down to sit below floating photo */
   background-color: #e0e0e0;
   color: #333;
   border: none;
@@ -96,21 +113,21 @@
   background-color: #ccc;
 }
 
-
-/* History button styling */
+/* ⚠️ Keep your history button but refined colors */
 .history-btn {
-  background-color: #e67e22;
+  background-color: #a67c52; /* ✅ updated to a soft brown/gold */
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 10px 30px;
+  padding: 12px 30px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
   display: block;
-  margin: 0 auto;
+  margin: 20px auto 0;
 }
 
 .history-btn:hover {
-  background-color: #8c692a;
+  background-color: #8c693e;
 }
+
