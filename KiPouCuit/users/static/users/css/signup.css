@@ -23,9 +23,8 @@
 }
 
 .image-side img {
-    width: 80%;       /* reduced image size */
-    max-width: 400px; /* optional max width */
-    height: auto;     /* keep aspect ratio */
+    width: 70%;
+    height: 70%;   
     object-fit: cover;
     border-radius: 6px;
 }
