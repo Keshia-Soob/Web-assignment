@@ -16,6 +16,7 @@
     <div class="form-side">
         <div class="form-container">
             <h2>Welcome to <span style="color:black;">KiPouCuit</span></h2>
+
             {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -28,32 +29,32 @@
                 {% csrf_token %}
 
                 <label for="first_name">First Name</label>
-                <input type="text" id="first_name" name="first_name" placeholder="First name" required>
+                <input type="text" id="first_name" name="first_name" placeholder="First name" required
+                       value="{{ first_name|default:'' }}">
 
                 <label for="last_name">Last Name</label>
-                <input type="text" id="last_name" name="last_name" placeholder="Last name" required>
+                <input type="text" id="last_name" name="last_name" placeholder="Last name" required
+                       value="{{ last_name|default:'' }}">
 
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email"
-                       placeholder="Email (must end with .com)"
+                       placeholder="Email"
                        pattern="^[^@\s]+@[^@\s]+\.com$"
                        title="Enter a valid email ending with .com"
-                       required>
-
+                       required
+                       value="{{ email|default:'' }}">
 
                 <label for="phone">Phone Number</label>
                 <input type="tel" id="phone" name="phone"
-                       value="+230"
                        pattern="^\+230[0-9]{8}$"
                        title="Phone number must start with +230 and be followed by 8 digits"
                        placeholder="+23012345678"
-                       required>
-
-                
-
+                       required
+                       value="{{ phone|default:'+230' }}">
 
                 <label for="address">Address</label>
-                <input type="text" id="address" name="address" placeholder="Add your delivery address" required>
+                <input type="text" id="address" name="address" placeholder="Add your delivery address" required
+                       value="{{ address|default:'' }}">
 
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password"
@@ -70,11 +71,9 @@
                 <button type="submit">Sign up</button>
             </form>
 
-
             <p class="login-text">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
         </div>
     </div>
 </div>
-
 
 {% endblock %}

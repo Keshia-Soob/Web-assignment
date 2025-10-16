@@ -16,13 +16,22 @@ def signup_view(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
+        # Prepare context to keep user input in case of error
+        context = {
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'phone': phone,
+            'address': address
+        }
+
         if password != confirm_password:
             messages.error(request, "Passwords do not match.")
-            return render(request, 'users/signup.html')
+            return render(request, 'users/signup.html', context)
 
         if User.objects.filter(username=email).exists():
             messages.error(request, "Email is already registered.")
-            return render(request, 'users/signup.html')
+            return render(request, 'users/signup.html', context)
 
         # Create user
         user = User.objects.create_user(
@@ -33,7 +42,7 @@ def signup_view(request):
             last_name=last_name
         )
 
-        # Create UserProfile manually
+        # Create UserProfile
         profile = UserProfile.objects.create(
             user=user,
             phone=phone,
@@ -42,7 +51,7 @@ def signup_view(request):
 
         login(request, user)  # Log the new user in automatically
         messages.success(request, "Welcome! Your account has been created.")
-        return redirect('home')  # Replace 'home' with your home view name
+        return redirect('home')
 
     return render(request, 'users/signup.html')
 
@@ -66,29 +75,29 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')  # Redirect to login page
-
+    
 #------------forgot password------------
 def forgot_password_view(request):
     if request.method == "POST":
         email = request.POST.get('email')
-        messages.success(request, f"Password reset link sent to {email}!")
+
+        try:
+            user = User.objects.get(email=email)
+            # For assignment purposes, we just simulate sending an email.
+            messages.success(request, f"A password reset link has been sent to {email}. Please check your inbox.")
+        except User.DoesNotExist:
+            messages.error(request, "No account found with that email address.")
+
         return render(request, 'users/forgot_password.html')
 
     return render(request, 'users/forgot_password.html')
 
-def create_account(request):
-    days = range(1, 32)   # 1–31
-    months = range(1, 13) # 1–12
-    years = range(1900, 2026)  # adjust as needed
-    return render(request, "users/create_account.html", {
-        "days": days,
-        "months": months,
-        "years": years,
-    })
-
+#------------user history------------
 def user_history_view(request):
     return render(request, 'users/user_history.html')
 
+#------------user profile------------
 def user_profile_view(request):
     return render(request, 'users/user_profile.html')
 
+'''cagskloagjnlsagnsglsdglsgnsg'''
