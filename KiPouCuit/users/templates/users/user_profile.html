@@ -3,80 +3,42 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'users/css/user_profile.css' %}">
-<section class="profile-page">
-  <div class="container">
-    <!-- Cover + Avatar -->
-    <div class="cover">
-      <div class="avatar"></div>
-    </div>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <!-- Name + Role -->
-    <div class="header-card">
-      <h1 class="name">Natasha Scoliciv</h1>
-      <div class="role">Director</div>
-    </div>
-
-    <!-- Main layout -->
-    <div class="layout">
-      <!-- Sidebar -->
-      <aside class="side">
-        <ul class="tabs">
-          <li class="tab active">
-            <span class="icon">👤</span>
-            <span>About Me</span>
-          </li>
-          <li class="tab">
-            <span class="icon">🏠</span>
-            <span>Moradas</span>
-          </li>
-          <li class="tab">
-            <span class="icon">🕘</span>
-            <span>Historico</span>
-          </li>
-        </ul>
-      </aside>
-
-      <!-- Details -->
-      <article class="content">
-        <div class="grid">
-          <div class="label">Bio</div>
-          <div class="value">
-            When I first got into the advertising, I was looking for the magical combination that
-            would put website into the top search engine rankings.
-          </div>
-
-          <div class="label">Email</div>
-          <div class="value">
-            johanna.stevens@gmail.com
-            <span class="muted">johanna.stevens@whiteui.store</span>
-          </div>
-
-          <div class="label">Dial</div>
-          <div class="value">621-770-7689</div>
-
-          <div class="label">Address</div>
-          <div class="value">27 street jonway, NY America USA</div>
-
-          <div class="label">Phone</div>
-          <div class="value">439-582-1578</div>
-
-          <div class="label">Social</div>
-          <div class="value">
-            <div class="socials">
-              <span class="chip" title="Facebook">f</span>
-              <span class="chip" title="Pinterest">p</span>
-              <span class="chip" title="Twitter">t</span>
-              <span class="chip" title="LinkedIn">in</span>
-              <span class="chip" title="Google">g</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="btn">Edit</button>
-        </div>
-      </article>
-    </div>
+<div class="profile-container">
+  <!-- Profile Photo -->
+  <div class="profile-photo-container">
+    <img src="{% static 'users/images/default profile photo.jpg' %}" class="profile-photo">
   </div>
-</section>
+
+  <button class="upload-btn">Upload Photo</button>
+
+  <!-- Name -->
+  <div class="profile-name-container">
+    <h2>Khushi Beedassy</h2>
+  </div>
+
+  <!-- Two containers side-by-side -->
+  <div class="profile-info-row">
+
+
+    <!-- Details -->
+    <div class="profile-details-container">
+      <div class="detail-row">
+        <span class="detail-label">Email</span>
+        <span class="detail-value">khushibeedassy@gmail.com</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Address</span>
+        <span class="detail-value">chemin grenier</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Phone</span>
+        <span class="detail-value">+230 56786543</span>
+      </div>
+      <button class="history-btn">History</button>
+    </div>
+
+  </div>
+</div>
 {% endblock %}
