@@ -5,24 +5,30 @@
 <link rel="stylesheet" href="{% static 'users/css/user_profile.css' %}">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
-<div class="profile-container">
-  <!-- Profile Photo -->
-  <div class="profile-photo-container">
-    <img src="{% static 'users/images/default profile photo.jpg' %}" class="profile-photo">
+<!-- ✅ Added wrapper for the banner + card -->
+<div class="profile-wrapper">
+
+  <!-- ✅ Added banner section -->
+  <div class="profile-banner">
+    <img src="{% static 'users/images/banner.png' %}" alt="Banner" class="banner-image">
+
   </div>
 
-  <button class="upload-btn">Upload Photo</button>
+  <!-- ✅ Profile card container (now below banner) -->
+  <div class="profile-container">
 
-  <!-- Name -->
-  <div class="profile-name-container">
-    <h2>Khushi Beedassy</h2>
-  </div>
+    <!-- ✅ Profile photo -->
+    <div class="profile-photo-container">
+      <img src="{% static 'users/images/default profile photo.jpg' %}" class="profile-photo">
+    </div>
 
-  <!-- Two containers side-by-side -->
-  <div class="profile-info-row">
+    <!-- ✅ Upload button (kept) -->
+    <button class="upload-btn">Upload Photo</button>
 
+    <!-- ✅ Simplified name section -->
+    <h2 class="profile-name">Khushi Beedassy</h2>
 
-    <!-- Details -->
+    <!-- ✅ Details section -->
     <div class="profile-details-container">
       <div class="detail-row">
         <span class="detail-label">Email</span>
@@ -36,9 +42,12 @@
         <span class="detail-label">Phone</span>
         <span class="detail-value">+230 56786543</span>
       </div>
+
+      <!-- ✅ History button kept inside the details box -->
       <button class="history-btn">History</button>
     </div>
 
   </div>
 </div>
 {% endblock %}
+
