@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Homecook Log{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'homecook/css/homecook_log.css' %}">
+
+<!-- Main Container -->
+<div class="homecook-container">
+    <!-- Homecook Profile -->
+    <div class="homecook-profile">
+        <img src="{% static 'homecook/images/profile.png' %}" alt="Profile Picture" class="profile-pic">
+        <h2 class="homecook-name">Rajesh Kumar</h2>
+        <p class="homecook-specialty">Indian Cuisine</p>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="orders-section">
+        <h3>Orders to Prepare</h3>
+        <div class="order-item">
+            <div class="dish-info">
+                <img src="{% static 'homecook/images/meal1.png' %}" alt="Meal" class="dish-image">
+                <div class="dish-details">
+                    <h4>Butter Chicken</h4>
+                    <p>Client: <strong>Emma Brown</strong></p>
+                    <p>Qty: 2</p>
+                </div>
+            </div>
+            <div class="order-actions">
+                <button class="mark-ready">Mark as Ready</button>
+            </div>
+        </div>
+
+        <div class="order-item">
+            <div class="dish-info">
+                <img src="{% static 'homecook/images/meal2.png' %}" alt="Meal" class="dish-image">
+                <div class="dish-details">
+                    <h4>Paneer Tikka</h4>
+                    <p>Client: <strong>Michael Lee</strong></p>
+                    <p>Qty: 1</p>
+                </div>
+            </div>
+            <div class="order-actions">
+                <button class="mark-ready">Mark as Ready</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
