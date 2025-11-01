@@ -42,3 +42,33 @@ def homecook(request):
         return redirect('homecook')
 
     return render(request, 'homecook/homecook.html')
+
+def homecook_log(request):
+    # Dummy data for now
+    homecook = {
+        'name': 'Rajesh Kumar',
+        'specialty': 'Indian Cuisine',
+        'profile_pic': 'homecook/images/profile.png'
+    }
+
+    orders = [
+        {
+            'dish_name': 'Butter Chicken',
+            'qty': 2,
+            'client_name': 'Emma Brown',
+            'dish_image': 'homecook/images/meal1.png'
+        },
+        {
+            'dish_name': 'Paneer Tikka',
+            'qty': 1,
+            'client_name': 'Michael Lee',
+            'dish_image': 'homecook/images/meal2.png'
+        }
+    ]
+
+    context = {
+        'homecook': homecook,
+        'orders': orders
+    }
+
+    return render(request, 'homecook/homecook_log.html', context)
