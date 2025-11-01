@@ -2,24 +2,33 @@ from decimal import Decimal, InvalidOperation
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import JsonResponse
-from .models import Category, MenuItem
+from .models import MenuItem
 
 # ---------------------------
 # MAPPINGS
 # ---------------------------
-TYPE_MAP = {
-    "starters": "Starters",
-    "main-courses": "Main Courses",
-    "seafood": "Seafood Specialties",
-    "desserts": "Desserts",
-}
+# TYPE_MAP = {
+#     "starters": "Starters",
+#     "main-courses": "Main Courses",
+#     "seafood": "Seafood Specialties",
+#     "desserts": "Desserts",
+# }
 
 # ---------------------------
 # MENU PAGE
 # ---------------------------
 def menu(request):
-    categories = Category.objects.prefetch_related("items").all()
-    return render(request, "meals/menu.html", {"categories": categories})
+    # Get all menu items grouped by cuisine
+    cuisines = MenuItem.objects.values_list('cuisine', flat=True).distinct().order_by('cuisine')
+    
+    # Create a dictionary with cuisine as key and items as value
+    menu_by_cuisine = {}
+    for cuisine in cuisines:
+        items = MenuItem.objects.filter(cuisine=cuisine).order_by('name')
+        if items.exists():
+            menu_by_cuisine[cuisine] = items
+    
+    return render(request, "meals/menu.html", {"menu_by_cuisine": menu_by_cuisine, "cuisines": cuisines})
 
 # ---------------------------
 # ADD MENU ITEM (ADMIN/FORM)

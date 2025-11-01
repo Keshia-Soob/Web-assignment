@@ -27,21 +27,18 @@
     </div>
   </div>
 
-  {% for category in categories %}
+  {% if menu_by_cuisine %}
+  {% for cuisine, items in menu_by_cuisine.items %}
   <div class="category-section">
     <div class="category-title">
-      <h2>{{ category.name }}</h2>
+      <h2>{{ cuisine|title}}</h2>
     </div>
 
     <div class="food-grid">
-      {% for item in category.items.all %}
-      <div class="food-item"
-           data-cuisine="{{ item.cuisine|lower }}"
-           data-id="{{ item.id }}"
-           data-name="{{ item.name }}"
-           data-price="{{ item.price|floatformat:0 }}">
-        <div class="food-image"
-             style="background-image: url('{{ item.display_image_url }}');">
+      {% for item in items %}
+      <div class="food-item" data-cuisine="{{ item.cuisine|lower }}" data-id="{{ item.id }}" data-name="{{ item.name }}"
+        data-price="{{ item.price|floatformat:0 }}">
+        <div class="food-image" style="background-image: url('{{ item.display_image_url }}');">
         </div>
         <div class="food-details">
           <h3 class="food-name">{{ item.name }}</h3>
@@ -49,86 +46,87 @@
           <div class="food-footer">
             <span class="food-price">Rs {{ item.price|floatformat:0 }}</span>
             <form action="{% url 'add_to_cart' item.id %}" method="POST" class="add-to-cart-form">
-                {% csrf_token %}
-                <button type="submit" class="add-btn">Add</button>
+              {% csrf_token %}
+              <button type="submit" class="add-btn">Add</button>
             </form>
           </div>
         </div>
       </div>
       {% empty %}
-        <p>No items in this category yet.</p>
+      <p>No items in this cuisines yet.</p>
       {% endfor %}
     </div>
   </div>
   {% endfor %}
+  {% endif %}
 </div>
 
 <!-- Tiny client-side cuisine filter to match your data-* attributes -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const filter = document.getElementById("cuisineFilter");
-  const items  = document.querySelectorAll(".food-item");
+  document.addEventListener("DOMContentLoaded", function () {
+    const filter = document.getElementById("cuisineFilter");
+    const items = document.querySelectorAll(".food-item");
 
-  function applyFilter() {
-    const val = filter.value;
-    items.forEach(it => {
-      const ok = (val === "all") || (it.dataset.cuisine === val);
-      it.style.display = ok ? "" : "none";
-    });
-  }
-  filter.addEventListener("change", applyFilter);
-  applyFilter();
-});
+    function applyFilter() {
+      const val = filter.value;
+      items.forEach(it => {
+        const ok = (val === "all") || (it.dataset.cuisine === val);
+        it.style.display = ok ? "" : "none";
+      });
+    }
+    filter.addEventListener("change", applyFilter);
+    applyFilter();
+  });
 
 
 
-function addToCart(itemId) {
+  function addToCart(itemId) {
     fetch(`/menu/add_to_cart/${itemId}/`, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': getCookie('csrftoken')
-        }
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': getCookie('csrftoken')
+      }
     })
-    .then(response => response.json())
-    .then(data => {
+      .then(response => response.json())
+      .then(data => {
         // Update cart count
         document.querySelector('.cart-count').textContent = data.cart_count;
-        
+
         // Show success feedback
         showAddToCartFeedback();
-        
+
         // Optional: Update cart dropdown content
         updateCartDropdown();
-    })
-    .catch(error => console.error('Error:', error));
-}
+      })
+      .catch(error => console.error('Error:', error));
+  }
 
-function getCookie(name) {
+  function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
+      }
     }
     return cookieValue;
-}
+  }
 
-function showAddToCartFeedback() {
+  function showAddToCartFeedback() {
     // You can add a temporary visual feedback here
     // For example, a small toast notification
     console.log('Item added to cart!');
-}
+  }
 
-function updateCartDropdown() {
+  function updateCartDropdown() {
     // Optional: Fetch and update cart dropdown content
     // This would require an additional endpoint to get cart HTML
-}
+  }
 
 
 </script>

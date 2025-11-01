@@ -1,15 +1,4 @@
 from django.db import models
-class Category(models.Model):
-    name = models.CharField(max_length=60, unique=True)
-    sort_order = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        ordering = ["sort_order", "name"]
-
-    def __str__(self):
-        return self.name
-
-
 class MenuItem(models.Model):
     CUISINE_CHOICES = [
         ("indian", "Indian"),
@@ -20,7 +9,6 @@ class MenuItem(models.Model):
         ("thai", "Thai"),
     ]
 
-    category    = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="items")
     name        = models.CharField(max_length=120)
     price       = models.DecimalField(max_digits=8, decimal_places=2)
     description = models.TextField(blank=True)
