@@ -7,54 +7,64 @@
 <link rel="stylesheet" href="{% static 'orders/order_summary.css' %}">
 
 <div class="order-summary-container center">
-    <h1>Order Summary</h1>
+  <h1>Order Summary</h1>
 
-    <section class="order-items">
-        {% if items %}
-        {% for item in items %}
-        <div class="order-item">
-            <img src="{{ item.image }}" alt="{{ item.name }}">
-            <div class="item-details">
-                <h4>{{ item.name }}</h4>
-            </div>
-            <div class="item-price">Rs {{ item.price|floatformat:0 }}</div>
-            <div class="item-qty">Qty: {{ item.quantity }}</div>
-            <!-- Remove button -->
-            <div class="item-actions">
-                <a href="{% url 'remove_from_order' item.id %}" class="remove-btn"
-                    onclick="return confirm('Remove {{ item.name }} from your order?');">
-                    Remove
-                </a>
-            </div>
+  <section class="order-items">
+    {% if items %}
+      {% for item in items %}
+      <div class="order-item">
+        <img src="{{ item.image }}" alt="{{ item.name }}">
+        <div class="item-details">
+          <h4>{{ item.name }}</h4>
         </div>
-        {% endfor %}
-        {% else %}
-        <p>Your order is empty. <a href="{% url 'menu' %}">Go back to the menu</a>.</p>
-        {% endif %}
-    </section>
+        <div class="item-price">Rs {{ item.price|floatformat:0 }}</div>
 
-    <!-- Summary Sidebar -->
-    <div class="summary-box">
-        <div class="sum-left">
-            <h2>Summary</h2>
-            <!-- <p>Subtotal: Rs {{ subtotal|floatformat:0 }}</p> -->
-            {% for item in items %}
-                <p> {{ item.quantity }} x {{ item.price }} </p>
-            {% endfor %}
-        </div>
-        
-        <div class="sum-right">
-            <h2>Total: Rs {{ total|floatformat:0 }}</h2>
+        <!-- Quantity controls -->
+        <div class="item-qty">
+          <form action="{% url 'update_quantity' item.id %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="dec">
+            <button type="submit" class="qty-btn">−</button>
+          </form>
 
-            {% if items %}
-            <button class="checkout-btn">
-                <a href="{% url 'order_confirmed' %}"></a>
-                Pay and Checkout
-            </button>
-            {% endif %}
+          <span class="qty-count">{{ item.quantity }}</span>
+
+          <form action="{% url 'update_quantity' item.id %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="inc">
+            <button type="submit" class="qty-btn">+</button>
+          </form>
         </div>
 
+        <!-- Remove button -->
+        <div class="item-actions">
+          <form action="{% url 'remove_from_order' item.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="remove-btn">Remove</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p>Your order is empty. <a href="{% url 'menu' %}" class="remove-btn">Go back to the menu.</a></p>
+    {% endif %}
+  </section>
+
+  <!-- Summary Sidebar -->
+  <div class="summary-box">
+    <div class="sum-left">
+      <h2>Summary</h2>
+      {% for item in items %}
+        <p>{{ item.quantity }} × Rs {{ item.price|floatformat:0 }}</p>
+      {% endfor %}
     </div>
 
+    <div class="sum-right">
+      <h2>Total: Rs {{ total|floatformat:0 }}</h2>
+      {% if items %}
+      <a class="checkout-btn" href="{% url 'order_confirmed' %}">Pay and Checkout</a>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}

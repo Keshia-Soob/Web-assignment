@@ -37,7 +37,6 @@ def _normalize_qty(q):
                 except (TypeError, ValueError):
                     break
         return 1
-    # any other type
     return 1
 
 def _normalize_cart(cart):
@@ -63,7 +62,7 @@ def _cart_items_and_totals(cart):
     subtotal = Decimal("0")
     for item_id_str, qty in cart.items():
         item = get_object_or_404(MenuItem, id=int(item_id_str))
-        qty = int(qty)  # safe now
+        qty = int(qty)
         line_total = (item.price or Decimal("0")) * qty
         subtotal += line_total
         items.append({
@@ -77,7 +76,7 @@ def _cart_items_and_totals(cart):
         })
     return items, subtotal
 
-# ---------- Your existing views ----------
+# ---------- Pages ----------
 
 def order(request):
     return render(request, 'orders/order.html')
@@ -86,7 +85,7 @@ def order_confirmed(request):
     return render(request, 'orders/order_confirmed.html')
 
 def order_summary(request):
-    cart = _get_cart(request)  # <- ensures normalization
+    cart = _get_cart(request)
     items, subtotal = _cart_items_and_totals(cart)
     context = {
         "items": items,
@@ -99,17 +98,35 @@ def order_summary(request):
 
 @require_POST
 def update_quantity(request, item_id):
+    """
+    Supports two modes:
+      - POST action=inc/dec
+      - POST quantity=<int>
+    """
     cart = _get_cart(request)
-    qty = _normalize_qty(request.POST.get("quantity", 1))
     key = str(item_id)
-    if qty <= 0:
-        cart.pop(key, None)
+    action = request.POST.get("action")
+
+    if action == "inc":
+        cart[key] = cart.get(key, 0) + 1
+    elif action == "dec":
+        current = cart.get(key, 0)
+        if current > 1:
+            cart[key] = current - 1
+        else:
+            cart.pop(key, None)
     else:
-        cart[key] = qty
+        qty = _normalize_qty(request.POST.get("quantity", 1))
+        if qty <= 0:
+            cart.pop(key, None)
+        else:
+            cart[key] = qty
+
     request.session["cart"] = cart
     request.session.modified = True
     return redirect("order_summary")
 
+@require_POST
 def remove_from_order(request, item_id):
     cart = _get_cart(request)
     cart.pop(str(item_id), None)
@@ -117,33 +134,19 @@ def remove_from_order(request, item_id):
     request.session.modified = True
     return redirect("order_summary")
 
+@require_POST
 def clear_order(request):
-    if "cart" in request.session:
-        del request.session["cart"]
+    request.session["cart"] = {}
+    request.session.modified = True
     return redirect("order_summary")
 
+@require_POST
 def add_to_order(request, item_id):
     # ensure the item exists
     get_object_or_404(MenuItem, id=item_id)
-
     cart = _get_cart(request)
     key = str(item_id)
-    cart[key] = cart.get(key, 0) + 1   # will be int going forward
+    cart[key] = cart.get(key, 0) + 1
     request.session["cart"] = cart
     request.session.modified = True
-
-    # land on summary
     return redirect("order_summary")
-
-
-# from django.shortcuts import render
-
-# # Create your views here.
-# def order(request):
-#     return render(request, 'orders/order.html')
-
-# def order_confirmed(request):
-#     return render(request, 'orders/order_confirmed.html')
-
-# def order_summary(request):
-#     return render(request, 'orders/order_summary.html')

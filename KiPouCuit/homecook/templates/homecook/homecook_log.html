@@ -6,45 +6,50 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'homecook/css/homecook_log.css' %}">
 
-<!-- Main Container -->
 <div class="homecook-container">
-    <!-- Homecook Profile -->
-    <div class="homecook-profile">
-        <img src="{% static 'homecook/images/profile.png' %}" alt="Profile Picture" class="profile-pic">
-        <h2 class="homecook-name">Rajesh Kumar</h2>
-        <p class="homecook-specialty">Indian Cuisine</p>
-    </div>
+  <!-- Homecook Profile -->
+  <div class="homecook-profile">
+    {% if homecook and homecook.profile_picture %}
+      <img src="{{ homecook.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+    {% else %}
+      <img src="{% static 'homecook/images/profile.png' %}" alt="Profile Picture" class="profile-pic">
+    {% endif %}
 
-    <!-- Orders Section -->
-    <div class="orders-section">
-        <h3>Orders to Prepare</h3>
-        <div class="order-item">
-            <div class="dish-info">
-                <img src="{% static 'homecook/images/meal1.png' %}" alt="Meal" class="dish-image">
-                <div class="dish-details">
-                    <h4>Butter Chicken</h4>
-                    <p>Client: <strong>Emma Brown</strong></p>
-                    <p>Qty: 2</p>
-                </div>
-            </div>
-            <div class="order-actions">
-                <button class="mark-ready">Mark as Ready</button>
-            </div>
-        </div>
+    {% if homecook %}
+      <h2 class="homecook-name">{{ homecook.name }} {{ homecook.surname }}</h2>
+      <p class="homecook-specialty">{{ homecook.get_cuisine_display }}</p>
+    {% else %}
+      <h2 class="homecook-name">HomeCook</h2>
+      <p class="homecook-specialty">—</p>
+    {% endif %}
+  </div>
 
-        <div class="order-item">
-            <div class="dish-info">
-                <img src="{% static 'homecook/images/meal2.png' %}" alt="Meal" class="dish-image">
-                <div class="dish-details">
-                    <h4>Paneer Tikka</h4>
-                    <p>Client: <strong>Michael Lee</strong></p>
-                    <p>Qty: 1</p>
-                </div>
-            </div>
-            <div class="order-actions">
-                <button class="mark-ready">Mark as Ready</button>
-            </div>
+  <!-- Orders Section -->
+  <div class="orders-section">
+    <h3>Orders to Prepare</h3>
+
+    {% if items %}
+      {% for it in items %}
+      <div class="order-item">
+        <div class="dish-info">
+          <img src="{{ it.menu_item.display_image_url }}" alt="Meal" class="dish-image">
+          <div class="dish-details">
+            <h4>{{ it.menu_item.name }}</h4>
+            <p>Client: <strong>N/A</strong></p>
+            <p>Qty: {{ it.quantity }}</p>
+          </div>
         </div>
-    </div>
+        <div class="order-actions">
+          <form action="{% url 'mark_order_ready' it.id %}" method="post">
+            {% csrf_token %}
+            <button class="mark-ready" type="submit">Mark as Ready</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p>No pending {% if homecook %}{{ homecook.get_cuisine_display }}{% else %}—{% endif %} orders right now.</p>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}
