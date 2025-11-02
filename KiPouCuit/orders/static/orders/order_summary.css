@@ -115,3 +115,12 @@
   box-shadow: 0 0 5px rgba(78, 78, 78, 0.5);
   min-width: 250px;
 }
+
+.qty-btn {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.qty-count { margin: 0 10px; font-weight: 600; }
