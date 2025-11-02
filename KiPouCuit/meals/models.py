@@ -6,7 +6,6 @@ class MenuItem(models.Model):
         ("english", "English"),
         ("french", "French"),
         ("asian", "Asian"),
-        ("thai", "Thai"),
     ]
 
     name        = models.CharField(max_length=120)

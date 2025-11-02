@@ -70,37 +70,6 @@ def addmenu(request):
         valid_cuisines = dict(MenuItem.CUISINE_CHOICES)
         if data["itemCuisine"] and data["itemCuisine"] not in valid_cuisines:
             errors.append("Invalid cuisine type selected.")
-
-        # Category
-        cat_name = TYPE_MAP.get(data["itemType"])
-        if not cat_name:
-            errors.append("Invalid dish type selected.")
-
-        if not errors:
-            category, _ = Category.objects.get_or_create(name=cat_name)
-            image_file = request.FILES.get("itemImage")
-
-            item = MenuItem(
-                category=category,
-                name=data["itemName"],
-                price=price_val or Decimal("0"),
-                description=data["itemDescription"],
-                cuisine=data["itemCuisine"],
-            )
-            if image_file:
-                item.image = image_file
-            item.save()
-
-            return render(
-                request,
-                "meals/addmenu.html",
-                {
-                    "success": True,
-                    "cuisine_choices": MenuItem.CUISINE_CHOICES,
-                    "form_data": {},
-                },
-            )
-
         # If errors
         return render(
             request,

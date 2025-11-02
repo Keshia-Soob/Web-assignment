@@ -22,16 +22,15 @@
         <option value="english">English</option>
         <option value="french">French</option>
         <option value="asian">Asian</option>
-        <option value="thai">Thai</option>
       </select>
     </div>
   </div>
 
   {% if menu_by_cuisine %}
   {% for cuisine, items in menu_by_cuisine.items %}
-  <div class="category-section">
-    <div class="category-title">
-      <h2>{{ cuisine|title}}</h2>
+  <div class="cuisine-section" data-cuisine="{{ cuisine|lower }}">
+    <div class="cuisine-title">
+      <h2>{{ cuisine|title }}</h2>
     </div>
 
     <div class="food-grid">
@@ -53,11 +52,13 @@
         </div>
       </div>
       {% empty %}
-      <p>No items in this cuisines yet.</p>
+      <p>No items in this cuisine yet.</p>
       {% endfor %}
     </div>
   </div>
   {% endfor %}
+  {% else %}
+  <p>No menu items available.</p>
   {% endif %}
 </div>
 
@@ -65,15 +66,21 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const filter = document.getElementById("cuisineFilter");
-    const items = document.querySelectorAll(".food-item");
+    const sections = document.querySelectorAll(".cuisine-section");
 
     function applyFilter() {
       const val = filter.value;
-      items.forEach(it => {
-        const ok = (val === "all") || (it.dataset.cuisine === val);
-        it.style.display = ok ? "" : "none";
+      
+      sections.forEach(section => {
+        if (val === "all") {
+          section.style.display = "";
+        } else {
+          const ok = section.dataset.cuisine === val;
+          section.style.display = ok ? "" : "none";
+        }
       });
     }
+    
     filter.addEventListener("change", applyFilter);
     applyFilter();
   });
