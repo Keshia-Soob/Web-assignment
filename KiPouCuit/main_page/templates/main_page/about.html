@@ -14,10 +14,10 @@
                 <span class="label">Proven strategies backed by science</span>
                 <h1>About KiPouCuit</h1>
                 <p>We help people discover their true potential and live a fulfilling life. Discover the simple steps we use to create delicious, homemade meals backed by tradition and science. Ready to transform your dining experience?</p>
-                <a href="{% url 'menu' %}" class="btn">Explore More</a>
+                <a href="{% url 'home' %}" class="btn">Explore More</a>
             </div>
             <div class="hero-image">
-                <img src="{% static 'main_page/assets/about1.png'%}" alt="About Us">
+                <img src="{% static 'main_page/assets/about1.png' %}" alt="About Us">
             </div>
         </div>
     </section>
@@ -29,21 +29,21 @@
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="icon">
-                        <img src="{% static 'main_page/assets/about2.jpg'%}" alt="Free Shipping">
+                        <img src="{% static 'main_page/assets/about2.jpg' %}" alt="Free Shipping">
                     </div>
                     <h3>Free Shipping</h3>
                     <p>Orders over $100 get free shipping on all groceries</p>
                 </div>
                 <div class="feature-card featured">
                     <div class="icon">
-                        <img src="{% static 'main_page/assets/about3.jpg'%}" alt="15 Days Returns">
+                        <img src="{% static 'main_page/assets/about3.jpg' %}" alt="15 Days Returns">
                     </div>
                     <h3>15 Days Returns</h3>
                     <p>Easy returns using the freshness guarantee</p>
                 </div>
                 <div class="feature-card">
                     <div class="icon">
-                        <img src="{% static 'main_page/assets/about4.jpg'%}" alt="Secure Checkout">
+                        <img src="{% static 'main_page/assets/about4.jpg' %}" alt="Secure Checkout">
                     </div>
                     <h3>Secure Checkout</h3>
                     <p>Your data is protected with secure payments</p>
@@ -56,14 +56,14 @@
     <section class="chef-delivery">
         <div class="container chef-delivery-container">
             <div class="chef-image">
-                <img src="{% static 'main_page/assets/about10.jpg'%}" alt="Smiling Chef">
+                <img src="{% static 'main_page/assets/about10.jpg' %}" alt="Smiling Chef">
             </div>
             <div class="chef-content">
                 <span class="label">Home Delivery</span>
                 <h2>Sit at Home, We'll Take Care of Your Order</h2>
                 <p>From our kitchen to your doorstep-fresh, fast, and full of flavor. Let us handle the cooking while you enjoy the comfort.</p>
                 <div class="bike-highlight">
-                    <img src="{% static 'main_page/assets/about9.jpg'%}" alt="Bike Icon">
+                    <img src="{% static 'main_page/assets/about9.jpg' %}" alt="Bike Icon">
                     <span>We deliver your food by bike as quickly as possible.</span>
                 </div>
                 <a href="{% url 'menu' %}" class="btn">Order Now</a>
@@ -72,43 +72,152 @@
     </section>
 </main>
 
-    <!-- Testimonial Section -->
-    <section class="testimonial">
-        <div class="container">
-            <h2>What Our Customers Say</h2>
-            <div class="testimonial-card">
-                <img src="{% static 'main_page/assets/about5.jpg'%}" alt="Customer">
-                <div class="testimonial-content">
-                    <h3>Justin Alins</h3>
-                    <p>"Really satisfied with KiPouCuit! The food quality is amazing and their support is awesome. They really care about delivering the best experience."</p>
-                    <div class="rating">★★★★★</div>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- Testimonial Section -->
+<section class="testimonial">
+    <div class="container">
+        <h2>What Our Customers Say</h2>
 
-    <!-- App Download Section -->
-    <section class="app-download">
-        <div class="container app-download-container">
-            <div class="app-visual">
-                <img src="{% static 'main_page/assets/about6.jpg'%}" alt="Download App">
-            </div>
-            <div class="app-info">
-                <h2>Download Our App</h2>
-                <p>Get the Food app order more easily. Enjoy seamless ordering, exclusive deals, and fast checkout—all from your phone.</p>
-                <p class="placeholder">Your cravings, delivered—fast, fresh, and fuss-free.</p>
-                <div class="store-buttons">
-                    <a href="#" class="store-btn">
-                        <img src="{% static 'main_page/assets/about7.jpg'%}" alt="App Store">
-                        App Store
-                    </a>
-                    <a href="#" class="store-btn">
-                        <img src="{% static 'main_page/assets/about8.jpg'%}" alt="Play Store">
-                        Play Store
-                    </a>
+        {% if latest_reviews %}
+        <div class="slider-container">
+            <button class="slider-arrow prev" aria-label="Previous testimonial">&#10094;</button>
+            <div class="slider-wrapper">
+                <div class="slider-track">
+                    {% for review in latest_reviews %}
+                    <div class="testimonial-card">
+                        <img src="{% static 'main_page/assets/default_user.png' %}" alt="{{ review.first_name }} {{ review.last_name }}">
+                        <div class="testimonial-content">
+                            <h3>{{ review.first_name }} {{ review.last_name }}</h3>
+                            <p>"{{ review.message }}"</p>
+                            <div class="rating">
+                                {% for i in "12345"|make_list %}
+                                    <span>{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
+            <button class="slider-arrow next" aria-label="Next testimonial">&#10095;</button>
         </div>
-    </section>
+
+        <div class="review-button-wrapper">
+            <a href="{% url 'review' %}" class="btn leave-review-btn">Leave a Review</a>
+        </div>
+        {% else %}
+            <p>No reviews available yet. Be the first to leave one!</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- App Download Section -->
+<section class="app-download">
+    <div class="container app-download-container">
+        <div class="app-visual">
+            <img src="{% static 'main_page/assets/about6.jpg' %}" alt="Download App">
+        </div>
+        <div class="app-info">
+            <h2>Download Our App</h2>
+            <p>Get the Food app order more easily. Enjoy seamless ordering, exclusive deals, and fast checkout—all from your phone.</p>
+            <p class="placeholder">Your cravings, delivered—fast, fresh, and fuss-free.</p>
+            <div class="store-buttons">
+                <a href="#" class="store-btn">
+                    <img src="{% static 'main_page/assets/about7.jpg' %}" alt="App Store">
+                    App Store
+                </a>
+                <a href="#" class="store-btn">
+                    <img src="{% static 'main_page/assets/about8.jpg' %}" alt="Play Store">
+                    Play Store
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JS for Testimonial Slider -->
+<script>
+// Check if slider elements exist before initializing
+const sliderWrapper = document.querySelector('.slider-wrapper');
+const sliderTrack = document.querySelector('.slider-track');
+const prevBtn = document.querySelector('.slider-arrow.prev');
+const nextBtn = document.querySelector('.slider-arrow.next');
+const cards = document.querySelectorAll('.testimonial-card');
+
+if (sliderWrapper && sliderTrack && prevBtn && nextBtn && cards.length > 0) {
+    let currentIndex = 0;
+    const totalCards = cards.length;
+
+    function updateSlider() {
+        // Dynamically calculate card width and gap from actual rendered elements
+        const cardWidth = cards[0].offsetWidth;
+        const trackStyles = window.getComputedStyle(sliderTrack);
+        const gap = parseInt(trackStyles.gap) || 30;
+        
+        // Calculate offset to center the current card
+        const offset = currentIndex * (cardWidth + gap);
+        sliderTrack.style.transform = `translateX(-${offset}px)`;
+        
+        // Disable/enable buttons based on position
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === totalCards - 1;
+        
+        // Update button opacity for visual feedback
+        if (currentIndex === 0) {
+            prevBtn.style.opacity = '0.3';
+            prevBtn.style.cursor = 'not-allowed';
+        } else {
+            prevBtn.style.opacity = '1';
+            prevBtn.style.cursor = 'pointer';
+        }
+        
+        if (currentIndex === totalCards - 1) {
+            nextBtn.style.opacity = '0.3';
+            nextBtn.style.cursor = 'not-allowed';
+        } else {
+            nextBtn.style.opacity = '1';
+            nextBtn.style.cursor = 'pointer';
+        }
+    }
+
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateSlider();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < totalCards - 1) {
+            currentIndex++;
+            updateSlider();
+        }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' && currentIndex > 0) {
+            currentIndex--;
+            updateSlider();
+        } else if (e.key === 'ArrowRight' && currentIndex < totalCards - 1) {
+            currentIndex++;
+            updateSlider();
+        }
+    });
+
+    // Initialize slider after page loads completely
+    window.addEventListener('load', () => {
+        updateSlider();
+    });
+
+    // Adjust on window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            updateSlider();
+        }, 250);
+    });
+}
+</script>
 
 {% endblock %}
