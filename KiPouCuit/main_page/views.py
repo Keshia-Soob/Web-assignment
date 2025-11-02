@@ -1,14 +1,19 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import ContactMessage
+from reviews.models import Review  # import Review model for testimonials
 
-# Create your views here.
+# Home Page
 def home(request):
-    return render(request, 'main_page/home.html')  # default title KiPouCuit
+    return render(request, 'main_page/home.html')
 
+# About Page with dynamic testimonials
 def about(request):
-    return render(request, 'main_page/about.html')
+    # Get the 3 latest reviews (newest first)
+    latest_reviews = Review.objects.order_by('-created_at')[:3]
+    return render(request, 'main_page/about.html', {'latest_reviews': latest_reviews})
 
+# Contact Page
 def contact(request):
     if request.method == 'POST':
         name = request.POST.get('name')

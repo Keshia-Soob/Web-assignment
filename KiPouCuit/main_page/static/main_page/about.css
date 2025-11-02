@@ -401,3 +401,192 @@
     }
 }
 
+/* === Testimonial Section Fixes === */
+.testimonial {
+    background-color: #f9f9f9;
+    padding: 60px 0;
+}
+
+.testimonial .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.testimonial h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 32px;
+    color: #333;
+}
+
+.slider-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 450px;
+}
+
+/* Wrapper to center the visible card */
+.slider-wrapper {
+    width: 550px;
+    max-width: calc(100% - 160px);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Track holds all testimonial cards */
+.slider-track {
+    display: flex;
+    gap: 30px;
+    transition: transform 0.5s ease-in-out;
+}
+
+/* Individual testimonial card */
+.testimonial-card {
+    flex: 0 0 550px;
+    width: 550px;
+    min-height: 380px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 35px 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* Optional avatar image */
+.testimonial-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+/* Name styling */
+.testimonial-card h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 15px 0;
+    text-align: center;
+}
+
+/* Review text */
+.testimonial-card p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.7;
+    overflow-y: auto;
+    max-height: 200px;
+    margin: 0 0 20px 0;
+    padding-right: 8px;
+    text-align: center;
+    flex-grow: 1;
+}
+
+/* Custom scrollbar */
+.testimonial-card p::-webkit-scrollbar {
+    width: 5px;
+}
+
+.testimonial-card p::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.testimonial-card p::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.testimonial-card p::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Star rating - CENTERED */
+.rating {
+    font-size: 22px;
+    color: #E67E22;
+    letter-spacing: 3px;
+    flex-shrink: 0;
+    text-align: center;
+    width: 100%;
+    display: block;
+}
+
+/* Navigation arrows */
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+    font-size: 28px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 50%;
+    transition: background 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slider-arrow:hover:not(:disabled) {
+    background: rgba(0,0,0,0.7);
+}
+
+.slider-arrow:focus {
+    outline: 2px solid #E67E22;
+    outline-offset: 2px;
+}
+
+/* Disabled state for arrows */
+.slider-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: rgba(0,0,0,0.3);
+}
+
+.slider-arrow.prev {
+    left: 15px;
+}
+
+.slider-arrow.next {
+    right: 15px;
+}
+
+/* Review button wrapper */
+.review-button-wrapper {
+    text-align: center;
+    margin-top: 40px;
+    padding-bottom: 20px;
+}
+
+/* CTA button */
+.leave-review-btn {
+    display: inline-block;
+    background-color: #E67E22;
+    color: #fff;
+    padding: 14px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.leave-review-btn:hover {
+    background-color: #d35400;
+}
+
