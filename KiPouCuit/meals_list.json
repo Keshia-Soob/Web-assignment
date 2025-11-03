@@ -243,11 +243,11 @@
         "model": "meals.menuitem",
         "pk": 21,
         "fields": {
-            "name": "CrΦme Br√lΘe",
+            "name": "Creme Brulee",
             "price": "140.00",
             "description": "Luxurious French dessert featuring smooth, rich vanilla custard topped with a layer of caramelized sugar that cracks dramatically under your spoon. The perfect contrast of creamy and crunchy textures.",
             "cuisine": "french",
-            "image": "menu_images/CrΦme_Br√lΘe.jpg",
+            "image": "menu_images/creme_brulee.jpg",
             "image_url": ""
         }
     },
