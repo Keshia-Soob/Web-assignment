@@ -274,6 +274,32 @@ footer {
     font-size: 14px;
 }
 
+
+#toast-container {
+position: fixed;
+bottom: 20px;
+right: 20px;
+z-index: 9999;
+}
+
+.toast {
+background-color: #fc0101;
+color: #fff;
+padding: 12px 18px;
+margin-top: 10px;
+border-radius: 8px;
+font-size: 15px;
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+opacity: 0;
+transform: translateY(20px);
+transition: all 0.3s ease;
+}
+
+.toast.show {
+opacity: 1;
+transform: translateY(0);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .nav-links {

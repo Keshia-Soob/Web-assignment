@@ -6,6 +6,8 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'meals/MenuStyle.css' %}">
 
+{% url 'add_to_cart' 0 as ADD_TO_CART_BASE %}
+
 <div class="menu-container">
   <div class="menu-title">
     <h1>Our Delicious Menu</h1>
@@ -16,6 +18,7 @@
   <div class="menu-controls">
     <div class="cuisine-selector">
       <select id="cuisineFilter">
+	<option value="all">All Cuisines</option>
         <option value="all">All Cuisines</option>
         <option value="indian">Indian</option>
         <option value="mauritian">Mauritian</option>
@@ -27,88 +30,101 @@
   </div>
 
   {% if menu_by_cuisine %}
-  {% for cuisine, items in menu_by_cuisine.items %}
-  <div class="cuisine-section" data-cuisine="{{ cuisine|lower }}">
-    <div class="cuisine-title">
-      <h2>{{ cuisine|title }}</h2>
-    </div>
+    {% for cuisine, items in menu_by_cuisine.items %}
+    <div class="category-section">
+      <div class="category-title">
+        <h2>{{ cuisine|title }}</h2>
+      </div>
 
-    <div class="food-grid">
-      {% for item in items %}
-      <div class="food-item" data-cuisine="{{ item.cuisine|lower }}" data-id="{{ item.id }}" data-name="{{ item.name }}"
-        data-price="{{ item.price|floatformat:0 }}">
-        <div class="food-image" style="background-image: url('{{ item.display_image_url }}');">
-        </div>
-        <div class="food-details">
-          <h3 class="food-name">{{ item.name }}</h3>
-          <p class="food-description">{{ item.description }}</p>
-          <div class="food-footer">
-            <span class="food-price">Rs {{ item.price|floatformat:0 }}</span>
-            <form action="{% url 'add_to_cart' item.id %}" method="POST" class="add-to-cart-form">
-              {% csrf_token %}
-              <button type="submit" class="add-btn">Add</button>
-            </form>
+      <div class="food-grid">
+        {% for item in items %}
+        <div class="food-item"
+             data-cuisine="{{ item.cuisine|lower }}"
+             data-id="{{ item.id }}"
+             data-name="{{ item.name }}"
+             data-price="{{ item.price|floatformat:0 }}">
+          <div class="food-image" style="background-image: url('{{ item.display_image_url }}');"></div>
+          <div class="food-details">
+            <h3 class="food-name">{{ item.name }}</h3>
+            <p class="food-description">{{ item.description }}</p>
+            <div class="food-footer">
+              <span class="food-price">Rs {{ item.price|floatformat:0 }}</span>
+
+              <form class="add-to-cart-form" data-id="{{ item.id }}">
+                {% csrf_token %}
+                <button type="submit" class="add-btn">Add</button>
+              </form>
+            </div>
           </div>
         </div>
+        {% empty %}
+          <p>No items in this cuisine yet.</p>
+        {% endfor %}
       </div>
-      {% empty %}
-      <p>No items in this cuisine yet.</p>
-      {% endfor %}
     </div>
-  </div>
-  {% endfor %}
-  {% else %}
-  <p>No menu items available.</p>
+    {% endfor %}
   {% endif %}
 </div>
 
-<!-- Tiny client-side cuisine filter to match your data-* attributes -->
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Scripts -->
 <script>
+  // --- Cuisine Filter ---
   document.addEventListener("DOMContentLoaded", function () {
     const filter = document.getElementById("cuisineFilter");
-    const sections = document.querySelectorAll(".cuisine-section");
+    const items = document.querySelectorAll(".food-item");
 
     function applyFilter() {
       const val = filter.value;
-      
-      sections.forEach(section => {
-        if (val === "all") {
-          section.style.display = "";
-        } else {
-          const ok = section.dataset.cuisine === val;
-          section.style.display = ok ? "" : "none";
-        }
+      items.forEach(it => {
+        const ok = (val === "all") || (it.dataset.cuisine === val);
+        it.style.display = ok ? "" : "none";
       });
     }
-    
     filter.addEventListener("change", applyFilter);
     applyFilter();
   });
 
+  // --- Add to Cart (AJAX) ---
+  document.addEventListener("submit", function (e) {
+    if (!e.target.matches(".add-to-cart-form")) return;
+    e.preventDefault();
 
+    const form = e.target;
+    const id = form.dataset.id;
+    if (!id) return;
 
-  function addToCart(itemId) {
-    fetch(`/menu/add_to_cart/${itemId}/`, {
-      method: 'POST',
+    const base = "{{ ADD_TO_CART_BASE }}"; // e.g. /add_to_cart/0/
+    const url = base.replace("/0/", `/${id}/`);
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+
+    fetch(url, {
+      method: "POST",
       headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRFToken': getCookie('csrftoken')
-      }
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: new FormData(form),
     })
-      .then(response => response.json())
-      .then(data => {
-        // Update cart count
-        document.querySelector('.cart-count').textContent = data.cart_count;
+    .then(r => r.json())
+    .then(data => {
+      // Update cart count badge
+      const countEl = document.querySelector(".cart-count");
+      if (countEl && typeof data.cart_count !== "undefined") {
+        countEl.textContent = data.cart_count;
+      }
 
-        // Show success feedback
-        showAddToCartFeedback();
+      // Show toast message
+      showAddToCartFeedback(form.closest(".food-item")?.dataset.name || "Item");
+    })
+    .catch(console.error)
+    .finally(() => { btn.disabled = false; });
+  });
 
-        // Optional: Update cart dropdown content
-        updateCartDropdown();
-      })
-      .catch(error => console.error('Error:', error));
-  }
-
+  // --- Helpers ---
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -124,17 +140,23 @@
     return cookieValue;
   }
 
-  function showAddToCartFeedback() {
-    // You can add a temporary visual feedback here
-    // For example, a small toast notification
-    console.log('Item added to cart!');
+  // --- Toast Notification ---
+  function showAddToCartFeedback(itemName) {
+    const toastContainer = document.getElementById("toast-container");
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = `${itemName} added to cart!`;
+    toastContainer.appendChild(toast);
+
+    // Slide in
+    setTimeout(() => toast.classList.add("show"), 50);
+
+    // Remove after 2.5s
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 300);
+    }, 2500);
   }
-
-  function updateCartDropdown() {
-    // Optional: Fetch and update cart dropdown content
-    // This would require an additional endpoint to get cart HTML
-  }
-
-
 </script>
+
 {% endblock %}
