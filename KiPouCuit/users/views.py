@@ -99,5 +99,3 @@ def user_history_view(request):
 #------------user profile------------
 def user_profile_view(request):
     return render(request, 'users/user_profile.html')
-
-'''cagskloagjnlsagnsglsdglsgnsg'''

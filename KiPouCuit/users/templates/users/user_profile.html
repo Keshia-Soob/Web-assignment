@@ -11,7 +11,6 @@
   <!-- ✅ Added banner section -->
   <div class="profile-banner">
     <img src="{% static 'users/images/banner.png' %}" alt="Banner" class="banner-image">
-
   </div>
 
   <!-- ✅ Profile card container (now below banner) -->
@@ -44,10 +43,11 @@
       </div>
 
       <!-- ✅ History button kept inside the details box -->
-      <button class="history-btn">History</button>
+      <a href="{% url 'user_history' %}" class="history-btn">History</a>
     </div>
 
   </div>
 </div>
 {% endblock %}
+
 
