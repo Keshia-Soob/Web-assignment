@@ -5,6 +5,9 @@ from django.contrib.auth import authenticate, login
 from .models import UserProfile
 from django.contrib.auth import login
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from .models import UserProfile
+from .forms import UserProfilePhotoForm
 
 def signup_view(request):
     if request.method == "POST":
@@ -97,5 +100,17 @@ def user_history_view(request):
     return render(request, 'users/user_history.html')
 
 #------------user profile------------
+@login_required
 def user_profile_view(request):
-    return render(request, 'users/user_profile.html')
+    # Get or create the user profile
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = UserProfilePhotoForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('user_profile')  # reload page to show "Edit Photo"
+    else:
+        form = UserProfilePhotoForm(instance=profile)
+
+    return render(request, 'users/user_profile.html', {'profile': profile, 'form': form})

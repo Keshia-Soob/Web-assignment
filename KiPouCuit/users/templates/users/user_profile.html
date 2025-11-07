@@ -5,49 +5,82 @@
 <link rel="stylesheet" href="{% static 'users/css/user_profile.css' %}">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
-<!-- ✅ Added wrapper for the banner + card -->
 <div class="profile-wrapper">
-
-  <!-- ✅ Added banner section -->
   <div class="profile-banner">
     <img src="{% static 'users/images/banner.png' %}" alt="Banner" class="banner-image">
   </div>
 
-  <!-- ✅ Profile card container (now below banner) -->
   <div class="profile-container">
 
-    <!-- ✅ Profile photo -->
+    <!-- Profile Photo Preview -->
     <div class="profile-photo-container">
-      <img src="{% static 'users/images/default profile photo.jpg' %}" class="profile-photo">
+      {% if profile.photo %}
+        <img id="photoPreview" src="{{ profile.photo.url }}" class="profile-photo">
+      {% else %}
+        <img id="photoPreview" src="{% static 'users/images/default profile photo.jpg' %}" class="profile-photo">
+      {% endif %}
     </div>
 
-    <!-- ✅ Upload button (kept) -->
-    <button class="upload-btn">Upload Photo</button>
+    <!-- Upload/Edit + Save -->
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
 
-    <!-- ✅ Simplified name section -->
-    <h2 class="profile-name">Khushi Beedassy</h2>
+      <!-- Hidden file input -->
+      <input type="file" name="photo" id="fileInput" style="display:none;">
 
-    <!-- ✅ Details section -->
+      <!-- Custom Upload/Edit Button -->
+      <button type="button" id="uploadBtn" class="upload-btn">
+        {% if profile.photo %}Edit Photo{% else %}Upload Photo{% endif %}
+      </button>
+
+      <!-- Save Button (hidden initially) -->
+      <input type="submit" id="saveBtn" value="Save" class="upload-btn" style="display:none;">
+    </form>
+
+    <!-- User Info -->
+    <h2 class="profile-name">{{ request.user.first_name }} {{ request.user.last_name }}</h2>
     <div class="profile-details-container">
       <div class="detail-row">
         <span class="detail-label">Email</span>
-        <span class="detail-value">khushibeedassy@gmail.com</span>
+        <span class="detail-value">{{ request.user.email }}</span>
       </div>
       <div class="detail-row">
         <span class="detail-label">Address</span>
-        <span class="detail-value">chemin grenier</span>
+        <span class="detail-value">{{ profile.address }}</span>
       </div>
       <div class="detail-row">
         <span class="detail-label">Phone</span>
-        <span class="detail-value">+230 56786543</span>
+        <span class="detail-value">{{ profile.phone }}</span>
       </div>
 
-      <!-- ✅ History button kept inside the details box -->
       <a href="{% url 'user_history' %}" class="history-btn">History</a>
     </div>
-
   </div>
 </div>
+
+<!-- JS for preview + button logic -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const fileInput = document.getElementById('fileInput');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  const preview = document.getElementById('photoPreview');
+
+  uploadBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => { preview.src = e.target.result; };
+      reader.readAsDataURL(file);
+
+      // Show Save button and hide Upload/Edit
+      saveBtn.style.display = 'inline-block';
+      uploadBtn.style.display = 'none';
+    }
+  });
+});
+</script>
+
 {% endblock %}
-
-
