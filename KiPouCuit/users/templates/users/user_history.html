@@ -4,7 +4,7 @@
 {% block title %}User History{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'users/css/user_history.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'users/css/user_history.css' %}">
 
 <div class="history-container">
     <!-- Banner -->
@@ -15,51 +15,110 @@
     <!-- Profile Section -->
     <div class="profile-section">
         <div class="profile-pic">
-            <img src="{% static 'users/images/profile.png' %}" alt="Profile Picture">
+            {% if profile.photo %}
+                <img src="{{ profile.photo.url }}" alt="Profile Picture">
+            {% else %}
+                <img src="{% static 'users/images/profile.png' %}" alt="Profile Picture">
+            {% endif %}
         </div>
-        <h2 class="profile-name">Claudia Dias</h2>
+        <h2 class="profile-name">{{ request.user.first_name }} {{ request.user.last_name }}</h2>
     </div>
 
-    <!-- Menu -->
+    <!-- Menu with Pretty Boxed Buttons -->
     <div class="history-menu">
-        <ul>
-            <li><a href="#">Addresses</a></li>
-            <li><a href="#">User History</a></li>
-        </ul>
+        <div class="buttons-container">
+            <a href="#" class="tab-button" data-tab="address">
+                <span class="button-text">Addresses</span>
+            </a>
+            <a href="#" class="tab-button" data-tab="history">
+                <span class="button-text">User History</span>
+            </a>
+        </div>
     </div>
 
-    <div class="order-history">
-        <div class="order-item">
-            <img src="{% static 'users/images/meal1.png' %}" alt="Meal 1">
-            <div class="order-info">
-                <h4>Pizza Margherita</h4>
-                <p>Classic pizza with tomato, mozzarella, and basil.</p>
-                <p><small>Company Name</small></p>
-                <p><small>12 Sept 2025</small></p>
-            </div>
-            <div class="order-price">
-                <p>Qty: 1</p>
-                <p class="price">$12.00</p>
-            </div>
-            <button class="remove">×</button>
-        </div>
+    <!-- Initial Message (ONLY THIS SHOWS INITIALLY) -->
+    <div id="initial-message">
+        <p>Please select an option above to view your information</p>
+    </div>
 
-        <div class="order-item">
-            <img src="{% static 'users/images/meal2.png' %}" alt="Meal 2">
-            <div class="order-info">
-                <h4>Pasta Carbonara</h4>
-                <p>Spaghetti with creamy sauce, pancetta, and parmesan.</p>
-                <p><small>Company Name</small></p>
-                <p><small>10 Sept 2025</small></p>
+    <!-- Address Section (HIDDEN BY DEFAULT) -->
+    <div id="address-content" class="tab-content" style="display: none;">
+        <div class="address-section">
+            <h3>Your Address</h3>
+            <div class="address-card">
+                <p><strong>Delivery Address:</strong></p>
+                <p>{{ profile.address }}</p>
+                <p><strong>Phone:</strong> {{ profile.phone }}</p>
+                <p><strong>Email:</strong> {{ request.user.email }}</p>
             </div>
-            <div class="order-price">
-                <p>Qty: 2</p>
-                <p class="price">$24.00</p>
-            </div>
-            <button class="remove">×</button>
+        </div>
+    </div>
+
+    <!-- Order History Section (HIDDEN BY DEFAULT) -->
+    <div id="history-content" class="tab-content" style="display: none;">
+        <div class="order-history">
+            <h3>Order History</h3>
+            
+            {% if orders %}
+                {% for order in orders %}
+                    {% for order_item in order.items.all %}
+                    <div class="order-item">
+                        <img src="{{ order_item.menu_item.display_image_url }}" alt="{{ order_item.menu_item.name }}">
+                        <div class="order-info">
+                            <h4>{{ order_item.menu_item.name }}</h4>
+                            <p>{{ order_item.menu_item.description }}</p>
+                            <p><small>Company Name</small></p>
+                            <p><small>{{ order.created_at|date:"d M Y" }}</small></p>
+                        </div>
+                        <div class="order-price">
+                            <p>Qty: {{ order_item.quantity }}</p>
+                            <p class="price">${{ order_item.total_price }}</p>
+                        </div>
+                        <button class="remove">×</button>
+                    </div>
+                    {% endfor %}
+                {% endfor %}
+            {% else %}
+                <div class="no-orders">
+                    <p>No order history found.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const initialMessage = document.getElementById('initial-message');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const tabName = this.getAttribute('data-tab');
+            
+            // Hide initial message
+            initialMessage.style.display = 'none';
+            
+            // Hide all tab contents
+            tabContents.forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all buttons
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show the selected tab
+            document.getElementById(tabName + '-content').style.display = 'block';
+            
+            // Activate the clicked button
+            this.classList.add('active');
+        });
+    });
+});
+</script>
 {% endblock %}
-
-

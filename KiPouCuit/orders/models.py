@@ -1,5 +1,6 @@
 from django.db import models
 from meals.models import MenuItem
+from django.contrib.auth.models import User
 
 class OrderItem(models.Model):
     class Status(models.TextChoices):
@@ -8,14 +9,11 @@ class OrderItem(models.Model):
 
     menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-
-    # NEW FIELDS for homecook integration
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     prepared_by = models.ForeignKey(
         "homecook.HomeCook", null=True, blank=True,
         on_delete=models.SET_NULL, related_name="prepared_items"
     )
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -28,7 +26,8 @@ class OrderItem(models.Model):
 
 class Order(models.Model):
     items = models.ManyToManyField(OrderItem, related_name="orders")
-    client_name = models.CharField(max_length=150, default="Anonymous")  # NEW for display in log
+    client_name = models.CharField(max_length=150, default="Anonymous")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="orders")
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property
