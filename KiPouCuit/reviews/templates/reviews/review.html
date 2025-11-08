@@ -27,50 +27,57 @@
 
 <form id="reviewForm" method="POST">
     {% csrf_token %}
-    <div class="form-row">
-        <div class="form-group">
-            <label for="firstName">First name</label>
-            <input 
-                type="text" 
-                id="firstName" 
-                name="firstName" 
-                required
-                pattern="^[A-Za-z\s\-]+$" 
-                title="First name can only contain letters, spaces, or hyphens.">
-        </div>
-
-        <div class="form-group">
-            <label for="lastName">Last name</label>
-            <input 
-                type="text" 
-                id="lastName" 
-                name="lastName" 
-                required
-                pattern="^[A-Za-z\s\-]+$" 
-                title="Last name can only contain letters, spaces, or hyphens.">
-        </div>
+    <div class="form-group">
+    <label for="firstName">First name</label>
+    <input 
+        type="text" 
+        id="firstName" 
+        name="firstName" 
+        required
+        pattern="^[A-Za-z\s\-]+$" 
+        title="First name can only contain letters, spaces, or hyphens."
+        value="{{ initial_data.first_name|default:'' }}"
+        {% if user.is_authenticated %} readonly {% endif %}>
     </div>
 
     <div class="form-group">
-        <label for="email">Email</label>
-        <input 
-            type="email" 
-            id="email" 
-            name="email" 
-            required
-            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$"
-            title="Enter a valid email address (e.g., name@example.com)">
+    <label for="lastName">Last name</label>
+    <input 
+        type="text" 
+        id="lastName" 
+        name="lastName" 
+        required
+        pattern="^[A-Za-z\s\-]+$" 
+        title="Last name can only contain letters, spaces, or hyphens."
+        value="{{ initial_data.last_name|default:'' }}"
+        {% if user.is_authenticated %} readonly {% endif %}>
     </div>
 
     <div class="form-group">
-        <label for="contactNumber">Contact Number</label>
-        <input 
-            type="text" 
-            id="contactNumber" 
-            name="contactNumber"
-            pattern="^\d{8,10}$" 
-            title="Contact number must contain only 8–10 digits.">
+    <label for="email">Email</label>
+    <input 
+        type="email" 
+        id="email" 
+        name="email" 
+        required
+        pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$"
+        title="Enter a valid email address (e.g., name@example.com)"
+        value="{{ initial_data.email|default:'' }}"
+        {% if user.is_authenticated %} readonly {% endif %}>
     </div>
+
+
+    {% comment %} <div class="form-group">
+    <label for="contactNumber">Contact Number</label>
+    <input 
+        type="text" 
+        id="contactNumber" 
+        name="phone"
+        pattern="^\d{8,10}$" 
+        title="Contact number must contain only 8-10 digits."
+        value="{{ initial_data.phone|default:'' }}"
+        {% if user.is_authenticated %} readonly {% endif %}>
+    </div> {% endcomment %}
 
     <div class="form-group">
         <label for="rating">Stars</label>
