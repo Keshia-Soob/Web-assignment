@@ -10,8 +10,13 @@
   <!-- Homecook Profile -->
   <div class="homecook-profile">
     {% if homecook and homecook.profile_picture %}
+      {# 1. If HomeCook has its own picture, use it #}
       <img src="{{ homecook.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+    {% elif homecook and homecook.user.userprofile.photo %}
+      {# 2. Otherwise, fall back to the user's profile photo #}
+      <img src="{{ homecook.user.userprofile.photo.url }}" alt="Profile Picture" class="profile-pic">
     {% else %}
+      {# 3. Otherwise, show the default icon #}
       <img src="{% static 'homecook/images/profile.png' %}" alt="Profile Picture" class="profile-pic">
     {% endif %}
 

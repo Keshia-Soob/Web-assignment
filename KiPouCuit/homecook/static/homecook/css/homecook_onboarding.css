@@ -1,0 +1,197 @@
+/* ------------------ */
+/*  Layout & Base     */
+/* ------------------ */
+
+.onboarding-container {
+    max-width: 1100px;
+    margin: 4rem auto rem auto;
+    padding: 2.5rem 2rem 3rem;
+    background: #1b1b1b;
+    border-radius: 18px;
+    border: 1px solid #3a3a3a;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+    color: #f3f3f3;
+    position: relative;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ff8c00;
+    text-align: center;
+}
+
+.page-subtitle {
+    text-align: center;
+    color: #c7c7c7;
+    margin-top: 0.5rem;
+    margin-bottom: 2.5rem;
+}
+
+/* ------------------ */
+/*  Steps List        */
+/* ------------------ */
+
+.steps-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    counter-reset: step-counter;
+}
+
+.step-card {
+    position: relative;
+    counter-increment: step-counter;
+    padding: 1.8rem 1.6rem 1.5rem 4rem;
+    background: #242424;
+    border-radius: 14px;
+    border: 1px solid #333;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-2px);
+    border-color: #ff8c00;
+    box-shadow: 0 8px 30px rgba(255, 140, 0, 0.2);
+}
+
+/* Step number */
+.step-card::before {
+    content: counter(step-counter);
+    position: absolute;
+    top: 1.4rem;
+    left: 1rem;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff8c00, #ff6a00);
+    color: #111;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(255, 140, 0, 0.4);
+}
+
+/* ------------------ */
+/*  Text Styling      */
+/* ------------------ */
+
+.step-title {
+    color: #ffb74d;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    font-size: 1.1rem;
+}
+
+.step-intro {
+    color: #ddd;
+    margin-bottom: 0.6rem;
+    line-height: 1.5;
+}
+
+.step-details {
+    color: #cfcfcf;
+    margin-top: 0.5rem;
+    padding-left: 1.2rem;
+    line-height: 1.5;
+}
+
+.step-details li::marker {
+    color: #ff8c00;
+}
+
+.step-note {
+    color: #bcbcbc;
+    border-top: 1px dashed #3a3a3a;
+    margin-top: 0.8rem;
+    padding-top: 0.6rem;
+    font-size: 0.9rem;
+}
+
+/* Inline code */
+.onboarding-container code {
+    background: rgba(255, 140, 0, 0.08);
+    border: 1px solid rgba(255, 140, 0, 0.89);
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    color: #fcfcfc;
+    font-family: monospace;
+}
+
+/* Links */
+.onboarding-container a {
+    color: #ff8c00;
+    /* text-decoration: underline; */
+    text-underline-offset: 3px;
+}
+
+.onboarding-container a:hover {
+    color: #000000;
+}
+
+/* ------------------ */
+/*  CTA Button        */
+/* ------------------ */
+
+.cta-row {
+    text-align: center;
+    margin-top: 2.8rem;
+}
+
+.submit-btn {
+    display: inline-block;
+    padding: 0.9rem 2.2rem;
+    background: linear-gradient(135deg, #ff8c00, #ff6a00);
+    color: #000;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 10px 25px rgba(99, 74, 44, 0.25);
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 35px rgba(255, 140, 0, 0.4);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 20px rgba(255, 140, 0, 0.3);
+}
+
+/* ------------------ */
+/*  Responsive        */
+/* ------------------ */
+
+@media (max-width: 768px) {
+    .onboarding-container {
+        margin: 2rem 1rem 3rem;
+        padding: 2rem 1.2rem;
+    }
+
+    .step-card {
+        padding: 1.6rem 1.2rem 1.2rem 3.5rem;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .step-card {
+        padding-left: 3rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.9rem;
+    }
+}

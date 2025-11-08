@@ -4,17 +4,23 @@
 {% block title %}Become a Home Cook — Steps{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'homecook/css/homecook.css' %}">
+<link rel="stylesheet" href="{% static 'homecook/css/homecook_onboarding.css' %}">
 
 <section class="onboarding-container center">
   <h1 class="page-title">Become a Home Cook</h1>
-  <p class="muted">Follow these steps. Skipping any step will result in automatic rejection.</p>
+  <p class="muted page-subtitle">
+    Follow these steps. Skipping any step will result in automatic rejection.
+  </p>
 
-  <ul class="steps-list">
-    <li>
-      <h3>Step 1: Required certifications and registrations (Mauritius)</h3>
-      <p>To be eligible in Mauritius, you must hold valid certifications that demonstrate competency in food safety and hygiene as recognised by the <strong>Ministry of Health and Wellness</strong> and the <strong>Food Act 1998</strong> regulations. The following are typically required:</p>
-      <ul>
+  <ol class="steps-list">
+    <li class="step-card">
+      <h3 class="step-title">Step 1: Required certifications and registrations (Mauritius)</h3>
+      <p class="step-intro">
+        To be eligible in Mauritius, you must hold valid certifications that demonstrate competency in food safety
+        and hygiene as recognised by the <strong>Ministry of Health and Wellness</strong> and the
+        <strong>Food Act 1998</strong> regulations. The following are typically required:
+      </p>
+      <ul class="step-details">
         <li><strong>Food Handler’s Certificate</strong>: issued by the Ministry of Health and Wellness. Applicants must complete an approved medical examination and hygiene awareness course before obtaining this certificate. It must be renewed periodically (usually every 3 years).</li>
         <li><strong>Food Safety / Hygiene Training Certificate</strong>: completion of a recognised food safety course by an accredited training institution, covering topics such as hygiene, temperature control, sanitation, and cross-contamination prevention.</li>
         <li><strong>Medical Fitness Certificate</strong>: issued by a registered medical practitioner confirming that you are fit to handle food.</li>
@@ -22,25 +28,40 @@
         <li><strong>Business Registration</strong>: registration with the <strong>Registrar of Businesses</strong> under the Business Registration Act 2002. Required if you intend to sell or distribute food commercially.</li>
         <li><strong>Public Liability Insurance (recommended)</strong>: covering food-related incidents or claims. This provides added protection and credibility to your business.</li>
       </ul>
-      <p><em>Notes:</em> All certificates must be valid and up to date. Expired certificates or missing documentation will result in immediate disqualification. Ensure the Food Handler’s Certificate and Medical Certificate are issued in your name and show validity dates.</p>
+      <p class="step-note">
+        <em>Notes:</em> All certificates must be valid and up to date. Expired certificates or missing documentation will
+        result in immediate disqualification. Ensure the Food Handler’s Certificate and Medical Certificate are issued in
+        your name and show validity dates.
+      </p>
     </li>
 
-    <li>
-      <h3>Step 2: Preparing and submitting your documents</h3>
-      <p>Submit clear, legible copies of your official documents to verify your eligibility. Incorrect or incomplete submissions will delay processing.</p>
-      <ul>
+    <li class="step-card">
+      <h3 class="step-title">Step 2: Preparing and submitting your documents</h3>
+      <p class="step-intro">
+        Submit clear, legible copies of your official documents to verify your eligibility. Incorrect or incomplete
+        submissions will delay processing.
+      </p>
+      <ul class="step-details">
         <li><strong>Required checklist:</strong> National ID Card or Passport, Proof of Address (CEB or CWA bill not older than 3 months), Food Handler’s Certificate, Medical Fitness Certificate, Business Registration Card (if applicable), and Insurance Certificate (if available).</li>
-        <li><strong>File format & naming:</strong> Submit documents in PDF format. If using photos, ensure they are clear and well-lit. Use the following naming format: <code>Lastname_Firstname_DocumentType.pdf</code> (e.g. <code>Ramdeen_Priyanka_FoodHandler.pdf</code>).</li>
-        <li><strong>Submission method:</strong> Email your documents to <a href="mailto:info@kipoucuit.com">info@kipoucuit.com</a> with the subject line <em>Home Cook Application – Your Name</em>. Alternatively, you may request a secure upload link via email.</li>
-        <li><strong>Privacy & data protection:</strong> We comply with the Mauritius Data Protection Act 2017. Only relevant data will be stored for verification purposes.</li>
+        <li><strong>File format &amp; naming:</strong> Submit documents in PDF format. If using photos, ensure they are clear and well-lit. Use the following naming format:
+          <code>Lastname_Firstname_DocumentType.pdf</code> (e.g. <code>Ramdeen_Priyanka_FoodHandler.pdf</code>).
+        </li>
+        <li><strong>Submission method:</strong> Email your documents to
+          <a href="mailto:info@kipoucuit.com">info@kipoucuit.com</a> with the subject line
+          <em>Home Cook Application – Your Name</em>. Alternatively, you may request a secure upload link via email.</li>
+        <li><strong>Privacy &amp; data protection:</strong> We comply with the Mauritius Data Protection Act 2017. Only relevant data will be stored for verification purposes.</li>
         <li><strong>Processing time:</strong> Verification usually takes 5–10 business days. Additional information may be requested if documents are unclear or incomplete.</li>
       </ul>
     </li>
 
-    <li>
-      <h3>Step 3: Initial interview (eligibility screening)</h3>
-      <p>Once your documents are verified, you will be invited to an initial interview to confirm your eligibility and assess your basic suitability. This is the first assessment stage and determines whether you proceed to the practical evaluation.</p>
-      <ul>
+    <li class="step-card">
+      <h3 class="step-title">Step 3: Initial interview (eligibility screening)</h3>
+      <p class="step-intro">
+        Once your documents are verified, you will be invited to an initial interview to confirm your eligibility and
+        assess your basic suitability. This is the first assessment stage and determines whether you proceed to the
+        practical evaluation.
+      </p>
+      <ul class="step-details">
         <li><strong>Format:</strong> A 15–25 minute online or in-person interview conducted by our onboarding team.</li>
         <li><strong>Topics covered:</strong> food handling experience, understanding of hygiene regulations in Mauritius, kitchen setup, availability, and general food knowledge.</li>
         <li><strong>Assessment criteria:</strong> identity verification, clarity of communication, hygiene knowledge, and compliance with Mauritian food safety requirements.</li>
@@ -48,13 +69,16 @@
       </ul>
     </li>
 
-    <li>
-      <h3>Step 4: Practical cooking assessment</h3>
-      <p>This stage evaluates your cooking skills, food hygiene practices, and professionalism. The assessment may be conducted at a registered test kitchen or through a supervised live session online, depending on your location.</p>
-      <ul>
+    <li class="step-card">
+      <h3 class="step-title">Step 4: Practical cooking assessment</h3>
+      <p class="step-intro">
+        This stage evaluates your cooking skills, food hygiene practices, and professionalism. The assessment may be
+        conducted at a registered test kitchen or through a supervised live session online, depending on your location.
+      </p>
+      <ul class="step-details">
         <li><strong>Requirements:</strong> Prepare one signature dish and one optional supporting dish, showcasing your skill and food safety compliance.</li>
         <li><strong>Evaluation focus:</strong>
-          <ul>
+          <ul class="step-sublist">
             <li>Personal hygiene and cleanliness</li>
             <li>Safe food storage, handling, and preparation practices</li>
             <li>Temperature control and prevention of contamination</li>
@@ -67,21 +91,25 @@
       </ul>
     </li>
 
-    <li>
-      <h3>Step 5: Acceptance and onboarding</h3>
-      <p>Applicants who successfully pass all stages will receive formal approval and onboarding access.</p>
-      <ul>
-        <li><strong>Access code & registration:</strong> An access code and detailed onboarding guide will be sent via email. Use it to create your Home Cook account and publish your menu on KiPouCuit.</li>
+    <li class="step-card">
+      <h3 class="step-title">Step 5: Acceptance and onboarding</h3>
+      <p class="step-intro">
+        Applicants who successfully pass all stages will receive formal approval and onboarding access.
+      </p>
+      <ul class="step-details">
+        <li><strong>Access code &amp; registration:</strong> An access code and detailed onboarding guide will be sent via email. Use it to create your Home Cook account and publish your menu on KiPouCuit.</li>
         <li><strong>Verification checks:</strong> Background verification may include cross-checking certificates with issuing bodies and confirming registration with the Registrar of Businesses.</li>
         <li><strong>Probation period:</strong> New cooks are placed under a 60-day probation period during which hygiene, delivery reliability, and customer satisfaction are monitored.</li>
         <li><strong>Ongoing compliance:</strong> All Home Cooks must renew their Food Handler’s Certificate as required by law and adhere to platform hygiene and safety policies.</li>
-        <li><strong>Support & development:</strong> Accepted cooks gain access to local workshops, food safety refreshers, and ongoing business growth opportunities.</li>
+        <li><strong>Support &amp; development:</strong> Accepted cooks gain access to local workshops, food safety refreshers, and ongoing business growth opportunities.</li>
       </ul>
     </li>
-  </ul>
+  </ol>
 
   <div class="cta-row">
-    <a class="submit-btn" href="{% url 'homecook_signup' %}">I’ve got the code: Create my account</a>
+    <a class="submit-btn" href="{% url 'homecook_signup' %}">
+      I have the code: Create my account
+    </a>
   </div>
 </section>
 

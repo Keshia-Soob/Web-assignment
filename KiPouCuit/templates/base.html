@@ -31,6 +31,7 @@
                 {% comment %} {% if user.is_authenticated %} {% endcomment %}
                 {% if user.userprofile.is_homecook and user.userprofile.homecook_status == "APPROVED" %}
                     <li><a href="{% url 'homecook_log' %}">Incoming Orders</a></li>
+                    <li><a href="{% url 'addmenu' %}">Add a new Menu Item</a></li>
                 {% else %}
                     <li><a href="{% url 'homecook_onboarding' %}">Become a Homecook</a></li>
                 {% endif %}
