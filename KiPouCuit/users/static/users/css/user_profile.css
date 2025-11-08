@@ -115,7 +115,7 @@
 
 /* ⚠️ Keep your history button but refined colors */
 .history-btn {
-  background-color: #a67c52; /* soft brown/gold */
+  background-color: #f28547; /* soft brown/gold */
   color: white;
   border: none;
   border-radius: 8px;
@@ -131,6 +131,12 @@
 }
 
 .history-btn:hover {
-  background-color: #8c693e;
+  background-color: #e17638;
   transform: scale(1.03); /* subtle hover zoom */
+}
+
+.content{
+  padding-top: 80px;
+  padding-bottom: 120px;
+  background: #fff;
 }
