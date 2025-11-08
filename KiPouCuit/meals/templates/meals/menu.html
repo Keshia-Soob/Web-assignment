@@ -15,10 +15,9 @@
   </div>
 
   <!-- Menu Controls -->
-  <div class="menu-controls">
+   <div class="menu-controls">
     <div class="cuisine-selector">
       <select id="cuisineFilter">
-	<option value="all">All Cuisines</option>
         <option value="all">All Cuisines</option>
         <option value="indian">Indian</option>
         <option value="mauritian">Mauritian</option>
@@ -31,8 +30,8 @@
 
   {% if menu_by_cuisine %}
     {% for cuisine, items in menu_by_cuisine.items %}
-    <div class="category-section">
-      <div class="category-title">
+    <div class="cuisine-section" data-cuisine="{{ cuisine|lower }}">
+      <div class="cuisine-title">
         <h2>{{ cuisine|title }}</h2>
       </div>
 
@@ -74,15 +73,21 @@
   // --- Cuisine Filter ---
   document.addEventListener("DOMContentLoaded", function () {
     const filter = document.getElementById("cuisineFilter");
-    const items = document.querySelectorAll(".food-item");
+    const sections = document.querySelectorAll(".cuisine-section");
 
     function applyFilter() {
       const val = filter.value;
-      items.forEach(it => {
-        const ok = (val === "all") || (it.dataset.cuisine === val);
-        it.style.display = ok ? "" : "none";
+      
+      sections.forEach(section => {
+        if (val === "all") {
+          section.style.display = "";
+        } else {
+          const ok = section.dataset.cuisine === val;
+          section.style.display = ok ? "" : "none";
+        }
       });
     }
+    
     filter.addEventListener("change", applyFilter);
     applyFilter();
   });
