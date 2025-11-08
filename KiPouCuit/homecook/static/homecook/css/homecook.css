@@ -180,3 +180,11 @@ textarea {
     margin-bottom: 15px;
 }
 
+.onboarding-container { max-width: 900px; }
+.steps-list { counter-reset: step; list-style: none; padding: 0; }
+.steps-list > li { margin: 1rem 0 1.25rem; padding: 1rem 1.25rem; border: 1px solid #e8e8e8; border-radius: 12px; background: #fff; }
+.steps-list > li h3 { margin: 0 0 .5rem; }
+.muted { color: #666; margin-bottom: 1rem; }
+.cta-row { margin-top: 2rem; }
+.submit-btn { display: inline-block; padding: .9rem 1.25rem; border-radius: 10px; background: #111; color: #fff; text-decoration: none; }
+.submit-btn:hover { opacity: .9; }

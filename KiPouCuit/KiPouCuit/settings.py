@@ -13,6 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-krz%!93tw^rlt%ipnu_8b28x5q-spfuwfw7^wv@($krq*z2lb4'
 DEBUG = True
 ALLOWED_HOSTS = []  # add your domain(s) when deploying
+HOMECOOK_ACCESS_CODE = "HOMECOOK2025"
 
 # Application definition
 INSTALLED_APPS = [
