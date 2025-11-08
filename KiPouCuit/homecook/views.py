@@ -2,36 +2,49 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.conf import settings
-from django.contrib.auth.decorators import login_required   # 🔹 NEW
+from django.contrib.auth.decorators import login_required
 
 from .models import HomeCook
-from orders.models import OrderItem  
+from users.models import UserProfile
+from orders.models import OrderItem
 
 
 def _get_active_homecook(request):
     """
-    Resolve which HomeCook is "logged in" for this session.
-    - Prefer email stored in session (set at signup).
-    - Fallback to the first HomeCook if none in session.
+    Get the HomeCook linked to the currently logged-in user.
+    We no longer trust just session email; we tie it to request.user.
     """
-    email = request.session.get("homecook_email")
-    if email:
-        try:
-            return HomeCook.objects.get(email=email)
-        except HomeCook.DoesNotExist:
-            pass
+    if not request.user.is_authenticated:
+        return None
 
-    return HomeCook.objects.first()
+    # OneToOneField from HomeCook to User
+    try:
+        return request.user.homecook
+    except HomeCook.DoesNotExist:
+        # fallback if you still want to support old session logic:
+        email = request.session.get("homecook_email")
+        if email:
+            try:
+                return HomeCook.objects.get(email=email)
+            except HomeCook.DoesNotExist:
+                return None
+        return None
 
 
-@login_required(login_url='login')   # 🔹 MUST be logged in as a normal user first
+@login_required(login_url='login')
 def homecook(request):
     """
     HomeCook signup view:
     - User must be authenticated (normal Django User)
     - Requires a valid invite/access code
-    - Creates the HomeCook profile
+    - Creates the HomeCook profile linked to the user
+    - Updates UserProfile to mark them as a homecook
     """
+    # If user already has a homecook account, don't let them re-register
+    if hasattr(request.user, "homecook"):
+        messages.info(request, "You already have a HomeCook account.")
+        return redirect("homecook_log")
+
     if request.method == 'POST':
         # ---------- ACCESS CODE CHECK ----------
         invite_code = (request.POST.get('inviteCode') or '').strip()
@@ -42,7 +55,6 @@ def homecook(request):
             return redirect('homecook')
 
         # ---------- NORMAL SIGNUP FIELDS ----------
-        # Force email from logged-in user, not from arbitrary POST
         user = request.user
         email = (user.email or '').strip().lower()
 
@@ -61,28 +73,29 @@ def homecook(request):
             messages.error(request, "Passwords do not match.")
             return redirect('homecook')
 
-        # Sanity: no email on user account = trash setup
+        # Sanity: no email on user account
         if not email:
             messages.error(request, "Your user account has no email set. Please update your profile first.")
             return redirect('homecook')
 
-        # Block duplicate HomeCook for same email
-        if HomeCook.objects.filter(email=email).exists():
+        # Block duplicate HomeCook for same user
+        if HomeCook.objects.filter(user=user).exists():
             messages.error(request, "A HomeCook account already exists for this user.")
             return redirect('homecook')
 
-        # Validate cuisine choice (if choices defined on model)
+        # Validate cuisine choice (if defined on model)
         valid_codes = {c[0] for c in getattr(HomeCook, "CUISINE_CHOICES", [])}
         if valid_codes and cuisine not in valid_codes:
             messages.error(request, "Invalid cuisine selected.")
             return redirect('homecook')
 
-        # Create HomeCook
+        # ---------- CREATE HOMECOOK ----------
         hc = HomeCook.objects.create(
+            user=user,
             name=name,
             surname=surname,
             email=email,
-            password=password,  # NOTE: plain-text; for production use Django's User auth
+            password=password,  # still stored, but REAL login is Django User
             phone=phone,
             address=address,
             cuisine=cuisine,
@@ -90,11 +103,19 @@ def homecook(request):
             profile_picture=profile_picture
         )
 
-        # Persist "logged in" HomeCook in session for kitchen view
+        # Keep old session logic for compatibility (optional)
         request.session['homecook_email'] = hc.email
         request.session.modified = True
 
-        messages.success(request, "Your Home Cook account has been created successfully!")
+        # ---------- UPDATE USERPROFILE ROLE ----------
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile.is_homecook = True
+        profile.homecook_status = "APPROVED"
+        profile.bio = bio
+        profile.specialty = cuisine
+        profile.save()
+
+        messages.success(request, "Your HomeCook account has been created successfully!")
         return redirect('homecook_log')
 
     # GET -> show form
@@ -116,7 +137,12 @@ def homecook_onboarding(request):
     return render(request, "homecook/homecook_onboarding.html")
 
 
+@login_required(login_url='login')
 def homecook_log(request):
+    """
+    HomeCook's "kitchen" log – only for logged-in homecooks.
+    Shows pending orders for their cuisine.
+    """
     cook = _get_active_homecook(request)
     if not cook:
         messages.info(request, "Create your HomeCook profile first.")
@@ -124,7 +150,7 @@ def homecook_log(request):
 
     items = (
         OrderItem.objects
-        .select_related("menu_item", "prepared_by")  # removed "order"
+        .select_related("menu_item", "prepared_by")
         .filter(menu_item__cuisine=cook.cuisine, status=OrderItem.Status.PENDING)
         .order_by("created_at")
     )
@@ -133,7 +159,11 @@ def homecook_log(request):
 
 
 @require_POST
+@login_required(login_url='login')
 def mark_order_ready(request, item_id):
+    """
+    Only an active HomeCook can mark an order item as READY.
+    """
     cook = _get_active_homecook(request)
     if not cook:
         messages.error(request, "No active HomeCook found for this session.")
