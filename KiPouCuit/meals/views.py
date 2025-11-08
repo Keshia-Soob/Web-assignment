@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.generic import ListView
 from .models import MenuItem
+import json
 
 class MenuListView(ListView):
     model = MenuItem
@@ -194,13 +195,90 @@ def clear_cart(request):
 # CART DATA (AJAX)
 # ---------------------------
 def get_cart_data(request):
+    """Returns enriched cart data for AJAX requests"""
     cart = request.session.get("cart", {})
-    items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
-    cart_subtotal = sum(float(i.price) * cart[str(i.id)] for i in items)
-    cart_count = sum(cart.values())
+    cart_count = 0
+    cart_items = {}
+    cart_subtotal = 0
+    
+    if cart:
+        items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
+        
+        for item in items:
+            item_id_str = str(item.id)
+            quantity = cart.get(item_id_str, 0)
+            
+            # Handle old dict format if it exists
+            if isinstance(quantity, dict):
+                quantity = quantity.get('quantity', 1)
+            
+            quantity = int(quantity)
+            
+            # Build enriched cart item data
+            cart_items[item_id_str] = {
+                'name': item.name,
+                'price': float(item.price),
+                'quantity': quantity,
+            }
+            
+            cart_count += quantity
+            cart_subtotal += float(item.price) * quantity
+    
     return JsonResponse({
         "cart_count": cart_count,
         "cart_subtotal": cart_subtotal,
-        "cart_items": cart,
+        "cart_items": cart_items,
     })
 
+def update_cart_quantity(request, item_id):
+    """AJAX endpoint to update cart item quantity"""
+    if request.method == 'POST':
+        cart = request.session.get('cart', {})
+        item_id_str = str(item_id)
+        
+        # Get action from JSON body or POST data
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            data = json.loads(request.body)
+            action = data.get('action')
+        else:
+            action = request.POST.get('action')
+        
+        if item_id_str in cart:
+            # Get current quantity (your cart stores integers directly)
+            current_qty = cart[item_id_str]
+            if isinstance(current_qty, dict):
+                current_qty = current_qty.get('quantity', 1)
+            
+            # Update quantity
+            if action == 'inc':
+                cart[item_id_str] = int(current_qty) + 1
+            elif action == 'dec':
+                new_qty = int(current_qty) - 1
+                if new_qty <= 0:
+                    del cart[item_id_str]
+                else:
+                    cart[item_id_str] = new_qty
+            
+            request.session['cart'] = cart
+            request.session.modified = True
+            
+            # Get item from database for price
+            item = get_object_or_404(MenuItem, id=item_id)
+            
+            # Calculate totals
+            items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
+            cart_total = sum(float(i.price) * cart[str(i.id)] for i in items)
+            cart_count = sum(cart.values())
+            
+            item_quantity = cart.get(item_id_str, 0)
+            item_subtotal = float(item.price) * item_quantity
+            
+            return JsonResponse({
+                'success': True,
+                'quantity': item_quantity,
+                'item_subtotal': item_subtotal,
+                'cart_count': cart_count,
+                'cart_total': cart_total
+            })
+    
+    return JsonResponse({'success': False}, status=400)

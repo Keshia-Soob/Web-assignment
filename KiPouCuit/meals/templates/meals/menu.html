@@ -15,7 +15,7 @@
   </div>
 
   <!-- Menu Controls -->
-   <div class="menu-controls">
+  <div class="menu-controls">
     <div class="cuisine-selector">
       <select id="cuisineFilter">
         <option value="all">All Cuisines</option>
@@ -29,39 +29,36 @@
   </div>
 
   {% if menu_by_cuisine %}
-    {% for cuisine, items in menu_by_cuisine.items %}
-    <div class="cuisine-section" data-cuisine="{{ cuisine|lower }}">
-      <div class="cuisine-title">
-        <h2>{{ cuisine|title }}</h2>
-      </div>
+  {% for cuisine, items in menu_by_cuisine.items %}
+  <div class="cuisine-section" data-cuisine="{{ cuisine|lower }}">
+    <div class="cuisine-title">
+      <h2>{{ cuisine|title }}</h2>
+    </div>
 
-      <div class="food-grid">
-        {% for item in items %}
-        <div class="food-item"
-             data-cuisine="{{ item.cuisine|lower }}"
-             data-id="{{ item.id }}"
-             data-name="{{ item.name }}"
-             data-price="{{ item.price|floatformat:0 }}">
-          <div class="food-image" style="background-image: url('{{ item.display_image_url }}');"></div>
-          <div class="food-details">
-            <h3 class="food-name">{{ item.name }}</h3>
-            <p class="food-description">{{ item.description }}</p>
-            <div class="food-footer">
-              <span class="food-price">Rs {{ item.price|floatformat:0 }}</span>
+    <div class="food-grid">
+      {% for item in items %}
+      <div class="food-item" data-cuisine="{{ item.cuisine|lower }}" data-id="{{ item.id }}" data-name="{{ item.name }}"
+        data-price="{{ item.price|floatformat:0 }}">
+        <div class="food-image" style="background-image: url('{{ item.display_image_url }}');"></div>
+        <div class="food-details">
+          <h3 class="food-name">{{ item.name }}</h3>
+          <p class="food-description">{{ item.description }}</p>
+          <div class="food-footer">
+            <span class="food-price">Rs {{ item.price|floatformat:0 }}</span>
 
-              <form class="add-to-cart-form" data-id="{{ item.id }}">
-                {% csrf_token %}
-                <button type="submit" class="add-btn">Add</button>
-              </form>
-            </div>
+            <form class="add-to-cart-form" data-id="{{ item.id }}">
+              {% csrf_token %}
+              <button type="submit" class="add-btn">Add</button>
+            </form>
           </div>
         </div>
-        {% empty %}
-          <p>No items in this cuisine yet.</p>
-        {% endfor %}
       </div>
+      {% empty %}
+      <p>No items in this cuisine yet.</p>
+      {% endfor %}
     </div>
-    {% endfor %}
+  </div>
+  {% endfor %}
   {% endif %}
 </div>
 
@@ -77,7 +74,7 @@
 
     function applyFilter() {
       const val = filter.value;
-      
+
       sections.forEach(section => {
         if (val === "all") {
           section.style.display = "";
@@ -87,7 +84,7 @@
         }
       });
     }
-    
+
     filter.addEventListener("change", applyFilter);
     applyFilter();
   });
@@ -114,20 +111,79 @@
       },
       body: new FormData(form),
     })
-    .then(r => r.json())
-    .then(data => {
-      // Update cart count badge
-      const countEl = document.querySelector(".cart-count");
-      if (countEl && typeof data.cart_count !== "undefined") {
-        countEl.textContent = data.cart_count;
-      }
+      .then(r => r.json())
+      .then(data => {
+        // Update cart count badge
+        const countEl = document.querySelector(".cart-count");
+        if (countEl && typeof data.cart_count !== "undefined") {
+          countEl.textContent = data.cart_count;
+        }
 
-      // Show toast message
-      showAddToCartFeedback(form.closest(".food-item")?.dataset.name || "Item");
-    })
-    .catch(console.error)
-    .finally(() => { btn.disabled = false; });
+        // Update cart dropdown with fresh data
+        updateCartDropdown();
+
+        // Show toast message
+        showAddToCartFeedback(form.closest(".food-item")?.dataset.name || "Item");
+      })
+      .catch(console.error)
+      .finally(() => { btn.disabled = false; });
   });
+
+  // --- Update Cart Dropdown ---
+  function updateCartDropdown() {
+    fetch('/cart/data/', {
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      }
+    })
+      .then(r => r.json())
+      .then(data => {
+        // Update cart count
+        const countEl = document.querySelector(".cart-count");
+        if (countEl) {
+          countEl.textContent = data.cart_count || 0;
+        }
+
+        // Update subtotal
+        const subtotalEl = document.getElementById("cartSubtotal");
+        if (subtotalEl) {
+          subtotalEl.textContent = `Rs ${data.cart_subtotal.toFixed(0)}`;
+        }
+
+        // Update cart items container
+        const container = document.getElementById("cartItemsContainer");
+        if (!container) return;
+
+        if (!data.cart_items || Object.keys(data.cart_items).length === 0) {
+          container.innerHTML = `
+        <div class="cart-item">
+          <div class="item-details">
+            <div class="item-name">Your cart is empty</div>
+            <div class="item-quantity">Add items to see them here</div>
+          </div>
+        </div>
+      `;
+          return;
+        }
+
+        // Render cart items
+        let html = '';
+        for (const [itemId, item] of Object.entries(data.cart_items)) {
+          html += `
+        <div class="cart-item">
+          <div class="item-details">
+            <div class="item-name">${item.name}</div>
+            <div class="item-quantity">Qty: ${item.quantity}</div>
+            <div class="item-price">Rs ${item.price} x ${item.quantity}</div>
+          </div>
+          <button class="remove-item-btn" data-item-id="${itemId}">Remove</button>
+        </div>
+      `;
+        }
+        container.innerHTML = html;
+      })
+      .catch(console.error);
+  }
 
   // --- Helpers ---
   function getCookie(name) {
@@ -162,6 +218,40 @@
       setTimeout(() => toast.remove(), 300);
     }, 2500);
   }
+
+  // --- Handle Remove from Cart ---
+  // In your existing remove button handler in menu.html or base template
+  document.addEventListener("click", function(e) {
+  if (!e.target.matches(".remove-item-btn")) return;
+  e.preventDefault();
+  
+  const itemId = e.target.dataset.itemId;
+  if (!itemId) return;
+  
+  fetch(`/remove_from_cart/${itemId}/`, {
+    method: "POST",
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+      "X-CSRFToken": getCookie("csrftoken"),
+    }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      // Update the cart dropdown
+      updateCartDropdown();
+      
+      // Trigger custom event so order summary page can reload
+      window.dispatchEvent(new CustomEvent('cartUpdated', {
+        detail: {
+          cart_count: data.cart_count,
+          cart_subtotal: data.cart_subtotal
+        }
+      }));
+    }
+  })
+  .catch(console.error);
+});
 </script>
 
 {% endblock %}
