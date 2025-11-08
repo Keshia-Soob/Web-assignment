@@ -100,13 +100,15 @@
             </div>
             <button class="slider-arrow next" aria-label="Next testimonial">&#10095;</button>
         </div>
+        {% else %}
+        <div class="no-reviews">
+            <p>No reviews available yet. Be the first to leave one!</p>
+        </div>
+        {% endif %}
 
         <div class="review-button-wrapper">
             <a href="{% url 'review' %}" class="btn leave-review-btn">Leave a Review</a>
         </div>
-        {% else %}
-            <p>No reviews available yet. Be the first to leave one!</p>
-        {% endif %}
     </div>
 </section>
 
@@ -218,6 +220,100 @@ if (sliderWrapper && sliderTrack && prevBtn && nextBtn && cards.length > 0) {
         }, 250);
     });
 }
+
+if (sliderWrapper && sliderTrack && prevBtn && nextBtn && cards.length > 0) {
+    let currentIndex = 0;
+    const totalCards = cards.length;
+
+    // Touch/swipe variables
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let isDragging = false;
+
+    function updateSlider() {
+        const cardWidth = cards[0].offsetWidth;
+        const trackStyles = window.getComputedStyle(sliderTrack);
+        const gap = parseInt(trackStyles.gap) || 30;
+        const offset = currentIndex * (cardWidth + gap);
+        sliderTrack.style.transform = `translateX(-${offset}px)`;
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === totalCards - 1;
+    }
+
+    function goToNext() {
+        if (currentIndex < totalCards - 1) {
+            currentIndex++;
+            updateSlider();
+        }
+    }
+
+    function goToPrev() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateSlider();
+        }
+    }
+
+    // Button click handlers
+    prevBtn.addEventListener('click', goToPrev);
+    nextBtn.addEventListener('click', goToNext);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') goToPrev();
+        else if (e.key === 'ArrowRight') goToNext();
+    });
+
+    // Touch/Swipe handlers
+    function handleTouchStart(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        isDragging = true;
+        sliderTrack.style.transition = 'none'; // Disable transition during drag
+    }
+
+    function handleTouchMove(e) {
+        if (!isDragging) return;
+        touchEndX = e.changedTouches[0].screenX;
+    }
+
+    function handleTouchEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        sliderTrack.style.transition = 'transform 0.5s ease-in-out'; // Re-enable transition
+
+        const swipeThreshold = 50; // Minimum swipe distance in pixels
+        const swipeDistance = touchStartX - touchEndX;
+
+        if (Math.abs(swipeDistance) > swipeThreshold) {
+            if (swipeDistance > 0) {
+                // Swiped left - go to next
+                goToNext();
+            } else {
+                // Swiped right - go to previous
+                goToPrev();
+            }
+        } else {
+            // If swipe was too short, reset to current position
+            updateSlider();
+        }
+
+        touchStartX = 0;
+        touchEndX = 0;
+    }
+
+    // Add touch event listeners to slider wrapper
+    sliderWrapper.addEventListener('touchstart', handleTouchStart, { passive: true });
+    sliderWrapper.addEventListener('touchmove', handleTouchMove, { passive: true });
+    sliderWrapper.addEventListener('touchend', handleTouchEnd);
+
+    // Handle window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateSlider, 250);
+    });
+}
+
 </script>
 
 {% endblock %}
