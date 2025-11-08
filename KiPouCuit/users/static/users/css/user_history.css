@@ -3,82 +3,193 @@
     margin: 0 auto;
     text-align: center;
     font-family: Arial, sans-serif;
+    padding: 20px;
 }
 
 .banner img {
     width: 100%;
     height: 200px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 15px;
+    margin-bottom: 20px;
 }
 
 .profile-section {
-    margin-top: -60px;
+    margin-top: -70px;
     text-align: center;
+    margin-bottom: 30px;
 }
 
 .profile-pic img {
-    width: 120px;
-    height: 120px;
+    width: 130px;
+    height: 130px;
     border-radius: 50%;
-    border: 4px solid white;
+    border: 5px solid white;
     object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .profile-name {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
-    margin-top: 10px;
+    margin-top: 15px;
+    color: #333;
 }
 
+/* Pretty Boxed Buttons Container */
 .history-menu {
-    margin-top: 20px;
+    margin: 40px 0;
 }
 
-.history-menu ul {
-    list-style: none;
-    padding: 0;
+.buttons-container {
     display: flex;
     justify-content: center;
-    gap: 40px;
+    gap: 25px;
+    flex-wrap: wrap;
 }
 
-.history-menu li {
+/* PRETTY BOXED BUTTONS */
+.tab-button {
+    text-decoration: none;
+    color: #333 !important;
+    font-weight: 600;
+    padding: 25px 50px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    display: block;
+    cursor: pointer;
+    background: #FFE0B2 !important; /* Light orange/peach color */
+    border: 3px solid #FFB74D !important;
+    box-shadow: 0 6px 15px rgba(255, 152, 0, 0.3) !important;
+    font-size: 20px;
+    min-width: 180px;
+    text-align: center;
+    text-transform: none !important;
+}
+
+.tab-button:hover {
+    background: #FFB74D !important; /* Darker orange on hover */
+    color: white !important;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4) !important;
+    border-color: #FF9800 !important;
+}
+
+.tab-button.active {
+    background: #FF9800 !important; /* Active orange */
+    color: white !important;
+    border-color: #F57C00 !important;
+    box-shadow: 0 6px 15px rgba(255, 152, 0, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+.button-text {
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Initial Message */
+#initial-message {
+    text-align: center;
+    padding: 80px 40px;
+    color: #666;
+    font-size: 20px;
+    font-style: italic;
+    background: linear-gradient(135deg, #f9f9f9, #e8f4f8);
+    border-radius: 15px;
+    margin: 30px 0;
+    border: 2px dashed #FFB74D;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Tab Content */
+/*.tab-content {
+    /* Display controlled by inline style */
+/*}
+
+/* Address Section */
+.address-section {
+    text-align: left;
+    margin-top: 30px;
+}
+
+.address-section h3 {
+    color: #333;
+    border-bottom: 3px solid #FF9800;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-align: center;
+}
+
+.address-card {
+    background: linear-gradient(135deg, #f9f9f9, #ffffff);
+    border: 2px solid #FFE0B2;
+    border-radius: 15px;
+    padding: 35px;
+    margin-top: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.address-card p {
+    margin: 15px 0;
+    color: #555;
+    font-size: 18px;
+    line-height: 1.6;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.address-card p:last-child {
+    border-bottom: none;
+}
+
+.address-card strong {
+    color: #333;
     font-size: 18px;
 }
 
-.history-menu a {
-    text-decoration: none;
-    color: black;
-    font-weight: 500;
+/* Order History */
+.order-history {
+    text-align: left;
+    margin-top: 30px;
 }
 
-.history-menu a:hover {
-    color: #ff6600;
-}
-.order-history {
-    margin-top: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+.order-history h3 {
+    color: #333;
+    border-bottom: 3px solid #FF9800;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-align: center;
 }
 
 .order-item {
     display: flex;
     align-items: center;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, #ffffff, #f8f8f8);
+    border: 2px solid #FFE0B2;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.order-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #FFB74D;
 }
 
 .order-item img {
-    width: 100px;
-    height: 100px;
-    border-radius: 8px;
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
     object-fit: cover;
-    margin-right: 20px;
+    margin-right: 25px;
+    border: 2px solid #FFE0B2;
 }
 
 .order-info {
@@ -87,36 +198,60 @@
 }
 
 .order-info h4 {
-    font-size: 18px;
-    margin: 0;
+    font-size: 20px;
+    margin: 0 0 10px 0;
     font-weight: bold;
+    color: #333;
 }
 
 .order-info p {
-    margin: 3px 0;
+    margin: 8px 0;
     color: #666;
-    font-size: 14px;
+    font-size: 16px;
+    line-height: 1.5;
 }
 
 .order-price {
     text-align: right;
-    margin-right: 15px;
+    margin-right: 20px;
 }
 
 .order-price .price {
     font-weight: bold;
-    font-size: 16px;
+    font-size: 18px;
     color: #333;
 }
 
 button.remove {
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 24px;
     color: #ff4444;
     cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
 }
 
 button.remove:hover {
     color: #cc0000;
+    background: #ffe6e6;
+    transform: scale(1.1);
+}
+
+.no-orders {
+    text-align: center;
+    padding: 60px 40px;
+    color: #666;
+    font-size: 20px;
+    background: linear-gradient(135deg, #f9f9f9, #e8f4f8);
+    border-radius: 15px;
+    margin-top: 30px;
+    border: 2px dashed #FFB74D;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
