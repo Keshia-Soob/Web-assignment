@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Reviews{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'reviews/review_list.css' %}">
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<div class="container">
+    <div class="review-container">
+        <h1 class="page-title">All Reviews</h1>
+
+        <a href="{% url 'review' %}" class="post-review-btn">Post a Review</a>
+
+        {% if reviews %}
+            <div class="reviews">
+                {% for r in reviews %}
+                    <div class="review-card">
+                        <h3>{{ r.first_name }} {{ r.last_name }}</h3>
+                        <p>{{ r.message }}</p>
+
+                        <div class="rating-stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= r.rating %}
+                                    <i class="fas fa-star active"></i>
+                                {% else %}
+                                    <i class="fas fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <small><strong>Rating:</strong> {{ r.rating }}/5</small>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-reviews">No reviews yet. Be the first to <a href="{% url 'review' %}">post a review</a>!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

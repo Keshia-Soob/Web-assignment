@@ -26,3 +26,7 @@ def review(request):
             messages.error(request, '⚠️ Please fill in all fields before submitting.')
 
     return render(request, 'reviews/review.html')
+
+def review_list(request):
+    reviews = Review.objects.all().order_by('-id')  # newest first
+    return render(request, 'reviews/review_list.html', {'reviews': reviews})
