@@ -23,6 +23,14 @@
 
         <form method="POST" enctype="multipart/form-data" id="homeCookForm">
             {% csrf_token %}
+
+            <!-- ACCESS CODE (required) -->
+            <div class="form-group">
+                <label for="inviteCode">Access Code</label>
+                <input type="text" id="inviteCode" name="inviteCode" required placeholder="Enter your access code">
+                <small class="hint">You receive this after passing the interviews.</small>
+            </div>
+
             
             <div class="form-group">
                 <label for="name">Name</label>
@@ -68,7 +76,6 @@
                     <option value="english">English</option>
                     <option value="french">French</option>
                     <option value="asian">Asian</option>
-                    <option value="thai">Thai</option>
                 </select>
             </div>
 
@@ -109,6 +116,28 @@
 </div>
 
 <script>
+    const REQUIRED_CODE = 'HOMECOOK2025'; // change to your real code (or fetch from data-* attribute)
+
+    const form = document.getElementById('homeCookForm');
+    const inviteCodeInput = document.getElementById('inviteCode');
+
+    form.addEventListener('submit', function (e) {
+        const code = (inviteCodeInput.value || '').trim();
+        const pwd = document.getElementById('password').value;
+        const cpwd = document.getElementById('confirmPassword').value;
+
+        if (pwd !== cpwd) {
+        e.preventDefault();
+        alert('Passwords do not match.');
+        return;
+        }
+
+        if (code !== REQUIRED_CODE) {
+        e.preventDefault();
+        alert('Invalid access code. Account will not be created.');
+        inviteCodeInput.focus();
+        }
+    });
     // Show profile picture preview
     document.getElementById('profilePic').addEventListener('change', function(e) {
         const file = e.target.files[0];
