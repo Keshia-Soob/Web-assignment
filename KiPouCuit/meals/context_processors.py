@@ -1,4 +1,5 @@
 # meals/context_processors.py
+from .models import MenuItem
 
 def _normalize_qty(v):
     """
@@ -24,13 +25,37 @@ def _normalize_qty(v):
 
 def cart_context(request):
     """
-    READ-ONLY: provides `cart_count` to templates.
-    Works whether session['cart'] stores ints or legacy dicts.
-    DO NOT mutate request.session here.
+    Provides cart data to all templates.
+    Converts integer cart format { '2': 3 } to dict format
+    { '2': {'name': 'Butter Chicken', 'price': 250, 'quantity': 3} }
     """
-    cart = request.session.get("cart") or {}
-    count = 0
-    if isinstance(cart, dict):
-        for v in cart.values():
-            count += _normalize_qty(v)
-    return {"cart_count": count}
+    raw_cart = request.session.get("cart") or {}
+    cart_count = 0
+    cart_data = {}
+    subtotal = 0
+    
+    if isinstance(raw_cart, dict) and raw_cart:
+        # Get all items from database
+        item_ids = [int(k) for k in raw_cart.keys()]
+        items = MenuItem.objects.filter(id__in=item_ids)
+        
+        # Create enriched cart data
+        for item in items:
+            item_id_str = str(item.id)
+            quantity = _normalize_qty(raw_cart.get(item_id_str, 1))
+            
+            cart_data[item_id_str] = {
+                'name': item.name,
+                'price': float(item.price),
+                'quantity': quantity,
+                'image': item.display_image_url
+            }
+            
+            cart_count += quantity
+            subtotal += float(item.price) * quantity
+    
+    return {
+        "cart_count": cart_count,
+        "cart": cart_data,
+        "subtotal": subtotal
+    }

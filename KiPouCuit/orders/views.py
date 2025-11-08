@@ -1,9 +1,9 @@
 from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 from meals.models import MenuItem
 
-# ---------- Helpers ----------
 
 def _get_cart(request):
     """
@@ -96,42 +96,76 @@ def order_summary(request):
 
 # ---------- Cart endpoints ----------
 
-@require_POST
 def update_quantity(request, item_id):
-    """
-    Supports two modes:
-      - POST action=inc/dec
-      - POST quantity=<int>
-    """
-    cart = _get_cart(request)
-    key = str(item_id)
-    action = request.POST.get("action")
+    """Update quantity from order summary page - supports AJAX and regular POST"""
+    if request.method == 'POST':
+        cart = _get_cart(request)
+        item_id_str = str(item_id)
+        action = request.POST.get('action')
+        
+        if item_id_str in cart:
+            current_qty = cart[item_id_str]
+            if isinstance(current_qty, dict):
+                current_qty = current_qty.get('quantity', 1)
+            
+            if action == 'inc':
+                cart[item_id_str] = int(current_qty) + 1
+            elif action == 'dec':
+                new_qty = int(current_qty) - 1
+                if new_qty <= 0:
+                    del cart[item_id_str]
+                else:
+                    cart[item_id_str] = new_qty
+            else:
+                # Handle direct quantity setting
+                qty = _normalize_qty(request.POST.get("quantity", 1))
+                if qty <= 0:
+                    cart.pop(item_id_str, None)
+                else:
+                    cart[item_id_str] = qty
+            
+            request.session['cart'] = cart
+            request.session.modified = True
+        
+        # Handle AJAX requests
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            cart_count = sum(cart.values())
+            cart_subtotal = 0
+            if cart:
+                items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
+                cart_subtotal = sum(float(i.price) * cart[str(i.id)] for i in items)
+            return JsonResponse({
+                'success': True,
+                'cart_count': cart_count,
+                'cart_subtotal': cart_subtotal
+            })
+    
+    return redirect('order_summary')
 
-    if action == "inc":
-        cart[key] = cart.get(key, 0) + 1
-    elif action == "dec":
-        current = cart.get(key, 0)
-        if current > 1:
-            cart[key] = current - 1
-        else:
-            cart.pop(key, None)
-    else:
-        qty = _normalize_qty(request.POST.get("quantity", 1))
-        if qty <= 0:
-            cart.pop(key, None)
-        else:
-            cart[key] = qty
-
-    request.session["cart"] = cart
-    request.session.modified = True
-    return redirect("order_summary")
-
-@require_POST
 def remove_from_order(request, item_id):
-    cart = _get_cart(request)
-    cart.pop(str(item_id), None)
-    request.session["cart"] = cart
-    request.session.modified = True
+    """Removes an item from the order - supports AJAX and regular POST"""
+    if request.method == 'POST':
+        cart = _get_cart(request)
+        item_id_str = str(item_id)
+
+        if item_id_str in cart:
+            del cart[item_id_str]
+            request.session["cart"] = cart
+            request.session.modified = True
+
+        # Handle AJAX requests
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            cart_count = sum(cart.values())
+            cart_subtotal = 0
+            if cart:
+                items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
+                cart_subtotal = sum(float(i.price) * cart[str(i.id)] for i in items)
+            return JsonResponse({
+                "success": True,
+                "cart_count": cart_count,
+                "cart_subtotal": cart_subtotal
+            })
+
     return redirect("order_summary")
 
 @require_POST
@@ -150,3 +184,32 @@ def add_to_order(request, item_id):
     request.session["cart"] = cart
     request.session.modified = True
     return redirect("order_summary")
+
+def get_cart_data(request):
+    """Returns enriched cart data for AJAX requests"""
+    cart = _get_cart(request)
+    cart_count = 0
+    cart_items = {}
+    cart_subtotal = 0
+    
+    if cart:
+        items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
+        
+        for item in items:
+            item_id_str = str(item.id)
+            quantity = cart.get(item_id_str, 0)
+            
+            cart_items[item_id_str] = {
+                'name': item.name,
+                'price': float(item.price),
+                'quantity': quantity,
+            }
+            
+            cart_count += quantity
+            cart_subtotal += float(item.price) * quantity
+    
+    return JsonResponse({
+        "cart_count": cart_count,
+        "cart_subtotal": cart_subtotal,
+        "cart_items": cart_items,
+    })
