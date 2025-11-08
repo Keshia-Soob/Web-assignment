@@ -131,3 +131,21 @@ textarea {
     color: #721c24;
 }
 
+.view-btn-container {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.view-reviews-btn {
+    background-color: #e67e22;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.view-reviews-btn:hover {
+    background-color: #d35400;
+}
