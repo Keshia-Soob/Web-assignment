@@ -50,11 +50,11 @@ def signup_view(request):
             last_name=last_name
         )
 
-        profile = UserProfile.objects.create(
-            user=user,
-            phone=phone,
-            address=address
-        )   
+        # 🔹 Use the profile created by the signal (or create it if missing)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.phone = phone
+        profile.address = address
+        profile.save()
 
         login(request, user)
         messages.success(request, "Welcome! Your account has been created.")
@@ -97,7 +97,7 @@ def forgot_password_view(request):
 
 @login_required
 def user_history_view(request):
-    profile = UserProfile.objects.get(user=request.user)
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
     orders = get_user_orders(request.user)
 
     return render(request, "users/user_history.html", {
