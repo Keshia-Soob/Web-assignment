@@ -58,25 +58,73 @@
     <div id="history-content" class="tab-content" style="display: none;">
         <div class="order-history">
             <h3>Order History</h3>
-            
-            {% if orders %}
-                {% for order in orders %}
-                    {% for order_item in order.items.all %}
-                    <div class="order-item">
-                        <img src="{{ order_item.menu_item.display_image_url }}" alt="{{ order_item.menu_item.name }}">
-                        <div class="order-info">
-                            <h4>{{ order_item.menu_item.name }}</h4>
-                            <p>{{ order_item.menu_item.description }}</p>
-                            <p><small>Company Name</small></p>
-                            <p><small>{{ order.created_at|date:"d M Y" }}</small></p>
+
+            {% if orders_meta %}
+                {% for meta in orders_meta %}
+                    {% with order=meta.order %}
+                    <div class="order-block">
+                        <div class="order-header">
+                            <div style="display:flex; gap:12px; align-items:center;">
+                                <strong>Order #{{ order.id }}</strong>
+                                <span class="order-date">{{ order.created_at|date:"d M Y H:i" }}</span>
+                            </div>
+
+                            <div style="text-align:right;">
+                                <span class="order-subtotal">Subtotal: Rs{{ order.subtotal }}</span>
+                                <div style="margin-top:6px;">
+                                    <span class="status pill status-overall">{{ meta.overall_text }}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="order-price">
-                            <p>Qty: {{ order_item.quantity }}</p>
-                            <p class="price">${{ order_item.total_price }}</p>
+
+                        {% for order_item in order.items.all %}
+                        <div class="order-item">
+                            <div class="order-left">
+                                <img src="{{ order_item.menu_item.display_image_url }}" alt="{{ order_item.menu_item.name }}">
+                            </div>
+
+                            <div class="order-middle">
+                                <h4 class="menu-name">{{ order_item.menu_item.name }}</h4>
+                                <p class="meta">
+                                    <strong>Qty:</strong> {{ order_item.quantity }}
+                                    &nbsp; • &nbsp;
+                                    <strong>Price:</strong> Rs{{ order_item.total_price }}
+                                </p>
+                            </div>
+
+                            <div class="order-right">
+                                {# Status display for each item #}
+                                <div class="status-block">
+                                    {% if order_item.status == 'pending' %}
+                                        <span class="status pill status-pending">Pending (kitchen)</span>
+
+                                    {% elif order_item.status == 'accepted' %}
+                                        <span class="status pill status-accepted">Accepted by cook</span>
+                                        {% if order_item.prepared_by %}
+                                            <div class="small">By: {{ order_item.prepared_by.name }} {{ order_item.prepared_by.surname }}</div>
+                                        {% endif %}
+
+                                    {% elif order_item.status == 'delivering' %}
+                                        <span class="status pill status-delivering">Is being delivered</span>
+                                        {% if order_item.prepared_by %}
+                                            <div class="small">By: {{ order_item.prepared_by.name }} {{ order_item.prepared_by.surname }}</div>
+                                        {% endif %}
+
+                                    {% elif order_item.status == 'delivered' %}
+                                        <span class="status pill status-delivered">Delivered</span>
+                                        {% if order_item.prepared_by %}
+                                            <div class="small">By: {{ order_item.prepared_by.name }} {{ order_item.prepared_by.surname }}</div>
+                                        {% endif %}
+
+                                    {% else %}
+                                        <span class="status pill">{{ order_item.get_status_display }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
-                        <button class="remove">×</button>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                    {% endwith %}
                 {% endfor %}
             {% else %}
                 <div class="no-orders">
@@ -92,29 +140,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabButtons = document.querySelectorAll('.tab-button');
     const initialMessage = document.getElementById('initial-message');
     const tabContents = document.querySelectorAll('.tab-content');
-    
+
     tabButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             const tabName = this.getAttribute('data-tab');
-            
+
             // Hide initial message
             initialMessage.style.display = 'none';
-            
+
             // Hide all tab contents
             tabContents.forEach(tab => {
                 tab.style.display = 'none';
             });
-            
+
             // Remove active class from all buttons
             tabButtons.forEach(btn => {
                 btn.classList.remove('active');
             });
-            
+
             // Show the selected tab
             document.getElementById(tabName + '-content').style.display = 'block';
-            
+
             // Activate the clicked button
             this.classList.add('active');
         });

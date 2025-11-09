@@ -33,8 +33,13 @@
 }
 
 .orders-section h3 {
-    font-size: 20px;
-    margin-bottom: 20px;
+    font-size: 25px;          
+    margin-bottom: 25px;       
+    font-weight: 550;               
+    color: #333;                    
+    letter-spacing: 1px;           
+    border-bottom: 2px solid #ff6a00; 
+    padding-bottom: 5px;            
 }
 
 .order-item {
@@ -82,4 +87,13 @@
 
 .mark-ready:hover {
     background: #333;
+}
+.accept-btn {
+    background: #f70303;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
