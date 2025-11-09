@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block title %}KiPouCuit{% endblock %}
@@ -17,43 +16,22 @@
         </div>
 </section>
 
-    <!-- Best Sellers Section -->
+<!-- Best Sellers Section -->
 <section class="best-sellers center">
     <div class="container">
         <h2>Our Best Sellers</h2>
         <div class="menu-grid">
+            {% for item in best_sellers %}
             <div class="menu-item">
-                <img src="https://picsum.photos/seed/chicken-briani/400/300.jpg" alt="Chicken Briani">
+                <img src="{{ item.display_image_url }}" alt="{{ item.name }}">
                 <div class="menu-item-content">
-                    <h3>Chicken Briani</h3>
-                    <p>Aromatic rice dish with tender chicken, fragrant spices, and caramelized onions. Our signature briani is slow-cooked to perfection.</p>
-                    <div class="price">Rs 200</div>
+                    <h3>{{ item.name }}</h3>
+                    <p>{{ item.description|truncatewords:15 }}</p>
+                    <div class="price">Rs {{ item.price|floatformat:0 }}</div>
+                    <span class="cuisine-badge">{{ item.get_cuisine_display }}</span>
                 </div>
             </div>
-            <div class="menu-item">
-                <img src="https://picsum.photos/seed/buffalo-wings/400/300.jpg" alt="Buffalo Wings">
-                <div class="menu-item-content">
-                    <h3>Buffalo Wings</h3>
-                    <p>Crispy chicken wings tossed in our famous spicy buffalo sauce. Served with celery sticks and blue cheese dressing.</p>
-                    <div class="price">Rs 450</div>
-                </div>
-            </div>
-            <div class="menu-item">
-                <img src="https://picsum.photos/seed/lasagna/400/300.jpg" alt="Lasagna">
-                <div class="menu-item-content">
-                    <h3>Lasagna</h3>
-                    <p>Layers of pasta, rich meat sauce, creamy béchamel, and melted mozzarella cheese. Our comfort food classic.</p>
-                    <div class="price">Rs 400</div>
-                </div>
-            </div>
-            <div class="menu-item">
-                <img src="https://picsum.photos/seed/thai-fried-rice/400/300.jpg" alt="Thai Fried Rice">
-                <div class="menu-item-content">
-                    <h3>Thai Fried Rice</h3>
-                    <p>Stir-fried jasmine rice with eggs, vegetables, and our special Thai spices. Garnished with lime and cilantro.</p>
-                    <div class="price">Rs 300</div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
@@ -87,7 +65,5 @@
         </div>
     </div>
 </section>
-
-
 
 {% endblock %}

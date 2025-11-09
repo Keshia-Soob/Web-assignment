@@ -2,10 +2,22 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import ContactMessage
 from reviews.models import Review  # import Review model for testimonials
+from meals.models import MenuItem  # ADD THIS IMPORT
 
 # Home Page
 def home(request):
-    return render(request, 'main_page/home.html')
+    # Get one random meal from each cuisine for best sellers
+    best_sellers = []
+    cuisines = ['indian', 'mauritian', 'english', 'french', 'asian']
+    
+    for cuisine in cuisines:
+        meal = MenuItem.objects.filter(cuisine=cuisine).order_by('?').first()
+        if meal:
+            best_sellers.append(meal)
+    
+    return render(request, 'main_page/home.html', {
+        'best_sellers': best_sellers
+    })
 
 # About Page with dynamic testimonials
 def about(request):
