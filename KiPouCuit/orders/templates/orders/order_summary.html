@@ -62,7 +62,7 @@
     <div class="sum-right">
       <h2>Total: Rs {{ total|floatformat:0 }}</h2>
       {% if items %}
-      <a class="checkout-btn" href="{% url 'order_confirmed' %}">Pay and Checkout</a>
+      <a class="checkout-btn" href="{% url 'checkout' %}">Pay and Checkout</a>
       {% endif %}
     </div>
   </div>
