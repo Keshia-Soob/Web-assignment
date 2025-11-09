@@ -21,12 +21,24 @@
 
 .hero-content {
     position: absolute;
-    top: 50%;
+    top: 65%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
     color: white;
 }
+.hero-content h1 {
+  font-family: "Caveat", cursive;
+  font-weight: 700; /* choose 400 for thin, 700 for bold */
+  font-size: 5rem;  /* adjust size as you like */
+}
+
+.hero-content p {
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-size: 1.3rem;
+}
+
 
 .hero-content a{
     text-decoration: none;
