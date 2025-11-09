@@ -7,15 +7,15 @@
     margin-top: -120px;
     position: relative;
     width: 100%;
-    height: 100vh; /* full screen section */
+    height: 100vh;
     overflow: hidden;
 }
 
 .hero img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* makes the image cover like CSS background */
-    display: block; /* keeps it sharp like a background image */
+    object-fit: cover;
+    display: block;
     object-position: center;
 }
 
@@ -23,9 +23,9 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* center horizontally & vertically */
+    transform: translate(-50%, -50%);
     text-align: center;
-    color: white; /* text color */
+    color: white;
 }
 
 .hero-content a{
@@ -48,17 +48,6 @@
     font-size: 1.2rem;
     margin-bottom: 30px;
 }
-
-/* .cta-button {
-    background-color:#F76F1E ;
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    font-size: 1.1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-} */
 
 .hero-content a:hover {
     background-color:#fd9b62;
@@ -86,10 +75,12 @@ h2:after {
     margin: 10px auto;
 }
 
+/* SIMPLE FLEX LAYOUT - Side by side */
 .menu-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 20px 0;
 }
 
 .menu-item {
@@ -98,6 +89,7 @@ h2:after {
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
+    flex: 0 0 280px; /* ORIGINAL SMALL SIZE */
 }
 
 .menu-item:hover {
@@ -106,24 +98,39 @@ h2:after {
 
 .menu-item img {
     width: 100%;
-    height: 250px;
+    height: 180px; /* ORIGINAL SMALL IMAGE */
     object-fit: cover;
 }
 
 .menu-item-content {
-    padding: 20px;
+    padding: 15px;
 }
 
 .menu-item-content h3 {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.menu-item-content p {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
     margin-bottom: 10px;
 }
 
 .price {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: bold;
     color: #F76F1E;
-    margin-top: 10px;
+}
+
+.cuisine-badge {
+    display: inline-block;
+    background: #F76F1E;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
 }
 
 /* Our Process Section */
