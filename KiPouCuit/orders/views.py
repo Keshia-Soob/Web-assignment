@@ -3,7 +3,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from meals.models import MenuItem
+from django.urls import reverse
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
+from users.models import PaymentMethod
+from orders.forms import NewCardForm, CheckoutForm
+from homecook.models import HomeCook
+from .models import Order, OrderItem
 
 def _get_cart(request):
     """
@@ -212,4 +219,136 @@ def get_cart_data(request):
         "cart_count": cart_count,
         "cart_subtotal": cart_subtotal,
         "cart_items": cart_items,
+    })
+    
+
+def checkout(request):
+    """
+    GET: show order summary and saved cards
+    POST: create payment (fake), create order+orderitems, attach to user, clear cart
+    """
+    
+    if not request.user.is_authenticated:
+        return redirect("login")
+    
+    cart = _get_cart(request)
+    items, subtotal = _cart_items_and_totals(cart)
+
+    # Build payment_methods list for the template
+    payment_methods = PaymentMethod.objects.filter(user=request.user)
+
+    if request.method == "POST":
+        checkout_form = CheckoutForm(request.POST)
+        new_card_form = NewCardForm(request.POST)
+        
+        # ✅ FIX: First check if user selected an existing payment method
+        pm_id = request.POST.get("payment_method_id")
+        chosen_payment = None
+
+        if pm_id:
+            try:
+                chosen_payment = payment_methods.get(id=int(pm_id))
+            except (ValueError, PaymentMethod.DoesNotExist):
+                chosen_payment = None
+
+        # ✅ FIX: Only validate new card form if no saved card was selected
+        # AND if any new card field has data
+        if not chosen_payment:
+            # Check if user is trying to add a new card
+            has_new_card_data = any([
+                request.POST.get('card_holder_name'),
+                request.POST.get('card_number'),
+                request.POST.get('expiry_month'),
+                request.POST.get('expiry_year'),
+            ])
+            
+            if has_new_card_data and new_card_form.is_valid():
+                cd = new_card_form.cleaned_data
+                # create & optionally save
+                if cd.get("save_card"):
+                    chosen_payment = PaymentMethod.create_from_plain(
+                        user=request.user,
+                        card_number=cd["card_number"],
+                        holder_name=cd["card_holder_name"],
+                        expiry_month=cd["expiry_month"],
+                        expiry_year=cd["expiry_year"],
+                        is_default=cd.get("set_default", False),
+                    )
+                else:
+                    # create an ephemeral PaymentMethod instance (not saved)
+                    masked = "**** **** **** " + "".join(ch for ch in cd["card_number"] if ch.isdigit())[-4:]
+                    chosen_payment = PaymentMethod(
+                        user=request.user,
+                        card_holder_name=cd["card_holder_name"],
+                        masked_card_number=masked,
+                        signed_card=PaymentMethod.sign_card_number(cd["card_number"]),
+                        expiry_month=cd["expiry_month"],
+                        expiry_year=cd["expiry_year"],
+                        is_default=False
+                    )
+            elif has_new_card_data and not new_card_form.is_valid():
+                # User tried to enter new card but form has errors
+                context = {
+                    "items": items,
+                    "subtotal": subtotal,
+                    "payment_methods": payment_methods,
+                    "new_card_form": new_card_form,
+                    "checkout_form": checkout_form,
+                }
+                return render(request, "orders/checkout.html", context)
+            else:
+                # No saved card selected and no new card data entered
+                new_card_form.add_error(None, "Please select a saved card or enter new card details")
+                context = {
+                    "items": items,
+                    "subtotal": subtotal,
+                    "payment_methods": payment_methods,
+                    "new_card_form": new_card_form,
+                    "checkout_form": checkout_form,
+                }
+                return render(request, "orders/checkout.html", context)
+
+        # At this point we have chosen_payment
+        # --- FAKE PROCESSING of payment (always succeed for assignment) ---
+        # Create Order and OrderItems
+        order = Order.objects.create(
+            user=request.user,
+            client_name=f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username,
+            created_at=timezone.now()
+        )
+
+        # For each cart item, create OrderItem and attach a HomeCook if found
+        for line in items:
+            menu_item_id = int(line["id"])
+            menu_item = MenuItem.objects.get(id=menu_item_id)
+            qty = int(line["quantity"])
+            # Find a homecook for this cuisine (simple heuristic)
+            homecook = HomeCook.objects.filter(cuisine=menu_item.cuisine).first()
+            order_item = OrderItem.objects.create(
+                menu_item=menu_item,
+                quantity=qty,
+                prepared_by=homecook
+            )
+            order.items.add(order_item)
+
+        order.save()
+
+        # Clear session cart
+        request.session["cart"] = {}
+        request.session.modified = True
+
+        # redirect to confirmation
+        return redirect(reverse("order_confirmed"))
+
+    else:
+        checkout_form = CheckoutForm()
+        new_card_form = NewCardForm()
+
+    return render(request, "orders/checkout.html", {
+        "items": items,
+        "subtotal": subtotal,
+        "payment_methods": payment_methods,
+        "new_card_form": new_card_form,
+        "checkout_form": checkout_form,
+        "user_profile": getattr(request.user, "userprofile", None),
     })

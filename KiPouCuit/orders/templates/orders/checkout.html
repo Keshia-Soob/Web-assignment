@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'orders/checkout.css' %}">
+<div class="checkout-container">
+    <h1>Checkout</h1>
+
+    <div class="checkout-grid">
+        <!-- Left: Order Summary -->
+        <div class="order-summary-section">
+            <h2>Order Summary</h2>
+
+            <div class="order-items">
+                {% for item in items %}
+                <div class="checkout-item">
+                    <img src="{{ item.image }}" alt="{{ item.name }}">
+                    <div class="item-info">
+                        <h4>{{ item.name }}</h4>
+                        <p>Qty: {{ item.quantity }}</p>
+                    </div>
+                    <div class="item-price">
+                        Rs {{ item.total|floatformat:0 }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="order-totals">
+                <div class="total-final">
+                    <span>Total:</span>
+                    <span>Rs {{ subtotal|floatformat:0 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Payment & Delivery Info -->
+        <div class="payment-section">
+            <h2>Delivery Information</h2>
+            <div class="delivery-info">
+                <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                <p><strong>Address:</strong> {{ user_profile.address }}</p>
+                <p><strong>Phone:</strong> {{ user_profile.phone }}</p>
+            </div>
+
+            <h2>Payment Method</h2>
+
+            <form method="POST" action="{% url 'checkout' %}" class="checkout-form">
+                {% csrf_token %}
+
+                <div class="payment-methods">
+                    <!-- Existing saved methods -->
+                {% if payment_methods %}
+                    {% for method in payment_methods %}
+                    <label class="payment-card {% if method.is_default %}default{% endif %}">
+
+                        <!-- ✅ FIX: Always keep same name, and select default card -->
+                        <input type="radio" name="payment_method_id" value="{{ method.id }}" 
+                        {% if method.is_default %}checked{% endif %}>
+
+                        <div class="card-details">
+                            <div class="card-icon">💳</div>
+                            <div class="card-info">
+                                <strong>{{ method.card_holder_name }}</strong>
+                                <p>{{ method.masked_card_number }}</p>
+                                <p class="card-expiry">Expires: {{ method.expiry_month }}/{{ method.expiry_year }}</p>
+                            </div>
+
+                            {% if method.is_default %}
+                            <span class="default-badge">Default</span>
+                            {% endif %}
+                        </div>
+                    </label>
+                    {% endfor %}
+                    <hr class="divider">
+                    {% endif %}
+
+                    <!-- New Card block -->
+                    <div class="new-card">
+                        <h3>Use a new card</h3>
+
+                        {% if new_card_form.non_field_errors %}
+                        <div class="form-errors">
+                            {{ new_card_form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="{{ new_card_form.card_holder_name.id_for_label }}">
+                                    Name on card
+                                </label>
+                                {{ new_card_form.card_holder_name }}
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="{{ new_card_form.card_number.id_for_label }}">
+                                    Card number
+                                </label>
+                                {{ new_card_form.card_number }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ new_card_form.expiry_month.id_for_label }}">
+                                    Expiry month
+                                </label>
+                                {{ new_card_form.expiry_month }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ new_card_form.expiry_year.id_for_label }}">
+                                    Expiry year
+                                </label>
+                                {{ new_card_form.expiry_year }}
+                            </div>
+
+                            <div class="form-group checkbox-group full-width">
+                                {{ new_card_form.save_card }}
+                                <label for="{{ new_card_form.save_card.id_for_label }}" class="checkbox-label">
+                                    Save card for future purchases
+                                </label>
+                            </div>
+
+                            <div class="form-group checkbox-group full-width">
+                                {{ new_card_form.set_default }}
+                                <label for="{{ new_card_form.set_default.id_for_label }}" class="checkbox-label">
+                                    Set as default payment method
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="checkout-buttons">
+                    <a href="{% url 'order_summary' %}" class="btn-back">Back to Cart</a>
+                    <button type="submit" class="btn-checkout">Complete Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

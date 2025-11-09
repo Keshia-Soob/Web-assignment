@@ -1,0 +1,390 @@
+.checkout-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.checkout-container h1 {
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 32px;
+}
+
+/* Grid Layout */
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* Order Summary Section */
+.order-summary-section {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: fit-content;
+}
+
+.order-summary-section h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.order-items {
+  margin-bottom: 20px;
+}
+
+.checkout-item {
+  display: flex;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.checkout-item:last-child {
+  border-bottom: none;
+}
+
+.checkout-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-info h4 {
+  margin: 0 0 5px 0;
+  color: #111827;
+  font-size: 16px;
+}
+
+.item-info p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.item-price {
+  font-weight: bold;
+  color: #d97706;
+  font-size: 18px;
+}
+
+/* Order Totals */
+.order-totals {
+  margin-top: 20px;
+  padding-top: 20px;
+}
+
+/* .total-row {
+  font-size: 24px;
+  font-weight: bold;
+  color: #d97706;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 2px solid #eee;
+} */
+
+.total-final {
+  font-size: 24px;
+  font-weight: bold;
+  color: #d97706;
+  padding-top: 15px;
+  border-top: 2px solid #eee;
+}
+
+/* Payment Section */
+.payment-section {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.payment-section h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.delivery-info {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.delivery-info p {
+  margin: 10px 0;
+  color: #374151;
+}
+
+.delivery-info strong {
+  color: #111827;
+}
+
+/* Checkout Form Styles */
+.checkout-form {
+  width: 100%;
+}
+
+/* Payment Methods Container */
+.payment-methods {
+  background: #f9fafb;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+/* Saved Payment Cards */
+.payment-card {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 15px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.payment-card:hover {
+  border-color: #d97706;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.1);
+}
+
+.payment-card.default {
+  border-color: #d97706;
+  background: #fffbeb;
+}
+
+.payment-card input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  margin-right: 15px;
+  cursor: pointer;
+  accent-color: #d97706;
+}
+
+.card-details {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.card-icon {
+  font-size: 32px;
+}
+
+.card-info {
+  flex: 1;
+}
+
+.card-info strong {
+  display: block;
+  font-size: 16px;
+  color: #111827;
+  margin-bottom: 5px;
+}
+
+.card-info p {
+  margin: 2px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.card-expiry {
+  font-size: 13px !important;
+  color: #9ca3af !important;
+}
+
+.default-badge {
+  background: #d97706;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 25px 0;
+}
+
+/* New Card Section */
+.new-card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+}
+
+.new-card h3 {
+  margin: 0 0 20px 0;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus {
+  outline: none;
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+}
+
+/* Checkbox Groups */
+.checkbox-group {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #d97706;
+}
+
+.checkbox-label {
+  margin: 0 !important;
+  cursor: pointer;
+  font-weight: 500 !important;
+}
+
+/* Error Messages */
+.form-errors {
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: 5px;
+  display: block;
+}
+
+/* Checkout Buttons */
+.checkout-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn-back,
+.btn-checkout {
+  flex: 1;
+  padding: 16px 32px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-back {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-back:hover {
+  background: #e5e7eb;
+}
+
+.btn-checkout {
+  background: #d97706;
+  color: white;
+}
+
+.btn-checkout:hover {
+  background: #b45309;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+}
+
+.btn-checkout:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .checkout-buttons {
+    flex-direction: column;
+  }
+  
+  .payment-card {
+    padding: 15px;
+  }
+  
+  .card-details {
+    flex-wrap: wrap;
+  }
+  
+  .default-badge {
+    margin-top: 10px;
+  }
+}
