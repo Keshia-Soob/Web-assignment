@@ -42,6 +42,7 @@ def signup_view(request):
             messages.error(request, "Email is already registered.")
             return render(request, 'users/signup.html', context)
 
+        # Create user and profile with phone/address in one go
         user = User.objects.create_user(
             username=email,
             email=email,
@@ -50,11 +51,12 @@ def signup_view(request):
             last_name=last_name
         )
 
-        # 🔹 Use the profile created by the signal (or create it if missing)
-        profile, created = UserProfile.objects.get_or_create(user=user)
-        profile.phone = phone
-        profile.address = address
-        profile.save()
+        # Create profile with actual phone and address from form
+        UserProfile.objects.create(
+            user=user,
+            phone=phone,
+            address=address
+        )
 
         login(request, user)
         messages.success(request, "Welcome! Your account has been created.")
