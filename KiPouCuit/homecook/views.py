@@ -136,13 +136,8 @@ def homecook_onboarding(request):
     """
     return render(request, "homecook/homecook_onboarding.html")
 
-
 @login_required(login_url='login')
 def homecook_log(request):
-    """
-    HomeCook's "kitchen" log – only for logged-in homecooks.
-    Shows pending orders for their cuisine.
-    """
     cook = _get_active_homecook(request)
     if not cook:
         messages.info(request, "Create your HomeCook profile first.")
@@ -154,6 +149,11 @@ def homecook_log(request):
         .filter(menu_item__cuisine=cook.cuisine, status=OrderItem.Status.PENDING)
         .order_by("created_at")
     )
+
+    # Attach related order info manually
+    for item in items:
+        order = item.orders.first()  # since it's a ManyToMany
+        item.order = order  # attach temporarily for the template
 
     return render(request, "homecook/homecook_log.html", {"homecook": cook, "items": items})
 

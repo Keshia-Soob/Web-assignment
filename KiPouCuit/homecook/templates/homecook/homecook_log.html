@@ -40,7 +40,16 @@
           <img src="{{ it.menu_item.display_image_url }}" alt="Meal" class="dish-image">
           <div class="dish-details">
             <h4>{{ it.menu_item.name }}</h4>
-            <p>Client: <strong>N/A</strong></p>
+            {% if it.order %}
+              <p>Client: <strong>{{ it.order.client_name }}</strong></p>
+              {% if it.order.user and it.order.user.userprofile.address %}
+                <p>Address: {{ it.order.user.userprofile.address }}</p>
+              {% else %}
+                <p>Address: Not provided</p>
+              {% endif %}
+            {% else %}
+              <p>Client: <strong>Unknown</strong></p>
+            {% endif %}
             <p>Qty: {{ it.quantity }}</p>
           </div>
         </div>
