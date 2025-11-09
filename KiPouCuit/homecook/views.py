@@ -111,17 +111,38 @@ def homecook_log(request):
     cook = _get_active_homecook(request)
     if not cook:
         messages.info(request, "Create your HomeCook profile first.")
-        return render(request, "homecook/homecook_log.html", {"homecook": None, "available_items": [], "my_items": []})
+        return render(request, "homecook/homecook_log.html", {
+            "homecook": None,
+            "available_items": [],
+            "my_items": []
+        })
 
-    available_items = OrderItem.objects.select_related('menu_item').filter(
-        menu_item__cuisine=cook.cuisine,
-        status=OrderItem.Status.PENDING
-    ).order_by('created_at')
+    # --- Available (Unclaimed) Orders ---
+    available_items = (
+        OrderItem.objects
+        .select_related('menu_item')
+        .filter(
+            menu_item__cuisine=cook.cuisine,
+            status=OrderItem.Status.PENDING
+        )
+        .order_by('created_at')
+    )
 
-    my_items = OrderItem.objects.select_related('menu_item').filter(
-        prepared_by=cook,
-        status__in=[OrderItem.Status.ACCEPTED, OrderItem.Status.DELIVERING]
-    ).order_by('created_at')
+    # --- Orders already accepted by this cook ---
+    my_items = (
+        OrderItem.objects
+        .select_related('menu_item')
+        .filter(
+            prepared_by=cook,
+            status__in=[OrderItem.Status.ACCEPTED, OrderItem.Status.DELIVERING]
+        )
+        .order_by('created_at')
+    )
+
+    # ✅ Attach related order (so we can access client name/address in the template)
+    for item in list(available_items) + list(my_items):
+        order = item.orders.first()  # assuming ManyToMany from OrderItem → Order
+        item.order = order  # temporary attribute for template access
 
     return render(request, "homecook/homecook_log.html", {
         "homecook": cook,
