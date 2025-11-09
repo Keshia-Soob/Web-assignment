@@ -31,10 +31,9 @@
 
   <!-- Orders Section -->
   <div class="orders-section">
-    <h3>Orders to Prepare</h3>
-
-    {% if items %}
-      {% for it in items %}
+    <h3>Available Orders (Unclaimed)</h3>
+    {% if available_items %}
+      {% for it in available_items %}
       <div class="order-item">
         <div class="dish-info">
           <img src="{{ it.menu_item.display_image_url }}" alt="Meal" class="dish-image">
@@ -54,16 +53,50 @@
           </div>
         </div>
         <div class="order-actions">
-          <form action="{% url 'mark_order_ready' it.id %}" method="post">
+          <form action="{% url 'accept_order' it.id %}" method="post">
             {% csrf_token %}
-            <button class="mark-ready" type="submit">Mark as Ready</button>
+            <button class="accept-btn" type="submit">Accept</button>
           </form>
         </div>
       </div>
       {% endfor %}
     {% else %}
-      <p>No pending {% if homecook %}{{ homecook.get_cuisine_display }}{% else %}—{% endif %} orders right now.</p>
+      <p>No available orders right now.</p>
+    {% endif %}
+
+    <h3>Your Orders</h3>
+    {% if my_items %}
+      {% for it in my_items %}
+      <div class="order-item">
+        <div class="dish-info">
+          <img src="{{ it.menu_item.display_image_url }}" alt="Meal" class="dish-image">
+          <div class="dish-details">
+            <h4>{{ it.menu_item.name }}</h4>
+            <p>Qty: {{ it.quantity }}</p>
+            <p>Status: <strong>
+              {% if it.status == 'accepted' %}Accepted{% elif it.status == 'delivering' %}Being delivered{% else %}{{ it.get_status_display }}{% endif %}
+            </strong></p>
+          </div>
+        </div>
+        <div class="order-actions">
+          {% if it.status == 'accepted' %}
+            <form action="{% url 'mark_ready' it.id %}" method="post">
+              {% csrf_token %}
+              <button class="mark-ready" type="submit">Mark as Ready</button>
+            </form>
+          {% elif it.status == 'delivering' %}
+            <form action="{% url 'mark_delivered' it.id %}" method="post">
+              {% csrf_token %}
+              <button class="mark-ready" type="submit">Mark as Delivered</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p>You have no accepted orders.</p>
     {% endif %}
   </div>
+
 </div>
 {% endblock %}
