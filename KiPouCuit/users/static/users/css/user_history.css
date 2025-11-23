@@ -271,7 +271,7 @@ button.remove:hover {
      margin-bottom:8px;
 }
 .order-item { display:flex; 
-    gap:12px; padding:10px 0; 
+    gap:12px;  
     border-top:1px dashed #f0f0f0; 
     align-items:center; 
 }
