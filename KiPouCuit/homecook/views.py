@@ -40,6 +40,14 @@ def homecook(request):
     if hasattr(request.user, "homecook"):
         messages.info(request, "You already have a HomeCook account.")
         return redirect("homecook_log")
+    
+    # Prefill data from user
+    user = request.user
+    initial_data = {
+        "name": user.first_name or "",
+        "surname": user.last_name or "",
+        "email": user.email or "",
+    }
 
     if request.method == 'POST':
         invite_code = (request.POST.get('inviteCode') or '').strip()
@@ -90,7 +98,8 @@ def homecook(request):
         messages.success(request, "Your HomeCook account has been created successfully!")
         return redirect('homecook_log')
 
-    return render(request, 'homecook/homecook.html')
+    return render(request, 'homecook/homecook.html', {'initial_data': initial_data})
+
 
 
 def homecook_signup(request):

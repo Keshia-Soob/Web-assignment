@@ -24,7 +24,7 @@
         </div>
         {% endif %}
 
-
+{% if not blocked %}
 <form id="reviewForm" method="POST">
     {% csrf_token %}
     <div class="form-group">
@@ -112,6 +112,7 @@
 
     <button type="submit" class="submit-btn">Post your Review</button>
 </form>
+{% endif %}
     </div>
 </div>
 
