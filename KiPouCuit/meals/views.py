@@ -53,59 +53,84 @@ def menu(request):
 # ADD MENU ITEM (ADMIN/FORM)
 # ---------------------------
 def addmenu(request):
+
     def _form_data():
         return {
             "itemName": request.POST.get("itemName", "").strip(),
             "itemPrice": request.POST.get("itemPrice", "").strip(),
             "itemDescription": request.POST.get("itemDescription", "").strip(),
             "itemCuisine": request.POST.get("itemCuisine", "").strip(),
-            "itemType": request.POST.get("itemType", "").strip(),
+            "itemImageURL": request.POST.get("itemImageURL", "").strip(),
         }
 
     if request.method == "POST":
         errors = []
         data = _form_data()
 
-        # Validate
+        # Required fields
         for field, label in [
             ("itemName", "Item name"),
             ("itemPrice", "Price"),
-            ("itemDescription", "Description"),
             ("itemCuisine", "Cuisine"),
-            ("itemType", "Dish type"),
         ]:
             if not data[field]:
                 errors.append(f"{label} is required.")
 
-        # Price
-        price_val = None
-        if data["itemPrice"]:
-            try:
-                price_val = Decimal(data["itemPrice"])
-            except InvalidOperation:
-                errors.append("Price must be a valid number (e.g., 650).")
+        # Price validation
+        try:
+            price_val = Decimal(data["itemPrice"])
+        except:
+            errors.append("Price must be a valid number (e.g., 150).")
+            price_val = None
 
-        # Cuisine check
+        # Cuisine validation
         valid_cuisines = dict(MenuItem.CUISINE_CHOICES)
-        if data["itemCuisine"] and data["itemCuisine"] not in valid_cuisines:
-            errors.append("Invalid cuisine type selected.")
-        # If errors
+        if data["itemCuisine"] not in valid_cuisines:
+            errors.append("Invalid cuisine type.")
+
+        # STAY HERE IF THERE ARE ERRORS
+        if errors:
+            return render(
+                request,
+                "meals/addmenu.html",
+                {
+                    "errors": errors,
+                    "form_data": data,
+                    "cuisine_choices": MenuItem.CUISINE_CHOICES,
+                },
+            )
+
+        # -----------------------------------
+        # EVERYTHING VALID → CREATE THE ENTRY
+        # -----------------------------------
+        image_file = request.FILES.get("itemImage")
+
+        new_item = MenuItem.objects.create(
+            name=data["itemName"],
+            price=price_val,
+            description=data["itemDescription"],
+            cuisine=data["itemCuisine"],
+            image=image_file if image_file else None,
+            image_url=data["itemImageURL"] if not image_file else "",
+        )
+
         return render(
             request,
             "meals/addmenu.html",
             {
-                "errors": errors,
-                "form_data": data,
+                "success": f"{new_item.name} added successfully!",
+                "form_data": {},
                 "cuisine_choices": MenuItem.CUISINE_CHOICES,
             },
         )
 
+    # GET request
     return render(
         request,
         "meals/addmenu.html",
         {
-            "cuisine_choices": MenuItem.CUISINE_CHOICES,
             "form_data": {},
+            "cuisine_choices": MenuItem.CUISINE_CHOICES,
         },
     )
 
