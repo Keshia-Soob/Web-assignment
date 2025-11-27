@@ -46,7 +46,17 @@
     </div>
     {% endfor %}
     {% else %}
-    <p>Your order is empty. <a href="{% url 'menu' %}" class="remove-btn">Go back to the menu.</a></p>
+    <div class="empty-cart-container">
+      <div class="empty-cart-icon">
+        🛒
+      </div>
+      <h2 class="empty-cart-title">Your Cart is Empty</h2>
+      <p class="empty-cart-message">Looks like you haven't added any delicious meals yet!</p>
+      <a href="{% url 'menu' %}" class="back-to-menu-btn">
+        <span class="btn-icon">🍽️</span>
+        Explore Our Menu
+      </a>
+    </div>
     {% endif %}
   </section>
 
@@ -86,17 +96,17 @@
 
   // Store the current cart state on page load
   let currentCartState = null;
-  
+
   function fetchCartState() {
     return fetch('/cart/data/', {
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
       }
     })
-    .then(r => r.json())
-    .then(data => {
-      return JSON.stringify(data.cart_items);
-    });
+      .then(r => r.json())
+      .then(data => {
+        return JSON.stringify(data.cart_items);
+      });
   }
 
   // Poll for cart changes every 2 seconds
@@ -112,11 +122,11 @@
   }
 
   // Start polling when page loads
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     fetchCartState().then(state => {
       currentCartState = state;
     });
-    
+
     // Check every 2 seconds
     setInterval(checkForCartChanges, 2000);
   });

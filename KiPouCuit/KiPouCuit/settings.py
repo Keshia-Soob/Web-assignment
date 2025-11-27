@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Your apps
-    'admin_panel',
     'meals',
     'orders',
     'reviews',

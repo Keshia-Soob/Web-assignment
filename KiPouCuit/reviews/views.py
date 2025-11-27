@@ -2,29 +2,37 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Review
 from django.contrib.auth.decorators import login_required
+from orders.models import Order, OrderItem
 
 
 @login_required(login_url='login')
 def review(request):
     user = request.user  # the logged-in user
 
-    #Safely get phone from UserProfile
-    # contact_number = ''
-    # if hasattr(user, 'userprofile'):
-    #     contact_number = user.userprofile.phone or ''
+    user_orders = Order.objects.filter(user=user)
+    completed_orders = 0
+
+    for order in user_orders:
+        statuses = set(order.items.values_list('status', flat=True))
+        if statuses == {OrderItem.Status.DELIVERED}:  
+            completed_orders += 1
+
+    if completed_orders < 1:
+        messages.error(request, "You must complete at least ONE delivered order before posting a review.")
+        return render(request, 'reviews/review.html', {
+            'blocked': True
+        })
 
     initial_data = {
         'first_name': user.first_name,
         'last_name': user.last_name,
         'email': user.email,
-        # 'phone': contact_number
     }
 
     if request.method == 'POST':
         first_name = request.POST.get('firstName')
         last_name = request.POST.get('lastName')
         email = request.POST.get('email')
-        # phone = request.POST.get('phone') 
         rating = request.POST.get('rating')
         message = request.POST.get('message')
 
@@ -33,7 +41,6 @@ def review(request):
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
-                # phone=phone,
                 rating=rating,
                 message=message
             )
@@ -45,5 +52,5 @@ def review(request):
     return render(request, 'reviews/review.html', {'initial_data': initial_data})
 
 def review_list(request):
-    reviews = Review.objects.all().order_by('-id')  # newest first
+    reviews = Review.objects.all().order_by('-id') 
     return render(request, 'reviews/review_list.html', {'reviews': reviews})
