@@ -56,7 +56,7 @@
                     {% for method in payment_methods %}
                     <label class="payment-card {% if method.is_default %}default{% endif %}">
 
-                        <!-- ✅ FIX: Always keep same name, and select default card -->
+                        <!-- Always keep same name, and select default card -->
                         <input type="radio" name="payment_method_id" value="{{ method.id }}" 
                         {% if method.is_default %}checked{% endif %}>
 

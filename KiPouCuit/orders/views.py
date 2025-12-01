@@ -83,7 +83,7 @@ def _cart_items_and_totals(cart):
         })
     return items, subtotal
 
-# ---------- Pages ----------
+# Pages 
 
 def order(request):
     return render(request, 'orders/order.html')
@@ -97,11 +97,11 @@ def order_summary(request):
     context = {
         "items": items,
         "subtotal": subtotal,
-        "total": subtotal,  # no tax/shipping
+        "total": subtotal,  
     }
     return render(request, 'orders/order_summary.html', context)
 
-# ---------- Cart endpoints ----------
+#Cart endpoints
 
 def update_quantity(request, item_id):
     """Update quantity from order summary page - supports AJAX and regular POST"""
@@ -241,7 +241,7 @@ def checkout(request):
         checkout_form = CheckoutForm(request.POST)
         new_card_form = NewCardForm(request.POST)
         
-        # ✅ FIX: First check if user selected an existing payment method
+        #First check if user selected an existing payment method
         pm_id = request.POST.get("payment_method_id")
         chosen_payment = None
 
@@ -251,7 +251,7 @@ def checkout(request):
             except (ValueError, PaymentMethod.DoesNotExist):
                 chosen_payment = None
 
-        # ✅ FIX: Only validate new card form if no saved card was selected
+        # Only validate new card form if no saved card was selected
         # AND if any new card field has data
         if not chosen_payment:
             # Check if user is trying to add a new card
@@ -264,7 +264,6 @@ def checkout(request):
             
             if has_new_card_data and new_card_form.is_valid():
                 cd = new_card_form.cleaned_data
-                # create & optionally save
                 if cd.get("save_card"):
                     chosen_payment = PaymentMethod.create_from_plain(
                         user=request.user,
@@ -309,7 +308,7 @@ def checkout(request):
                 return render(request, "orders/checkout.html", context)
 
         # At this point we have chosen_payment
-        # --- FAKE PROCESSING of payment (always succeed for assignment) ---
+        # FAKE PROCESSING of payment (always succeed for assignment) 
         # Create Order and OrderItems
         order = Order.objects.create(
             user=request.user,

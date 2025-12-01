@@ -17,7 +17,7 @@
   <!-- Search + Filter Controls -->
   <div class="menu-controls">
 
-    <!-- 🔎 SEARCH BAR -->
+    <!--SEARCH BAR -->
     <input type="text" id="searchInput" placeholder="Search by meal or cuisine...">
 
     <!-- Cuisine filter -->
@@ -89,12 +89,11 @@
 <!-- Toast container -->
 <div id="toast-container"></div>
 
-<!-- Scripts -->
+
 <script>
 
-  // ============================
   // SEARCH BAR + CUISINE FILTER
-  // ============================
+  
   document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("searchInput");
     const cuisineFilter = document.getElementById("cuisineFilter");
@@ -154,10 +153,7 @@
     applyFilters();
   });
 
-
-  // ====================================
-  // EXISTING ADD TO CART + CART SCRIPTS
-  // ====================================
+  //ADD TO CART + CART SCRIPTS
 
   document.addEventListener("submit", function (e) {
     if (!e.target.matches(".add-to-cart-form")) return;

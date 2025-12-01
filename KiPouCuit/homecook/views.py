@@ -126,7 +126,7 @@ def homecook_log(request):
             "my_items": []
         })
 
-    # --- Available (Unclaimed) Orders ---
+    #Available (Unclaimed) Orders
     available_items = (
         OrderItem.objects
         .select_related('menu_item')
@@ -137,7 +137,7 @@ def homecook_log(request):
         .order_by('created_at')
     )
 
-    # --- Orders already accepted by this cook ---
+    #Orders already accepted by this cook
     my_items = (
         OrderItem.objects
         .select_related('menu_item')
@@ -148,7 +148,7 @@ def homecook_log(request):
         .order_by('created_at')
     )
 
-    # ✅ Attach related order (so we can access client name/address in the template)
+    #Attach related order (so we can access client name/address in the template)
     for item in list(available_items) + list(my_items):
         order = item.orders.first()  # assuming ManyToMany from OrderItem → Order
         item.order = order  # temporary attribute for template access

@@ -49,9 +49,9 @@ def menu(request):
         "cuisine_choices": MenuItem.CUISINE_CHOICES
     })
 
-# ---------------------------
+
 # ADD MENU ITEM (ADMIN/FORM)
-# ---------------------------
+
 def addmenu(request):
 
     def _form_data():
@@ -100,9 +100,9 @@ def addmenu(request):
                 },
             )
 
-        # -----------------------------------
+
         # EVERYTHING VALID → CREATE THE ENTRY
-        # -----------------------------------
+
         image_file = request.FILES.get("itemImage")
 
         new_item = MenuItem.objects.create(
@@ -134,9 +134,9 @@ def addmenu(request):
         },
     )
 
-# ---------------------------
+
 # ADD TO CART
-# ---------------------------
+
 def add_to_cart(request, item_id):
     """Adds an item to the cart — keeps cart format { '2': 1 }."""
     item = get_object_or_404(MenuItem, id=item_id)
@@ -170,9 +170,9 @@ def add_to_cart(request, item_id):
 
     return redirect(reverse("menu"))
 
-# ---------------------------
+
 # REMOVE FROM CART
-# ---------------------------
+
 def remove_from_cart(request, item_id):
     """Removes an item from the cart."""
     cart = request.session.get("cart", {})
@@ -197,18 +197,18 @@ def remove_from_cart(request, item_id):
 
     return redirect("order_summary")
 
-# ---------------------------
+
 # VIEW CART
-# ---------------------------
+
 def view_cart(request):
     cart = request.session.get("cart", {})
     items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
     subtotal = sum(float(i.price) * cart[str(i.id)] for i in items)
     return render(request, "cart.html", {"cart": cart, "items": items, "subtotal": subtotal})
 
-# ---------------------------
+
 # CLEAR CART
-# ---------------------------
+
 def clear_cart(request):
     request.session["cart"] = {}
     request.session.modified = True
@@ -216,9 +216,9 @@ def clear_cart(request):
         return JsonResponse({"success": True, "cart_count": 0})
     return redirect(reverse("menu"))
 
-# ---------------------------
+
 # CART DATA (AJAX)
-# ---------------------------
+
 def get_cart_data(request):
     """Returns enriched cart data for AJAX requests"""
     cart = request.session.get("cart", {})

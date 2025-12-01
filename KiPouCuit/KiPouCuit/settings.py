@@ -86,7 +86,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-# 🔁 Set to Mauritius time for correct timestamps in admin & templates
+#Set to Mauritius time for correct timestamps in admin & templates
 TIME_ZONE = 'Indian/Mauritius'
 USE_I18N = True
 USE_TZ = True
@@ -94,16 +94,16 @@ USE_TZ = True
 # Static files (CSS, JS, images served from /static/)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "static",           # keep your project-level static folder
+    BASE_DIR / "static",           #keep your project-level static folder
 ]
 # For production you’ll usually add:
 # STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 📸 Media files (user uploads like dish images)
-MEDIA_URL = '/media/'                     # ⬅️ Added
-MEDIA_ROOT = BASE_DIR / 'media'           # ⬅️ Added
+#Media files (user uploads like dish images)
+MEDIA_URL = '/media/'               
+MEDIA_ROOT = BASE_DIR / 'media'         
 
-# Default PK type
+#Default PK type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'

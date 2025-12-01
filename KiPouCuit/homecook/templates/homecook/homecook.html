@@ -9,7 +9,7 @@
 <h1 class="page-title">Create your Home Cook account</h1>
 
 <div class="profile-container center">
-    <!-- Profile Form (Left) -->
+    <!-- Profile Form -->
     <div class="profile-form">
         {% if messages %}
             <div class="messages">
@@ -24,7 +24,7 @@
         <form method="POST" enctype="multipart/form-data" id="homeCookForm">
             {% csrf_token %}
 
-            <!-- ACCESS CODE (required) -->
+            <!-- ACCESS CODE -->
             <div class="form-group">
                 <label for="inviteCode">Access Code</label>
                 <input type="text" id="inviteCode" name="inviteCode" required placeholder="Enter your access code">
@@ -88,7 +88,7 @@
         </form>
     </div>
 
-    <!-- Profile Info Sidebar (Right) -->
+    <!-- Profile Info Sidebar -->
     <div class="profile-info">
         <div class="profile-picture">
             <h3 class="section-title">Add a profile picture</h3>
@@ -116,7 +116,7 @@
 </div>
 
 <script>
-    const REQUIRED_CODE = 'HOMECOOK2025'; // change to your real code (or fetch from data-* attribute)
+    const REQUIRED_CODE = 'HOMECOOK2025'; //ACCESS CODE
 
     const form = document.getElementById('homeCookForm');
     const inviteCodeInput = document.getElementById('inviteCode');

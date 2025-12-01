@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import ContactMessage
-from reviews.models import Review  # import Review model for testimonials
+from reviews.models import Review 
 from django.contrib.auth.models import User
-from meals.models import MenuItem  # ADD THIS IMPORT
+from meals.models import MenuItem  
 
 # Home Page
 def home(request):

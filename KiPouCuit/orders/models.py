@@ -9,10 +9,10 @@ class OrderItem(models.Model):
       pending -> accepted -> delivering -> delivered
     """
     class Status(models.TextChoices):
-        PENDING = "pending", "Pending"           # visible to all homecooks
-        ACCEPTED = "accepted", "Accepted"        # accepted by a homecook; only that cook sees it in "my items"
-        DELIVERING = "delivering", "Being delivered"  # prepared and out for delivery
-        DELIVERED = "delivered", "Delivered"     # finished
+        PENDING = "pending", "Pending"          
+        ACCEPTED = "accepted", "Accepted"        
+        DELIVERING = "delivering", "Being delivered"
+        DELIVERED = "delivered", "Delivered"     
 
     menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)

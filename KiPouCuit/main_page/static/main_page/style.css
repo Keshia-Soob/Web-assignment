@@ -29,8 +29,8 @@
 }
 .hero-content h1 {
   font-family: "Caveat", cursive;
-  font-weight: 700; /* choose 400 for thin, 700 for bold */
-  font-size: 5rem;  /* adjust size as you like */
+  font-weight: 700; 
+  font-size: 5rem;  
 }
 
 .hero-content p {
