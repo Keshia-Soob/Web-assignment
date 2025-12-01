@@ -16,7 +16,7 @@ class HomeCook(models.Model):
         ('asian', 'Asian'),
     ]
 
-    # 🔹 LINK TO DJANGO USER (THIS IS THE IMPORTANT PART)
+    #LINK TO DJANGO USER (THIS IS THE IMPORTANT PART)
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -26,10 +26,10 @@ class HomeCook(models.Model):
     name = models.CharField(max_length=100)
     surname = models.CharField(max_length=100)
 
-    # You can keep this email, but it should match user.email
+    #You can keep this email, but it should match user.email
     email = models.EmailField(unique=True)
 
-    # NOTE: This is NOT used for authentication. Django's User handles real login.
+    #This is NOT used for authentication. Django's User handles real login.
     password = models.CharField(max_length=128)
 
     phone = models.CharField(max_length=20, blank=True, null=True)

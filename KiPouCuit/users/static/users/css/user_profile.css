@@ -1,11 +1,11 @@
-/* ✅ Added: Wrapper for the whole profile page */
+/*Wrapper for the whole profile page */
 .profile-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* ✅ Added: Banner section at the top */
+/*Banner section at the top */
 .profile-banner {
   width: 100%;
   height: 200px;
@@ -19,7 +19,7 @@
   object-fit: cover;
 }
 
-/* ✅ Updated: Profile container now acts like a card overlapping banner */
+/*Profile container now acts like a card overlapping banner */
 .profile-container {
   background-color: #ffffff; /* changed from transparent to white card */
   margin-top: -70px; /* pulls the card upward to overlap the banner */
@@ -33,10 +33,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* ⚠️ Replaces your old profile-container definition */
+  /*Replaces your old profile-container definition */
 }
 
-/* ✅ Updated: Profile photo now floats above card */
+/*Profile photo now floats above card */
 .profile-photo-container {
   position: absolute;
   top: -65px;
@@ -48,7 +48,7 @@
   height: 130px;
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  background: #f0e3e6; /* ⚠️ kept your soft pink tone */
+  background: #f0e3e6; 
 }
 
 .profile-photo {
@@ -58,7 +58,7 @@
   border-radius: 50%;
 }
 
-/* ✅ Updated: name simplified */
+/*name simplified */
 .profile-name {
   margin-top: 30px; /* added space for floating photo */
   color: #222;
@@ -68,7 +68,7 @@
   text-align: center;
 }
 
-/* ✅ Updated: details card look */
+/*details card look */
 .profile-details-container {
   background: #F6F6F6;
   padding: 25px 40px;
@@ -82,7 +82,7 @@
 
 .detail-row {
   display: flex;
-  justify-content: space-between; /* ✅ added for alignment */
+  justify-content: space-between; 
   margin-bottom: 12px;
 }
 
@@ -95,9 +95,9 @@
   color: #555;
 }
 
-/* ⚠️ Keep your upload button (just adjusted spacing slightly) */
+/*Keep your upload button (just adjusted spacing slightly) */
 .upload-btn {
-  margin-top: 55px; /* ✅ pushed down to sit below floating photo */
+  margin-top: 55px; /* pushed down to sit below floating photo */
   background-color: #e0e0e0;
   color: #333;
   border: none;
@@ -113,7 +113,7 @@
   background-color: #ccc;
 }
 
-/* ⚠️ Keep your history button but refined colors */
+/* Keep your history button but refined colors */
 .history-btn {
   background-color: #f28547; /* soft brown/gold */
   color: white;

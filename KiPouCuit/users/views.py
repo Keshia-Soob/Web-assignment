@@ -57,7 +57,7 @@ def signup_view(request):
             last_name=last_name
         )
 
-        # IMPORTANT: avoid duplicate profile creation if a post_save signal already created it
+        # avoid duplicate profile creation if a post_save signal already created it
         profile, created = UserProfile.objects.get_or_create(user=user)
         profile.phone = phone or profile.phone
         profile.address = address or profile.address

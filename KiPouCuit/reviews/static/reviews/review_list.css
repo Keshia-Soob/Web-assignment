@@ -73,24 +73,24 @@
 
 /* Post Review Button */
 .post-review-btn {
-    display: block;                /* makes centering work */
-    margin: 0 auto 25px auto;      /* center horizontally */
-    padding: 15px 35px;            /* bigger button */
-    font-size: 20px;               /* larger text */
+    display: block;               
+    margin: 0 auto 25px auto;    
+    padding: 15px 35px;         
+    font-size: 20px;            
     font-weight: 700;
     color: white;
     background-color: #e67e22;
     text-decoration: none;
     border-radius: 8px;
     text-align: center;
-    transition: all 0.3s ease;     /* smooth hover transition */
+    transition: all 0.3s ease;     
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .post-review-btn:hover {
     background-color: #d35400;
-    transform: scale(1.05);        /* slight grow on hover */
-    box-shadow: 0 6px 14px rgba(0,0,0,0.15);  /* softer shadow */
+    transform: scale(1.05);        
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);  
 }
 
 /* Empty message styling */

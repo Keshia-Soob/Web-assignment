@@ -26,7 +26,7 @@ class UserProfile(models.Model):
         blank=True
     )
 
-    # 🔹 HOMECOOK FIELDS
+    #HOMECOOK FIELDS
     is_homecook = models.BooleanField(default=False)
     homecook_status = models.CharField(
         max_length=10,

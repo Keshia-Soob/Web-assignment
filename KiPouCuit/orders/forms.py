@@ -3,26 +3,26 @@
 from django import forms
 
 class NewCardForm(forms.Form):
-    # ✅ FIX: Make all fields NOT required by default
+    # Make all fields NOT required by default
     card_holder_name = forms.CharField(
         max_length=150, 
         label="Name on card",
-        required=False  # ← ADDED
+        required=False 
     )
     card_number = forms.CharField(
         max_length=32, 
         label="Card number",
-        required=False  # ← ADDED
+        required=False  
     )
     expiry_month = forms.IntegerField(
         min_value=1, 
         max_value=12,
-        required=False  # ← ADDED
+        required=False 
     )
     expiry_year = forms.IntegerField(
         min_value=2023, 
         max_value=2100,
-        required=False  # ← ADDED
+        required=False 
     )
     save_card = forms.BooleanField(
         required=False, 
