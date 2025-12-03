@@ -1,62 +1,76 @@
+GitHub Accounts:
+
+KhushiR8 – Beedassy Nirvana Luxmi (2413850)
+Rayyandl / Xeno003 – Rayyan Dialumsing (2413784)
+Keshia-Soob – Soobrayen Keshia (2412920)
+Bhaveshguptar1 – Bhavesh Guptar (2413494)
+Haadiya04 – Haadiya Sana Begum Manreddy (2413050)
+Nusayhah - Jalal-mohammad Bibi Nusayhah (2413912)
+
 Web-Assignment KiPouCuit
 
 Folder arrangement:
 
 KiPouCuit/
 │── manage.py
-│── kipoucuit/                # Project settings
-│   ├── _init_.py
+│
+│── KiPouCuit/                     # Main project folder
+│   ├── __init__.py
 │   ├── settings.py
 │   ├── urls.py
 │   ├── wsgi.py
-    ├── templates/KiPouCuit/
+│   ├── asgi.py
 │
-├── users/                    # App 1: Users
+├── main_page/                     # App: Main Page
+│   ├── __init__.py
 │   ├── models.py
 │   ├── views.py
 │   ├── urls.py
-│   ├── templates/users/
+│   ├── templates/main_page/
 │
-├── meals/                    # App 2: Meals
+├── meals/                         # App: Meals
+│   ├── __init__.py
 │   ├── models.py
 │   ├── views.py
 │   ├── urls.py
 │   ├── templates/meals/
 │
-├── orders/                   # App 3: Orders
+├── orders/                        # App: Orders
+│   ├── __init__.py
 │   ├── models.py
 │   ├── views.py
 │   ├── urls.py
 │   ├── templates/orders/
 │
-├── reviews/                  # App 4: Reviews
+├── reviews/                       # App: Reviews
+│   ├── __init__.py
 │   ├── models.py
 │   ├── views.py
 │   ├── urls.py
 │   ├── templates/reviews/
 │
-├── adminpanel/               # App 5: Admin-specific logic
+├── users/                         # App: Users (authentication, profiles)
+│   ├── __init__.py
+│   ├── models.py
 │   ├── views.py
 │   ├── urls.py
-│   ├── templates/adminpanel/
+│   ├── templates/users/
 │
-└── analytics/ (optional)
+├── homecook/                      # App: Homecook
+│   ├── __init__.py
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── templates/homecook/
+│
+├── static/
+│
+└── media/
 
-Git commands:
-1.Create a new branch
-Click on main then click on create a new branch.
-<img width="1211" height="833" alt="image" src="https://github.com/user-attachments/assets/29cabb41-c2bc-4733-a22a-d391330a89a9" />
-
-2.Publish branch on github
-Click on branches
-<img width="921" height="282" alt="image" src="https://github.com/user-attachments/assets/69ded887-6e6e-4756-9135-1adc5e2435b7" />
-
-You will see:
-2 branches namely main and khushi-main
-<img width="1337" height="564" alt="image" src="https://github.com/user-attachments/assets/7039ef04-63aa-4752-92b4-035439c1c9e0" />
-
-3.Merge pull request
-This reviews the code before pulling it from the main.
-
-
-
+How to populate menu:
+Step1: Open terminal and go in KiPouCuit directory
+Step2: Enter these command in the order below :-
+              python manage.py makemigrations
+              python manage.py migrate
+              python manage.py dumpdata meals > meals_list.json
+              python manage.py loaddata meals_list.json
