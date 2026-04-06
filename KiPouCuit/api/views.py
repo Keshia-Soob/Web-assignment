@@ -473,3 +473,108 @@ def api_location_update(request):
         "role": role,
         "message": "Location noted. Add lat/lng fields to HomeCook to persist.",
     })
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  HOMECOOK DASHBOARD API  (used by the mobile Cook screen)
+# ─────────────────────────────────────────────────────────────────────────────
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def api_homecook_items(request):
+    """
+    GET /api/homecook/items/
+    Returns available (PENDING) orders for this cook's cuisine,
+    and orders already accepted/delivering by this cook.
+    Mirrors what the homecook_log view does on the website.
+    """
+    try:
+        cook = request.user.homecook
+    except HomeCook.DoesNotExist:
+        return Response({"error": "You do not have a HomeCook profile."}, status=403)
+
+    available = (
+        OrderItem.objects
+        .select_related("menu_item")
+        .filter(menu_item__cuisine=cook.cuisine,
+                status=OrderItem.Status.PENDING)
+        .order_by("created_at")
+    )
+
+    my_items = (
+        OrderItem.objects
+        .select_related("menu_item")
+        .filter(prepared_by=cook,
+                status__in=[OrderItem.Status.ACCEPTED,
+                            OrderItem.Status.DELIVERING])
+        .order_by("created_at")
+    )
+
+    def _item_dict(oi):
+        order = oi.orders.first()
+        return {
+            "id":       oi.id,
+            "name":     oi.menu_item.name,
+            "quantity": oi.quantity,
+            "status":   oi.status,
+            "order_id": order.id if order else None,
+        }
+
+    return Response({
+        "cook":      _cook_to_dict(cook),
+        "available": [_item_dict(i) for i in available],
+        "my_items":  [_item_dict(i) for i in my_items],
+    })
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def api_accept_item(request, item_id):
+    """POST /api/homecook/accept/<item_id>/"""
+    try:
+        cook = request.user.homecook
+    except HomeCook.DoesNotExist:
+        return Response({"error": "No HomeCook profile."}, status=403)
+
+    try:
+        item = OrderItem.objects.get(pk=item_id,
+                                     status=OrderItem.Status.PENDING)
+    except OrderItem.DoesNotExist:
+        return Response({"error": "Item not found or already taken."}, status=404)
+
+    item.status      = OrderItem.Status.ACCEPTED
+    item.prepared_by = cook
+    item.save()
+    return Response({"success": True, "status": item.status})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def api_mark_ready(request, item_id):
+    """POST /api/homecook/ready/<item_id>/"""
+    try:
+        cook = request.user.homecook
+    except HomeCook.DoesNotExist:
+        return Response({"error": "No HomeCook profile."}, status=403)
+
+    item = get_object_or_404(OrderItem, pk=item_id, prepared_by=cook,
+                             status=OrderItem.Status.ACCEPTED)
+    item.status = OrderItem.Status.DELIVERING
+    item.save()
+    return Response({"success": True, "status": item.status})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def api_mark_delivered(request, item_id):
+    """POST /api/homecook/delivered/<item_id>/"""
+    try:
+        cook = request.user.homecook
+    except HomeCook.DoesNotExist:
+        return Response({"error": "No HomeCook profile."}, status=403)
+
+    item = get_object_or_404(OrderItem, pk=item_id, prepared_by=cook,
+                             status=OrderItem.Status.DELIVERING)
+    item.status = OrderItem.Status.DELIVERED
+    item.save()
+    return Response({"success": True, "status": item.status})
