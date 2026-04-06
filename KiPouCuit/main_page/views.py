@@ -30,7 +30,7 @@ def about(request):
     for r in raw_reviews:
         photo_url = None
         try:
-            user = User.objects.get(email=r.email)
+            user = User.objects.get(email=r.email).first()
             # Ensure user has a profile and a photo
             if hasattr(user, 'userprofile') and user.userprofile.photo:
                 try:
