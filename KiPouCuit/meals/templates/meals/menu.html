@@ -5,8 +5,10 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'meals/MenuStyle.css' %}">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 {% url 'add_to_cart' 0 as ADD_TO_CART_BASE %}
+
 
 <div class="menu-container">
   <div class="menu-title">
@@ -90,132 +92,135 @@
 <div id="toast-container"></div>
 
 
+
 <script>
+$(document).ready(function () {
 
-  // SEARCH BAR + CUISINE FILTER
-  
-  document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("searchInput");
-    const cuisineFilter = document.getElementById("cuisineFilter");
-    const sections = document.querySelectorAll(".cuisine-section");
-    const noResultsMessage = document.getElementById("noResultsMessage");
+  // =========================
+  // SEARCH + FILTER
+  // =========================
+  function applyFilters() {
+    const search = $("#searchInput").val().toLowerCase();
+    const cuisineVal = $("#cuisineFilter").val();
 
-    function applyFilters() {
-      const search = searchInput.value.toLowerCase();
-      const cuisineVal = cuisineFilter.value;
+    let globalMatchFound = false;
 
-      let globalMatchFound = false;
+    $(".cuisine-section").each(function () {
+      const section = $(this);
+      const sectionCuisine = section.data("cuisine");
+      const items = section.find(".food-item");
+      const noMatchMsg = section.find(".no-cuisine-results");
 
-      sections.forEach(section => {
-        const sectionCuisine = section.dataset.cuisine;
-        const items = section.querySelectorAll(".food-item");
-        const cuisineNoMatchMsg = section.querySelector(".no-cuisine-results");
+      let cuisineHasMatch = false;
 
-        let cuisineHasMatch = false;
+      items.each(function () {
+        const item = $(this);
+        const name = item.data("name");
+        const cuisine = item.data("cuisine");
 
-        items.forEach(item => {
-          const name = item.dataset.name;
-          const cuisine = item.dataset.cuisine;
+        const matchesSearch =
+          name.includes(search) || cuisine.includes(search);
 
-          const matchesSearch =
-            name.includes(search) ||
-            cuisine.includes(search);
+        const matchesCuisine =
+          (cuisineVal === "all" || cuisineVal === sectionCuisine);
 
-          const matchesCuisine =
-            (cuisineVal === "all" || cuisineVal === sectionCuisine);
+        const show = matchesSearch && matchesCuisine;
 
-          const show = matchesSearch && matchesCuisine;
-
-          item.style.display = show ? "" : "";
-
-          if (show) {
-            item.style.display = "";
-            cuisineHasMatch = true;
-            globalMatchFound = true;
-          } else {
-            item.style.display = "none";
-          }
-        });
-
-        // show/hide "no meals found in cuisine"
-        cuisineNoMatchMsg.style.display = cuisineHasMatch ? "none" : "block";
-
-        // show/hide entire section
-        section.style.display = cuisineHasMatch ? "" : "none";
+        if (show) {
+          item.show();
+          cuisineHasMatch = true;
+          globalMatchFound = true;
+        } else {
+          item.hide();
+        }
       });
 
-      // GLOBAL "no results"
-      noResultsMessage.style.display = globalMatchFound ? "none" : "block";
-    }
+      noMatchMsg.toggle(!cuisineHasMatch);
+      section.toggle(cuisineHasMatch);
+    });
 
-    searchInput.addEventListener("input", applyFilters);
-    cuisineFilter.addEventListener("change", applyFilters);
-    applyFilters();
-  });
+    $("#noResultsMessage").toggle(!globalMatchFound);
+  }
 
-  //ADD TO CART + CART SCRIPTS
+  $("#searchInput").on("input", applyFilters);
+  $("#cuisineFilter").on("change", applyFilters);
+  applyFilters();
 
-  document.addEventListener("submit", function (e) {
-    if (!e.target.matches(".add-to-cart-form")) return;
+
+  // =========================
+  // ADD TO CART (AJAX)
+  // =========================
+  $(document).on("submit", ".add-to-cart-form", function (e) {
     e.preventDefault();
 
-    const form = e.target;
-    const id = form.dataset.id;
-
+    const form = $(this);
+    const id = form.data("id");
     const base = "{{ ADD_TO_CART_BASE }}";
     const url = base.replace("/0/", `/${id}/`);
-    const btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true;
+    const btn = form.find("button");
 
-    fetch(url, {
-      method: "POST",
+    btn.prop("disabled", true);
+
+    $.ajax({
+      url: url,
+      type: "POST",
       headers: {
         "X-Requested-With": "XMLHttpRequest",
         "X-CSRFToken": getCookie("csrftoken"),
       },
-      body: new FormData(form),
-    })
-      .then(r => r.json())
-      .then(data => {
-        const countEl = document.querySelector(".cart-count");
-        if (countEl && typeof data.cart_count !== "undefined") {
-          countEl.textContent = data.cart_count;
+      data: form.serialize(),
+      success: function (data) {
+        if ($(".cart-count").length && data.cart_count !== undefined) {
+          $(".cart-count").text(data.cart_count);
         }
+
         updateCartDropdown();
-        showAddToCartFeedback(form.closest(".food-item")?.dataset.name || "Item");
-      })
-      .catch(console.error)
-      .finally(() => { btn.disabled = false; });
+
+        const itemName = form.closest(".food-item").data("name") || "Item";
+        showAddToCartFeedback(itemName);
+      },
+      error: function (err) {
+        console.error(err);
+      },
+      complete: function () {
+        btn.prop("disabled", false);
+      }
+    });
   });
 
+
+  // =========================
+  // UPDATE CART DROPDOWN
+  // =========================
   function updateCartDropdown() {
-    fetch('/cart/data/', {
-      headers: { "X-Requested-With": "XMLHttpRequest" }
-    })
-      .then(r => r.json())
-      .then(data => {
-        const countEl = document.querySelector(".cart-count");
-        if (countEl) countEl.textContent = data.cart_count || 0;
+    $.ajax({
+      url: "/cart/data/",
+      type: "GET",
+      headers: { "X-Requested-With": "XMLHttpRequest" },
+      success: function (data) {
 
-        const subtotalEl = document.getElementById("cartSubtotal");
-        if (subtotalEl) subtotalEl.textContent = `Rs ${data.cart_subtotal.toFixed(0)}`;
+        $(".cart-count").text(data.cart_count || 0);
 
-        const container = document.getElementById("cartItemsContainer");
-        if (!container) return;
+        $("#cartSubtotal").text(`Rs ${data.cart_subtotal.toFixed(0)}`);
+
+        const container = $("#cartItemsContainer");
+
+        if (!container.length) return;
 
         if (!data.cart_items || Object.keys(data.cart_items).length === 0) {
-          container.innerHTML = `
+          container.html(`
             <div class="cart-item">
               <div class="item-details">
                 <div class="item-name">Your cart is empty</div>
                 <div class="item-quantity">Add items to see them here</div>
               </div>
-            </div>`;
+            </div>
+          `);
           return;
         }
 
         let html = '';
-        for (const [itemId, item] of Object.entries(data.cart_items)) {
+        $.each(data.cart_items, function (itemId, item) {
           html += `
             <div class="cart-item">
               <div class="item-details">
@@ -225,58 +230,36 @@
               </div>
               <button class="remove-item-btn" data-item-id="${itemId}">Remove</button>
             </div>`;
-        }
-        container.innerHTML = html;
-      })
-      .catch(console.error);
-  }
+        });
 
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let cookie of cookies) {
-        cookie = cookie.trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
+        container.html(html);
+      },
+      error: function (err) {
+        console.error(err);
       }
-    }
-    return cookieValue;
+    });
   }
 
-  function showAddToCartFeedback(itemName) {
-    const toastContainer = document.getElementById("toast-container");
-    const toast = document.createElement("div");
-    toast.className = "toast";
-    toast.textContent = `${itemName} added to cart!`;
-    toastContainer.appendChild(toast);
 
-    setTimeout(() => toast.classList.add("show"), 50);
-    setTimeout(() => {
-      toast.classList.remove("show");
-      setTimeout(() => toast.remove(), 300);
-    }, 2500);
-  }
-
-  document.addEventListener("click", function (e) {
-    if (!e.target.matches(".remove-item-btn")) return;
+  // =========================
+  // REMOVE ITEM
+  // =========================
+  $(document).on("click", ".remove-item-btn", function (e) {
     e.preventDefault();
 
-    const itemId = e.target.dataset.itemId;
+    const itemId = $(this).data("item-id");
 
-    fetch(`/remove_from_cart/${itemId}/`, {
-      method: "POST",
+    $.ajax({
+      url: `/remove_from_cart/${itemId}/`,
+      type: "POST",
       headers: {
         "X-Requested-With": "XMLHttpRequest",
         "X-CSRFToken": getCookie("csrftoken"),
-      }
-    })
-      .then(r => r.json())
-      .then(data => {
+      },
+      success: function (data) {
         if (data.success) {
           updateCartDropdown();
+
           window.dispatchEvent(new CustomEvent('cartUpdated', {
             detail: {
               cart_count: data.cart_count,
@@ -284,9 +267,49 @@
             }
           }));
         }
-      })
-      .catch(console.error);
+      },
+      error: function (err) {
+        console.error(err);
+      }
+    });
   });
+
+
+  // =========================
+  // TOAST FEEDBACK
+  // =========================
+  function showAddToCartFeedback(itemName) {
+    const toast = $("<div class='toast'></div>").text(`${itemName} added to cart!`);
+    $("#toast-container").append(toast);
+
+    setTimeout(() => toast.addClass("show"), 50);
+
+    setTimeout(() => {
+      toast.removeClass("show");
+      setTimeout(() => toast.remove(), 300);
+    }, 2500);
+  }
+
+
+  // =========================
+  // CSRF HELPER
+  // =========================
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      $.each(cookies, function (_, cookie) {
+        cookie = $.trim(cookie);
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          return false;
+        }
+      });
+    }
+    return cookieValue;
+  }
+
+});
 </script>
 
 {% endblock %}

@@ -5,6 +5,8 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'meals/AddMenuStyle.css' %}">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 <div class="container">
   <div class="page-title">
@@ -98,22 +100,26 @@
 </div>
 
 <script>
-// Image preview
-    const itemImage = document.getElementById('itemImage');
-    const imagePreview = document.getElementById('imagePreview');
-    if (itemImage) {
-    itemImage.addEventListener('change', function() {
-        const file = this.files?.[0];
-        if (!file) { imagePreview.innerHTML = ''; return; }
-        const reader = new FileReader();
-        reader.onload = function() {
-        const img = document.createElement('img');
-        img.src = reader.result;
-        imagePreview.innerHTML = '';
-        imagePreview.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-    });
+$(document).ready(function () {
+
+  $("#itemImage").on("change", function () {
+    const file = this.files[0];
+
+    if (!file) {
+      $("#imagePreview").empty();
+      return;
     }
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      const img = $("<img>").attr("src", e.target.result);
+      $("#imagePreview").html(img);
+    };
+
+    reader.readAsDataURL(file);
+  });
+
+});
 </script>
 {% endblock %}
