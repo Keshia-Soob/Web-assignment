@@ -36,6 +36,8 @@ class HomeCook(models.Model):
     address = models.CharField(max_length=255, blank=True, null=True)
     cuisine = models.CharField(max_length=50, choices=CUISINE_CHOICES)
     bio = models.TextField(blank=True, null=True)
+    latitude  = models.FloatField(null=True, blank=True, default=-20.1609)
+    longitude = models.FloatField(null=True, blank=True, default=57.4991)
     profile_picture = models.ImageField(
         upload_to=homecook_profile_path,
         blank=True,
