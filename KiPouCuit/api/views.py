@@ -119,27 +119,20 @@ def _cook_to_dict(cook):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def api_login(request):
-    """
-    POST /api/auth/login/
-    Body: { "username": "...", "password": "..." }
-    Returns: { "token": "...", "user_id": ..., "username": "..." }
-    """
-    username = request.data.get("username", "").strip()
-    password = request.data.get("password", "").strip()
-
-    if not username or not password:
-        return Response({"error": "username and password required"}, status=400)
+    username = request.data.get("username")
+    password = request.data.get("password")
 
     user = authenticate(username=username, password=password)
+
     if user is None:
-        return Response({"error": "Invalid credentials"}, status=401)
+        return Response({"error": "Invalid credentials"}, status=400)
 
     token, _ = Token.objects.get_or_create(user=user)
+
     return Response({
         "token": token.key,
-        "user_id": user.id,
         "username": user.username,
-        "is_homecook": hasattr(user, "homecook"),
+        "user_id": user.id
     })
 
 
@@ -150,6 +143,21 @@ def api_logout(request):
     request.auth.delete()
     return Response({"detail": "Logged out."})
 
+
+@api_view(["POST"])
+def api_register(request):
+    serializer = RegisterSerializer(data=request.data)
+
+    if serializer.is_valid():
+        user = serializer.save()
+        token, _ = Token.objects.get_or_create(user=user)
+
+        return Response({
+            "token": token.key,
+            "username": user.email
+        }, status=201)
+
+    return Response(serializer.errors, status=400)
 
 # ─────────────────────────────────────────────
 #  MENU
