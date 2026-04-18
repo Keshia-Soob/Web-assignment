@@ -6,6 +6,7 @@ from services.auth_service import AuthService
 from screens.login_screen import LoginScreen
 from screens.register_screen import RegisterScreen
 from screens.meals_screen import create_meals_view
+from screens.profile_screen import create_profile_view
 
 
 def main(page: ft.Page):
@@ -62,6 +63,13 @@ def main(page: ft.Page):
             # Only allow menu if token exists
             if api.token:
                 page.views.append(create_meals_view(page, api, show_snack))
+            else:
+                page.go("/login")
+                return
+
+        elif page.route == "/profile":
+            if api.token:
+                page.views.append(create_profile_view(page, api, auth))
             else:
                 page.go("/login")
                 return

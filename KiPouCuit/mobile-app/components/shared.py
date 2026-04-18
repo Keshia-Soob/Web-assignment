@@ -26,11 +26,12 @@ STATUS_ICON = {
 }
 
 
-def app_bar(title):
+def app_bar(title, actions=None):
     return ft.AppBar(
         title=ft.Text(title, color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD),
         bgcolor=ORANGE,
         center_title=True,
+        actions=actions or [],
     )
 
 
@@ -88,19 +89,20 @@ def item_card(item, on_add):
 
 
 def bottom_nav(selected, page):
-    routes = ["/menu", "/nearby", "/cart", "/orders", "/reviews"]
+    routes = ["/menu", "/nearby", "/cart", "/orders", "/reviews", "/profile"]
     destinations = [
         ft.NavigationBarDestination(icon=ft.Icons.RESTAURANT_MENU, label="Menu"),
         ft.NavigationBarDestination(icon=ft.Icons.LOCATION_ON, label="Nearby"),
         ft.NavigationBarDestination(icon=ft.Icons.SHOPPING_CART, label="Cart"),
         ft.NavigationBarDestination(icon=ft.Icons.RECEIPT_LONG, label="Orders"),
         ft.NavigationBarDestination(icon=ft.Icons.STAR_BORDER, label="Reviews"),
+        ft.NavigationBarDestination(icon=ft.Icons.ACCOUNT_CIRCLE, label="Profile"),
     ]
 
     def on_nav_change(e):
         index = e.control.selected_index
         if index < len(routes):
-            page.push_route(routes[index])
+            page.go(routes[index])
 
     return ft.NavigationBar(
         destinations=destinations,
