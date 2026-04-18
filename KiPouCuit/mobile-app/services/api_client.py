@@ -126,6 +126,10 @@ class ApiClient:
             "message": message
         })
 
+    # PROFILE
+    def get_homecook_dashboard(self):
+        return self._get("/homecook/items/")
+
     # LOCATION
     def send_location(self, lat, lng, role="customer"):
         return self._post("/location/update/", {
