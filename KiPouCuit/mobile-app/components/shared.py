@@ -47,8 +47,8 @@ def err_banner(msg):
         ft.Text(f"⚠️  {msg}", color=ft.Colors.RED_900, size=13),
         bgcolor=ft.Colors.RED_50,
         border_radius=8,
-        padding=ft.padding.symmetric(horizontal=12, vertical=10),
-        margin=ft.margin.symmetric(horizontal=8, vertical=4),
+        padding=ft.Padding.symmetric(horizontal=12, vertical=10),
+        margin=ft.Margin.symmetric(horizontal=8, vertical=4),
     )
 
 
@@ -81,10 +81,10 @@ def item_card(item, on_add):
                     ),
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             ], spacing=6),
-            padding=ft.padding.symmetric(horizontal=14, vertical=12),
+            padding=ft.Padding.symmetric(horizontal=14, vertical=12),
         ),
         elevation=2,
-        margin=ft.margin.symmetric(vertical=4, horizontal=8),
+        margin=ft.Margin.symmetric(vertical=4, horizontal=8),
     )
 
 
@@ -99,10 +99,10 @@ def bottom_nav(selected, page):
         ft.NavigationBarDestination(icon=ft.Icons.ACCOUNT_CIRCLE, label="Profile"),
     ]
 
-    def on_nav_change(e):
+    async def on_nav_change(e):
         index = e.control.selected_index
         if index < len(routes):
-            page.go(routes[index])
+            await page.push_route(routes[index])
 
     return ft.NavigationBar(
         destinations=destinations,

@@ -30,6 +30,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_GET
 from django.views import View
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -42,19 +43,27 @@ from orders.models import Order, OrderItem
 from homecook.models import HomeCook
 from reviews.models import Review
 
-# ─────────────────────────────────────────────
-#  HELPERS
-# ─────────────────────────────────────────────
+from collections import Counter
 
-def _haversine_km(lat1, lon1, lat2, lon2):
-    """Return approximate distance in km between two lat/lon points."""
-    R = 6371.0
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-    a = (math.sin(dlat / 2) ** 2
-         + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2))
-         * math.sin(dlon / 2) ** 2)
+# ---------------------------------------------------------------------------
+# Haversine formula  →  distance in km between two (lat, lng) points
+# ---------------------------------------------------------------------------
+def _haversine(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    R = 6371.0                          # Earth radius in km
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi       = math.radians(lat2 - lat1)
+    dlambda    = math.radians(lng2 - lng1)
+    a = (math.sin(dphi / 2) ** 2
+         + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2)
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+CUISINE_EMOJI = {
+    "indian":    "🍛",
+    "mauritian": "🌴",
+    "english":   "🍲",
+    "french":    "🥐",
+    "asian":     "🥢",
+}
 
 
 def _menu_item_to_dict(item):
@@ -197,46 +206,94 @@ def api_menu_detail(request, item_id):
     return Response(_menu_item_to_dict(item))
 
 
-@api_view(["GET"])
-@permission_classes([AllowAny])
+@csrf_exempt
+@require_GET
 def api_menu_nearby(request):
     """
-    GET /api/menu/nearby/?lat=<float>&lng=<float>&radius_km=<float>
-
-    Uses the HomeCook.address field (or a future lat/lng field) to find
-    cooks within `radius_km` (default 10) of the caller's GPS position,
-    then returns their menu items.
-
-    NOTE: For a production app you would store lat/lng on HomeCook.
-    This endpoint is designed to accept those coordinates once added.
-    The mobile app passes device GPS here to get hyper-local results.
+    Query params:
+        lat     float   user latitude          (required)
+        lng     float   user longitude         (required)
+        radius  float   search radius in km    (optional, default 20)
     """
+    # --- parse & validate query params -----------------------------------
     try:
-        user_lat = float(request.query_params["lat"])
-        user_lng = float(request.query_params["lng"])
+        user_lat = float(request.GET["lat"])
+        user_lng = float(request.GET["lng"])
     except (KeyError, ValueError):
-        return Response({"error": "lat and lng are required float params"}, status=400)
-
-    radius_km = float(request.query_params.get("radius_km", 10))
-
-    # ── When HomeCook model has lat/lng fields, filter here. ──
-    # For now, return all items tagged with the cuisine most common
-    # in Mauritius (mauritian) as a proximity-aware fallback.
-    # Replace the block below once you add HomeCook.latitude / longitude.
-
-    nearby_cooks = HomeCook.objects.all()  # replace with geo-filter
-    nearby_cook_ids = [c.id for c in nearby_cooks]
-
-    # Return all items (proximity filter TODO once lat/lng stored on cook)
-    items = MenuItem.objects.all()
-    data = [_menu_item_to_dict(i) for i in items]
-    return Response({
-        "user_location": {"lat": user_lat, "lng": user_lng},
-        "radius_km": radius_km,
-        "count": len(data),
-        "items": data,
+        return JsonResponse(
+            {"error": "Missing or invalid 'lat' / 'lng' query parameters."},
+            status=400,
+        )
+ 
+    radius_km = float(request.GET.get("radius", 20))
+ 
+    # --- fetch all HomeCooks that have coordinates -----------------------
+    cooks_qs = HomeCook.objects.filter(
+        latitude__isnull=False,
+        longitude__isnull=False,
+    ).select_related("user")
+ 
+    if not cooks_qs.exists():
+        return JsonResponse(
+            {"error": "No home cooks with location data found."},
+            status=404,
+        )
+ 
+    # --- compute distances & filter by radius ----------------------------
+    cooks_with_distance = []
+    for cook in cooks_qs:
+        dist = _haversine(user_lat, user_lng, cook.latitude, cook.longitude)
+        if dist <= radius_km:
+            cooks_with_distance.append((cook, dist))
+ 
+    # Sort nearest first
+    cooks_with_distance.sort(key=lambda x: x[1])
+ 
+    if not cooks_with_distance:
+        return JsonResponse(
+            {
+                "error": f"No home cooks found within {radius_km} km of your location.",
+                "user_location": {"lat": user_lat, "lng": user_lng},
+            },
+            status=404,
+        )
+ 
+    # --- build response --------------------------------------------------
+    nearest_cook, nearest_dist = cooks_with_distance[0]
+    suggested_cuisine = nearest_cook.cuisine
+ 
+    nearest_cooks_data = []
+    for cook, dist in cooks_with_distance:
+        # Profile picture URL
+        profile_pic = None
+        if cook.profile_picture:
+            profile_pic = request.build_absolute_uri(cook.profile_picture.url)
+ 
+        nearest_cooks_data.append({
+            "id":           cook.id,
+            "name":         f"{cook.name} {cook.surname}",
+            "cuisine":      cook.cuisine,
+            "cuisine_label": cook.get_cuisine_display(),
+            "cuisine_emoji": CUISINE_EMOJI.get(cook.cuisine, "🍽️"),
+            "distance_km":  round(dist, 2),
+            "address":      cook.address or "Mauritius",
+            "phone":        cook.phone or "",
+            "bio":          cook.bio or "",
+            "profile_picture": profile_pic,
+            "location": {
+                "lat": cook.latitude,
+                "lng": cook.longitude,
+            },
+        })
+ 
+    return JsonResponse({
+        "suggested_cuisine":  suggested_cuisine,
+        "suggested_emoji":    CUISINE_EMOJI.get(suggested_cuisine, "🍽️"),
+        "user_location":      {"lat": user_lat, "lng": user_lng},
+        "nearest_cooks":      nearest_cooks_data,
+        "radius_km":          radius_km,
+        "total_found":        len(nearest_cooks_data),
     })
-
 
 # ─────────────────────────────────────────────
 #  CART  (session-based, mirrors web app)
