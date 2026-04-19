@@ -1,0 +1,39 @@
+[project]
+name = "kipoucuit"
+version = "0.1.0"
+description = "Flet app with maps and geolocation"
+
+requires-python = ">=3.13"
+dependencies = [
+    "flet>=0.83.1",
+    "flet-geolocator",
+    "flet-map",
+    "requests",
+]
+
+[tool.flet]
+org = "com.kipoucuit"
+product = "KiPouCuit"
+company = "KiPouCuit"
+copyright = "Copyright (C) 2026 KiPouCuit"
+permissions = ["location"]
+
+# -----------------------------
+# ANDROID PERMISSIONS
+# -----------------------------
+[tool.flet.android.permission]
+"android.permission.ACCESS_FINE_LOCATION" = true
+"android.permission.ACCESS_COARSE_LOCATION" = true
+"android.permission.ACCESS_BACKGROUND_LOCATION" = true
+"android.permission.FOREGROUND_SERVICE_LOCATION" = true
+ 
+# -----------------------------
+# iOS PERMISSIONS
+# -----------------------------
+[tool.flet.ios.info]
+NSLocationWhenInUseUsageDescription = "KiPouCuit uses your location to show nearby home cooks."
+NSLocationAlwaysAndWhenInUseUsageDescription = "KiPouCuit uses your location for live tracking of nearby home cooks."
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
