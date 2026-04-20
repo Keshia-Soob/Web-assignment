@@ -152,21 +152,49 @@ def api_logout(request):
     request.auth.delete()
     return Response({"detail": "Logged out."})
 
-
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def api_register(request):
-    serializer = RegisterSerializer(data=request.data)
+    from users.models import UserProfile
 
-    if serializer.is_valid():
-        user = serializer.save()
-        token, _ = Token.objects.get_or_create(user=user)
+    first_name       = request.data.get("first_name", "").strip()
+    last_name        = request.data.get("last_name",  "").strip()
+    email            = request.data.get("email",      "").strip()
+    phone            = request.data.get("phone",      "").strip()
+    address          = request.data.get("address",    "").strip()
+    password         = request.data.get("password",   "")
 
-        return Response({
-            "token": token.key,
-            "username": user.email
-        }, status=201)
+    if not all([first_name, last_name, email, password]):
+        return Response({"error": "All required fields must be filled in."}, status=400)
 
-    return Response(serializer.errors, status=400)
+    if len(password) < 8:
+        return Response({"error": "Password must be at least 8 characters."}, status=400)
+
+    if User.objects.filter(username=email).exists():
+        return Response({"error": "An account with this email already exists."}, status=400)
+
+    user = User.objects.create_user(
+        username=email,
+        email=email,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+    )
+
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    if phone:
+        profile.phone = phone
+    if address:
+        profile.address = address
+    profile.save()
+
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response({
+        "token":       token.key,
+        "user_id":     user.id,
+        "username":    user.username,
+        "is_homecook": False,
+    }, status=201)
 
 # ─────────────────────────────────────────────
 #  MENU
