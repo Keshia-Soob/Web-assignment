@@ -8,6 +8,7 @@ from screens.register_screen import RegisterScreen
 from screens.meals_screen import create_meals_view
 from screens.profile_screen import create_profile_view
 from screens.nearby_screen import create_nearby_view
+from screens.reviews_screen import create_reviews_view
 
 
 def main(page: ft.Page):
@@ -82,6 +83,9 @@ def main(page: ft.Page):
             else:
                 page.go("/login")
                 return
+            
+        elif page.route == "/reviews":
+                page.views.append(create_reviews_view(page, api, show_snack))
 
         else:
             page.views.append(LoginScreen(page, api, auth, go_menu))
