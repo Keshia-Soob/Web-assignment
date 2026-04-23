@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}AddMenu{% endblock %}
+{% block title %}Add Menu Item{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'meals/AddMenuStyle.css' %}">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 
 <div class="container">
@@ -16,77 +17,61 @@
 
   <div class="form-container">
 
-    {# Success banner from server #}
-    {% if success %}
-      <div class="success-message" id="successMessage" style="display:block;">
-        <i class="fas fa-check-circle"></i> Your menu item has been added successfully!
-      </div>
-    {% else %}
-      <div class="success-message" id="successMessage" style="display:none;">
-        <i class="fas fa-check-circle"></i> Your menu item has been added successfully!
-      </div>
-    {% endif %}
+    <!-- Success banner (shown by jQuery on 201 response) -->
+    <div class="success-message" id="successMessage" style="display:none;">
+      <i class="fas fa-check-circle"></i>
+      Your menu item has been added successfully!
+      <a href="{% url 'menu' %}" style="margin-left:10px;">View Menu</a>
+    </div>
 
-    {# Simple server-side error list (optional) #}
-    {% if errors %}
-      <div class="error-message" style="display:block;">
-        <ul>
-          {% for e in errors %}<li>{{ e }}</li>{% endfor %}
-        </ul>
-      </div>
-    {% endif %}
+    <!-- Error banner (shown by jQuery on 4xx response) -->
+    <div class="error-message" id="errorMessage" style="display:none;">
+      <ul id="errorList"></ul>
+    </div>
 
-    <form id="menuForm" method="post" enctype="multipart/form-data">
+    <!--
+      NOTE: enctype="multipart/form-data" is still needed for image upload.
+      We intercept the submit with jQuery instead of letting the browser POST.
+    -->
+    <form id="menuForm" enctype="multipart/form-data">
       {% csrf_token %}
 
       <div class="form-row">
         <div class="form-group">
           <label for="itemName">Item Name</label>
-          <input type="text" id="itemName" name="itemName" required placeholder="e.g., Butter Chicken"
-                 value="{{ form_data.itemName|default:'' }}">
+          <input type="text" id="itemName" name="name" required
+                 placeholder="e.g., Butter Chicken">
         </div>
 
         <div class="form-group">
           <label for="itemPrice">Price (Rs)</label>
-          <input type="number" id="itemPrice" name="itemPrice" required placeholder="e.g., 650"
-                 value="{{ form_data.itemPrice|default:'' }}">
+          <input type="number" id="itemPrice" name="price" required
+                 placeholder="e.g., 650" min="1" step="0.01">
         </div>
       </div>
 
       <div class="form-group">
         <label for="itemDescription">Description</label>
-        <textarea id="itemDescription" name="itemDescription" required
-                  placeholder="Brief description of your dish...">{{ form_data.itemDescription|default:'' }}</textarea>
+        <textarea id="itemDescription" name="description" required
+                  placeholder="Brief description of your dish..."></textarea>
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label for="itemCuisine">Cuisine Type</label>
-          <select id="itemCuisine" name="itemCuisine" required>
+          <select id="itemCuisine" name="cuisine" required>
             <option value="">Select Cuisine</option>
-            {% for key,label in cuisine_choices %}
-              <option value="{{ key }}"
-                {% if form_data.itemCuisine|default:'' == key %}selected{% endif %}>{{ label }}</option>
+            {% for key, label in cuisine_choices %}
+              <option value="{{ key }}">{{ label }}</option>
             {% endfor %}
           </select>
         </div>
-
-        <!-- <div class="form-group">
-          <label for="itemType">Dish Type</label>
-          <select id="itemType" name="itemType" required>
-            <option value="">Select Type</option>
-            <option value="starters"        {% if form_data.itemType == 'starters' %}selected{% endif %}>Starters</option>
-            <option value="main-courses"    {% if form_data.itemType == 'main-courses' %}selected{% endif %}>Main Courses</option>
-            <option value="seafood"         {% if form_data.itemType == 'seafood' %}selected{% endif %}>Seafood Specialties</option>
-            <option value="desserts"        {% if form_data.itemType == 'desserts' %}selected{% endif %}>Desserts</option>
-          </select>
-        </div> -->
       </div>
 
       <div class="form-group">
         <label for="itemImage">Upload Image</label>
         <div class="image-upload">
-          <input type="file" id="itemImage" name="itemImage" accept="image/*">
+          <input type="file" id="itemImage" name="image" accept="image/*">
           <label for="itemImage" class="image-upload-label">
             <i class="fas fa-cloud-upload-alt"></i> Click to upload an image
           </label>
@@ -94,30 +79,123 @@
         <div class="image-preview" id="imagePreview"></div>
       </div>
 
-      <button type="submit" class="submit-btn">Add Menu Item</button>
+      <button type="submit" class="submit-btn" id="submitBtn">
+        Add Menu Item
+      </button>
     </form>
   </div>
 </div>
 
 <script>
+
 $(document).ready(function () {
 
+  // ── Image preview ─────────────────────────────────────────────────────
   $("#itemImage").on("change", function () {
     const file = this.files[0];
-
-    if (!file) {
-      $("#imagePreview").empty();
-      return;
-    }
+    if (!file) { $("#imagePreview").empty(); return; }
 
     const reader = new FileReader();
-
     reader.onload = function (e) {
-      const img = $("<img>").attr("src", e.target.result);
-      $("#imagePreview").html(img);
+      $("#imagePreview").html($("<img>").attr("src", e.target.result));
     };
-
     reader.readAsDataURL(file);
+  });
+
+
+  // ── CSRF helper ───────────────────────────────────────────────────────
+  function getCookie(name) {
+    let value = null;
+    if (document.cookie && document.cookie !== '') {
+      document.cookie.split(';').forEach(function (c) {
+        c = $.trim(c);
+        if (c.startsWith(name + '=')) {
+          value = decodeURIComponent(c.substring(name.length + 1));
+        }
+      });
+    }
+    return value;
+  }
+
+
+  // ── Form submit → REST API POST ───────────────────────────────────────
+  $("#menuForm").on("submit", function (e) {
+    e.preventDefault();   // stop browser default POST
+
+    // Hide any previous messages
+    $("#successMessage").hide();
+    $("#errorMessage").hide().find("#errorList").empty();
+
+    const submitBtn = $("#submitBtn");
+    submitBtn.prop("disabled", true).text("Adding…");
+
+    // Build FormData (handles text fields + file upload)
+    const formData = new FormData(this);
+
+    // Retrieve the stored auth token (set during login / registration)
+    const token = localStorage.getItem("authToken") || "";
+
+    $.ajax({
+      url:         "/api/menu/",
+      type:        "POST",
+      data:        formData,               // JSON production via FormData
+      processData: false,                  // don't let jQuery serialise it
+      contentType: false,                  // let the browser set multipart boundary
+      headers: {
+        "X-CSRFToken":  getCookie("csrftoken"),
+        // If the user has a token (logged in via Flet / API), include it.
+        // If using session auth (browser login), this header is ignored.
+        ...(token ? { "Authorization": "Token " + token } : {})
+      },
+
+      // ── 201 Created: JSON consumption ─────────────────────────────────
+      success: function (data) {
+        // `data` is the newly-created MenuItem object serialised by DRF
+        $("#successMessage").show();
+        $("#menuForm")[0].reset();
+        $("#imagePreview").empty();
+
+        console.log("New item created via REST API:", data);
+        // Optionally redirect to menu page after a short delay
+        // setTimeout(() => window.location.href = "/menu/", 1500);
+      },
+
+      // ── 4xx Error: read JSON error response ───────────────────────────
+      error: function (xhr) {
+        let errors = [];
+
+        if (xhr.status === 401) {
+          errors = ["You must be logged in to add menu items."];
+        } else if (xhr.status === 403) {
+          errors = [xhr.responseJSON && xhr.responseJSON.error
+            ? xhr.responseJSON.error
+            : "Only home cooks can add menu items."];
+        } else if (xhr.responseJSON) {
+          // DRF returns field-level errors as { field: ["error msg"] }
+          $.each(xhr.responseJSON, function (field, msgs) {
+            if (Array.isArray(msgs)) {
+              msgs.forEach(function (m) {
+                errors.push(field + ": " + m);
+              });
+            } else {
+              errors.push(msgs);
+            }
+          });
+        } else {
+          errors = ["An unexpected error occurred. Please try again."];
+        }
+
+        const list = $("#errorList");
+        errors.forEach(function (err) {
+          list.append($("<li>").text(err));
+        });
+        $("#errorMessage").show();
+      },
+
+      complete: function () {
+        submitBtn.prop("disabled", false).text("Add Menu Item");
+      }
+    });
   });
 
 });

@@ -5,159 +5,242 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'reviews/reviews.css' %}">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!--
+  review.html
+  ─────────────────────────────────────────────────────────────────────────────
+  Demonstrates CREATE (POST) via the REST API using jQuery AJAX.
+
+  The form sends a JSON payload to POST /api/reviews/create/.
+  The REST API:
+    • Requires authentication (401 if not logged in)
+    • Requires at least one delivered order (403 otherwise)
+    • Validates with ReviewSerializer and returns the new review as JSON
+  ─────────────────────────────────────────────────────────────────────────────
+-->
 
 <div class="container">
-    <div class="review-container">
-        <h1 class="page-title">Post A Review</h1>
+  <div class="review-container">
+    <h1 class="page-title">Post A Review</h1>
 
-        <!-- Display success/error messages -->
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="alert {{ message.tags }}">
-                <span>{{ message }}</span>
-                {% if "success" in message.tags %}
-                <a href="{% url 'review_list' %}" class="view-reviews-btn-inline">View All Reviews</a>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-{% if not blocked %}
-<form id="reviewForm" method="POST">
-    {% csrf_token %}
-    <div class="form-group">
-    <label for="firstName">First name</label>
-    <input 
-        type="text" 
-        id="firstName" 
-        name="firstName" 
-        required
-        pattern="^[A-Za-z\s\-]+$" 
-        title="First name can only contain letters, spaces, or hyphens."
-        value="{{ initial_data.first_name|default:'' }}"
-        {% if user.is_authenticated %} readonly {% endif %}>
+    <!-- API success banner -->
+    <div id="apiSuccess" class="alert success" style="display:none;">
+      <span id="apiSuccessMsg"></span>
+      <a href="{% url 'review_list' %}" class="view-reviews-btn-inline">View All Reviews</a>
     </div>
 
-    <div class="form-group">
-    <label for="lastName">Last name</label>
-    <input 
-        type="text" 
-        id="lastName" 
-        name="lastName" 
-        required
-        pattern="^[A-Za-z\s\-]+$" 
-        title="Last name can only contain letters, spaces, or hyphens."
-        value="{{ initial_data.last_name|default:'' }}"
-        {% if user.is_authenticated %} readonly {% endif %}>
+    <!-- API error banner -->
+    <div id="apiError" class="alert error" style="display:none;">
+      <span id="apiErrorMsg"></span>
     </div>
 
-    <div class="form-group">
-    <label for="email">Email</label>
-    <input 
-        type="email" 
-        id="email" 
-        name="email" 
-        required
-        pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$"
-        title="Enter a valid email address (e.g., name@example.com)"
-        value="{{ initial_data.email|default:'' }}"
-        {% if user.is_authenticated %} readonly {% endif %}>
-    </div>
+    {% if blocked %}
+      <div class="alert error">
+        You need at least one fully-delivered order before you can post a review.
+      </div>
+    {% else %}
 
+    <form id="reviewForm">
+      {% csrf_token %}
 
-    {% comment %} <div class="form-group">
-    <label for="contactNumber">Contact Number</label>
-    <input 
-        type="text" 
-        id="contactNumber" 
-        name="phone"
-        pattern="^\d{8,10}$" 
-        title="Contact number must contain only 8-10 digits."
-        value="{{ initial_data.phone|default:'' }}"
-        {% if user.is_authenticated %} readonly {% endif %}>
-    </div> {% endcomment %}
+      <div class="form-group">
+        <label for="firstName">First name</label>
+        <input type="text" id="firstName" name="firstName" required
+               pattern="^[A-Za-z\s\-]+$"
+               title="First name can only contain letters, spaces, or hyphens."
+               value="{{ initial_data.first_name|default:'' }}"
+               {% if user.is_authenticated %} readonly {% endif %}>
+      </div>
 
-    <div class="form-group">
+      <div class="form-group">
+        <label for="lastName">Last name</label>
+        <input type="text" id="lastName" name="lastName" required
+               pattern="^[A-Za-z\s\-]+$"
+               title="Last name can only contain letters, spaces, or hyphens."
+               value="{{ initial_data.last_name|default:'' }}"
+               {% if user.is_authenticated %} readonly {% endif %}>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required
+               value="{{ initial_data.email|default:'' }}"
+               {% if user.is_authenticated %} readonly {% endif %}>
+      </div>
+
+      <div class="form-group">
         <label for="rating">Stars</label>
         <div class="rating-container">
-            <select id="rating" name="rating" required>
-                <option value="">Select a rating</option>
-                <option value="1">1 Star</option>
-                <option value="2">2 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="5">5 Stars</option>
-            </select>
+          <select id="rating" name="rating" required>
+            <option value="">Select a rating</option>
+            <option value="1">1 Star</option>
+            <option value="2">2 Stars</option>
+            <option value="3">3 Stars</option>
+            <option value="4">4 Stars</option>
+            <option value="5">5 Stars</option>
+          </select>
 
-            <div class="rating-stars">
-                <i class="fas fa-star" data-rating="1"></i>
-                <i class="fas fa-star" data-rating="2"></i>
-                <i class="fas fa-star" data-rating="3"></i>
-                <i class="fas fa-star" data-rating="4"></i>
-                <i class="fas fa-star" data-rating="5"></i>
-            </div>
+          <div class="rating-stars">
+            <i class="fas fa-star" data-rating="1"></i>
+            <i class="fas fa-star" data-rating="2"></i>
+            <i class="fas fa-star" data-rating="3"></i>
+            <i class="fas fa-star" data-rating="4"></i>
+            <i class="fas fa-star" data-rating="5"></i>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div class="form-group">
+      <div class="form-group">
         <label for="message">Message</label>
-        <textarea 
-            id="message" 
-            name="message" 
-            placeholder="Share your experience..." 
-            required></textarea>
-    </div>
+        <textarea id="message" name="message"
+                  placeholder="Share your experience..." required></textarea>
+      </div>
 
-    <button type="submit" class="submit-btn">Post your Review</button>
-</form>
-{% endif %}
-    </div>
+      <button type="submit" class="submit-btn" id="reviewSubmitBtn">
+        Post your Review
+      </button>
+    </form>
+    {% endif %}
+
+  </div>
 </div>
 
 <script>
-    // Star rating functionality
-    const stars = document.querySelectorAll('.rating-stars i');
-    const ratingSelect = document.getElementById('rating');
+/**
+ * review.html – jQuery REST API integration
+ * ==========================================
+ * Demonstrates CREATE (POST /api/reviews/create/) via jQuery $.ajax():
+ *
+ *   1. User fills in the form.
+ *   2. jQuery intercepts submit (e.preventDefault).
+ *   3. Builds a JSON object from the form fields (JSON production).
+ *   4. POSTs to /api/reviews/create/ with Content-Type: application/json.
+ *   5. On 201: reads the returned JSON review object (JSON consumption)
+ *              and shows a success banner.
+ *   6. On 4xx: reads the DRF error object and shows the message.
+ */
+$(document).ready(function () {
 
-    stars.forEach(star => {
-        star.addEventListener('click', () => {
-            const rating = star.getAttribute('data-rating');
-            ratingSelect.value = rating;
-            updateStars(rating);
-        });
+  // ── Star-rating UI ────────────────────────────────────────────────────
+  const stars        = $(".rating-stars i");
+  const ratingSelect = $("#rating");
 
-        star.addEventListener('mouseover', () => {
-            const rating = star.getAttribute('data-rating');
-            highlightStars(rating);
-        });
+  stars.on("click", function () {
+    const val = $(this).data("rating");
+    ratingSelect.val(val);
+    updateStars(val);
+  });
+
+  stars.on("mouseover", function () {
+    highlightStars($(this).data("rating"));
+  });
+
+  $(".rating-stars").on("mouseleave", function () {
+    updateStars(ratingSelect.val());
+  });
+
+  function updateStars(n) {
+    stars.each(function (i) {
+      $(this).toggleClass("active", i < n);
     });
+  }
 
-    document.querySelector('.rating-stars').addEventListener('mouseleave', () => {
-        const currentRating = ratingSelect.value;
-        updateStars(currentRating);
+  function highlightStars(n) {
+    stars.each(function (i) {
+      $(this).toggleClass("active", i < n);
     });
+  }
 
-    function updateStars(rating) {
-        stars.forEach((star, index) => {
-            if (index < rating) {
-                star.classList.add('active');
-            } else {
-                star.classList.remove('active');
-            }
-        });
-    }
 
-    function highlightStars(rating) {
-        stars.forEach((star, index) => {
-            if (index < rating) {
-                star.classList.add('active');
-            } else {
-                star.classList.remove('active');
-            }
-        });
+  // ── CSRF helper ───────────────────────────────────────────────────────
+  function getCookie(name) {
+    let value = null;
+    if (document.cookie && document.cookie !== '') {
+      document.cookie.split(';').forEach(function (c) {
+        c = $.trim(c);
+        if (c.startsWith(name + '=')) {
+          value = decodeURIComponent(c.substring(name.length + 1));
+        }
+      });
     }
+    return value;
+  }
+
+
+  // ── Form submit → REST API POST ───────────────────────────────────────
+  $("#reviewForm").on("submit", function (e) {
+    e.preventDefault();
+
+    // Reset banners
+    $("#apiSuccess").hide();
+    $("#apiError").hide();
+
+    const btn = $("#reviewSubmitBtn");
+    btn.prop("disabled", true).text("Posting…");
+
+    // Build JSON payload (JSON production)
+    const payload = {
+      rating:  parseInt($("#rating").val(), 10),
+      message: $("#message").val().trim()
+    };
+
+    // Retrieve stored token (set during login)
+    const token = localStorage.getItem("authToken") || "";
+
+    $.ajax({
+      url:         "/api/reviews/create/",
+      type:        "POST",
+      contentType: "application/json",       // tell the server we send JSON
+      data:        JSON.stringify(payload),  // produce JSON
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        ...(token ? { "Authorization": "Token " + token } : {})
+      },
+
+      // ── 201 Created: JSON consumption ─────────────────────────────────
+      success: function (data) {
+        // `data` is the serialised Review object returned by DRF
+        console.log("Review created via REST API:", data);
+        $("#apiSuccessMsg").text(
+          "Thank you, " + (data.first_name || "valued customer") +
+          "! Your " + data.rating + "-star review has been posted."
+        );
+        $("#apiSuccess").show();
+        $("#reviewForm")[0].reset();
+        updateStars(0);
+      },
+
+      // ── 4xx Error ─────────────────────────────────────────────────────
+      error: function (xhr) {
+        let msg = "An error occurred. Please try again.";
+
+        if (xhr.status === 401) {
+          msg = "You must be logged in to post a review.";
+        } else if (xhr.status === 403) {
+          msg = xhr.responseJSON && xhr.responseJSON.error
+            ? xhr.responseJSON.error
+            : "You need at least one delivered order to post a review.";
+        } else if (xhr.responseJSON) {
+          const errs = [];
+          $.each(xhr.responseJSON, function (field, msgs) {
+            if (Array.isArray(msgs)) msgs.forEach(function (m) { errs.push(m); });
+            else errs.push(msgs);
+          });
+          if (errs.length) msg = errs.join(" ");
+        }
+
+        $("#apiErrorMsg").text(msg);
+        $("#apiError").show();
+      },
+
+      complete: function () {
+        btn.prop("disabled", false).text("Post your Review");
+      }
+    });
+  });
+
+});
 </script>
 
 {% endblock %}
