@@ -6,22 +6,23 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'orders/order_summary.css' %}">
 
+
 <div class="order-summary-container center">
   <h1>Order Summary</h1>
 
-  <section class="order-items">
+  <section class="order-items" id="orderItemsList">
     {% if items %}
     {% for item in items %}
-    <div class="order-item">
+    <div class="order-item" data-item-id="{{ item.id }}">
       <img src="{{ item.image }}" alt="{{ item.name }}">
       <div class="item-details">
         <h4>{{ item.name }}</h4>
       </div>
       <div class="item-price">Rs {{ item.price|floatformat:0 }}</div>
 
-      <!-- Quantity controls -->
+      <!-- Quantity controls – jQuery intercepts submit -->
       <div class="item-qty">
-        <form action="{% url 'update_quantity' item.id %}" method="post" style="display:inline;">
+        <form class="qty-form" action="{% url 'update_quantity' item.id %}" method="post" style="display:inline;">
           {% csrf_token %}
           <input type="hidden" name="action" value="dec">
           <button type="submit" class="qty-btn">−</button>
@@ -29,16 +30,16 @@
 
         <span class="qty-count">{{ item.quantity }}</span>
 
-        <form action="{% url 'update_quantity' item.id %}" method="post" style="display:inline;">
+        <form class="qty-form" action="{% url 'update_quantity' item.id %}" method="post" style="display:inline;">
           {% csrf_token %}
           <input type="hidden" name="action" value="inc">
           <button type="submit" class="qty-btn">+</button>
         </form>
       </div>
 
-      <!-- Remove button -->
+      <!-- Remove button – jQuery intercepts submit -->
       <div class="item-actions">
-        <form action="{% url 'remove_from_order' item.id %}" method="post">
+        <form class="remove-form" action="{% url 'remove_from_order' item.id %}" method="post">
           {% csrf_token %}
           <button type="submit" class="remove-btn">Remove</button>
         </form>
@@ -47,9 +48,7 @@
     {% endfor %}
     {% else %}
     <div class="empty-cart-container">
-      <div class="empty-cart-icon">
-        🛒
-      </div>
+      <div class="empty-cart-icon">🛒</div>
       <h2 class="empty-cart-title">Your Cart is Empty</h2>
       <p class="empty-cart-message">Looks like you haven't added any delicious meals yet!</p>
       <a href="{% url 'menu' %}" class="back-to-menu-btn">
@@ -60,7 +59,7 @@
     {% endif %}
   </section>
 
-  <!-- Summary Sidebar -->
+  <!-- Summary sidebar -->
   <div class="summary-box">
     <div class="sum-left">
       <h2>Summary</h2>
@@ -79,140 +78,111 @@
 </div>
 
 <script>
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
+
+$(document).ready(function () {
+
+    // ── CSRF helper (also set globally in base.html via $.ajaxSetup) ─────
+    function getCookie(name) {
+        let value = null;
+        if (document.cookie && document.cookie !== '') {
+            $.each(document.cookie.split(';'), function (_, c) {
+                c = $.trim(c);
+                if (c.startsWith(name + '=')) {
+                    value = decodeURIComponent(c.substring(name.length + 1));
+                    return false;
+                }
+            });
         }
-      }
+        return value;
     }
-    return cookieValue;
-  }
 
-  // Store the current cart state on page load
-  let currentCartState = null;
 
-  function fetchCartState() {
-    return fetch('/cart/data/', {
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-      }
-    })
-      .then(r => r.json())
-      .then(data => {
-        return JSON.stringify(data.cart_items);
-      });
-  }
+    $(document).on('submit', '.remove-form', function (e) {
+        e.preventDefault();
+        const $form = $(this);
+        const url   = $form.attr('action');
 
-  // Poll for cart changes every 2 seconds
-  function checkForCartChanges() {
-    fetchCartState().then(newState => {
-      if (currentCartState === null) {
-        currentCartState = newState;
-      } else if (currentCartState !== newState) {
-        // Cart has changed, reload the page
-        window.location.reload();
-      }
-    });
-  }
-
-  // Start polling when page loads
-  document.addEventListener('DOMContentLoaded', function () {
-    fetchCartState().then(state => {
-      currentCartState = state;
+        $.ajax({
+            url:  url,
+            type: 'POST',
+            data: $form.serialize(),
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            success: function (data) {
+                if (data.success) {
+                    window.location.reload();
+                }
+            },
+            error: function () {
+                window.location.reload();
+            }
+        });
     });
 
-    // Check every 2 seconds
-    setInterval(checkForCartChanges, 2000);
-  });
 
-  // Handle remove button clicks
-  document.addEventListener('submit', function (e) {
-    const form = e.target;
+    // ── 2. UPDATE quantity ────────────────────────────────────────────────
+    //
+    // Intercepts the .qty-form submit.
+    $(document).on('submit', '.qty-form', function (e) {
+        e.preventDefault();
+        const $form = $(this);
+        const url   = $form.attr('action');
 
-    // Check if this is a remove form
-    if (form.action.includes('/remove_from_order/')) {
-      e.preventDefault();
+        $.ajax({
+            url:  url,
+            type: 'POST',
+            data: $form.serialize(),
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            success: function (data) {
+                if (data.success) {
+                    window.location.reload();
+                }
+            },
+            error: function () {
+                window.location.reload();
+            }
+        });
+    });
 
-      const match = form.action.match(/\/remove_from_order\/(\d+)\//);
-      if (!match) return;
 
-      const itemId = match[1];
 
-      fetch(form.action, {
-        method: 'POST',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: new FormData(form)
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success) {
-            window.location.reload();
-          }
-        })
-        .catch(err => {
-          console.error('Error removing item:', err);
-          window.location.reload();
+    function pollCartState() {
+        $.ajax({
+            url:     '/api/cart/',
+            type:    'GET',
+            success: function (data) {             // JSON consumption
+                // Build a simple snapshot string for comparison
+                const snapshot = JSON.stringify(
+                    (data.items || []).map(function (i) {
+                        return { id: i.item_id, qty: i.quantity };
+                    })
+                );
+
+                if (lastCartSnapshot === null) {
+                    lastCartSnapshot = snapshot;
+                } else if (lastCartSnapshot !== snapshot) {
+                    window.location.reload();
+                }
+
+                // Keep the cart badge up to date
+                $('.cart-count').text(data.count || 0);
+            }
         });
     }
 
-    // Handle quantity updates
-    if (form.action.includes('/update_quantity/')) {
-      e.preventDefault();
+    // Initial snapshot + start polling
+    pollCartState();
+    setInterval(pollCartState, 3000);
 
-      const match = form.action.match(/\/update_quantity\/(\d+)\//);
-      if (!match) return;
 
-      const itemId = match[1];
-      const action = form.querySelector('input[name="action"]').value;
 
-      fetch(form.action, {
-        method: 'POST',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: new FormData(form)
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success) {
-            window.location.reload();
-          }
-        })
-        .catch(err => {
-          console.error('Error updating quantity:', err);
-          window.location.reload();
-        });
-    }
-  });
-
-  // Update cart badge if it exists
-  function updateCartBadge() {
-    fetch('/cart/data/', {
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-      }
-    })
-      .then(r => r.json())
-      .then(data => {
-        const countEl = document.querySelector('.cart-count');
-        if (countEl) {
-          countEl.textContent = data.cart_count || 0;
+    $.ajax({
+        url:     '/api/cart/',
+        type:    'GET',
+        success: function (data) {
+            $('.cart-count').text(data.count || 0);
         }
-      })
-      .catch(console.error);
-  }
+    });
 
-  // Update cart badge on page load
-  document.addEventListener('DOMContentLoaded', updateCartBadge);
+});
 </script>
 {% endblock %}

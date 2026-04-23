@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
     <link rel="stylesheet" href="{% static 'css/cart.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- jQuery loaded globally so every page can use it -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -28,66 +30,16 @@
                     <li><a href="{% url 'login' %}">Login</a></li>
                     <li><a href="{% url 'signup' %}">Sign Up</a></li>
                 {% endif %}
-                {% comment %} {% if user.is_authenticated %} {% endcomment %}
                 {% if user.userprofile.is_homecook and user.userprofile.homecook_status == "APPROVED" %}
                     <li><a href="{% url 'homecook_log' %}">Incoming Orders</a></li>
                     <li><a href="{% url 'addmenu' %}">Add a new Menu Item</a></li>
                 {% else %}
                     <li><a href="{% url 'homecook_onboarding' %}">Become a Homecook</a></li>
                 {% endif %}
-                {% comment %} {% endif %} {% endcomment %}
             </nav>
 
             <div class="header-right">
                 {% include 'cart.html' %}
-                <!-- <div class="header-cart">
-                    <div class="cart-container" style="position: relative;">
-                        <div class="cart-icon" id="cartIcon" style="cursor:pointer; padding:6px; display:inline-block;">
-                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-                            <span class="cart-count">{{ cart_count|default:"0" }}</span>
-                        </div>
-
-                        <div class="cart-dropdown" id="cartDropdown" aria-hidden="true" role="region"
-                            aria-label="Shopping cart dropdown">
-                            <div class="cart-header">Cart</div>
-
-                            <div class="cart-items" id="cartItemsContainer">
-                                {% if cart %}
-                                {% for key, item in cart.items %}
-                                <div class="cart-item">
-                                    <div class="item-details">
-                                        <div class="item-name">{{ item.name }}</div>
-                                        <div class="item-quantity">Qty: {{ item.quantity }}</div>
-                                        <div class="item-price">Rs {{ item.price }} x {{ item.quantity }} </div>
-                                    </div>
-                                    <form method="POST" action="{% url 'remove_from_cart' item_id=key %}">
-                                        {% csrf_token %}
-                                        <button type="submit">Remove</button>
-                                    </form>
-                                </div>
-                                {% endfor %}
-                                {% else %}
-                                <div class="cart-item">
-                                    <div class="item-details">
-                                        <div class="item-name">Your cart is empty</div>
-                                        <div class="item-quantity">Add items to see them here</div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="cart-footer">
-                                <div class="cart-subtotal">
-                                    <span>Subtotal:</span>
-                                    <span id="cartSubtotal">Rs {{ cart_subtotal|default:"0" }}</span>
-                                </div>
-                                <div class="cart-buttons">
-                                    <a href="{% url 'order_summary' %}" class="cart-button btn-checkout">Checkout</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
                 <div class="header-profile">
                     <a href="{% url 'user_profile' %}"><i class="fas fa-user"></i></a>
                 </div>
@@ -100,9 +52,7 @@
     </main>
 
     <footer class="footer-container">
-
         <div class="center-container">
-
             <div class="footer-column">
                 <h3>Ki Pou Cuit??</h3>
                 <p>Delivering delicious food to your doorstep since 2025.</p>
@@ -137,7 +87,6 @@
                     <a href="#"><i class="fab fa-linkedin-in"></i></a>
                 </div>
             </div>
-
         </div>
         <div class="footer-bottom">
             <p>2025 KiPouCuit. All Rights Reserved.</p>
@@ -145,178 +94,149 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Function to check scroll position and toggle 'scrolled' class
-            function checkScroll() {
-                var header = document.querySelector('header');
-                if (window.scrollY > 0) {
-                    header.classList.add('scrolled');
-                } else {
-                    header.classList.remove('scrolled');
-                }
-            }
 
-            checkScroll();
+    $(document).ready(function () {
 
-            window.addEventListener('scroll', checkScroll);
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log('Cart script starting...');
-
-            const cartIcon = document.getElementById('cartIcon');
-            const cartDropdown = document.getElementById('cartDropdown');
-            const cartContainer = document.querySelector('.cart-container');
-
-            if (!cartIcon) console.warn('cartIcon element NOT found');
-            if (!cartDropdown) console.warn('cartDropdown element NOT found');
-
-            // Safety: if not found, bail out
-            if (!cartIcon || !cartDropdown || !cartContainer) {
-                console.error('Cart toggle aborted: required DOM elements missing.');
-                return;
-            }
-
-            // Ensure dropdown is hidden initially and has correct z-index
-            cartDropdown.classList.remove('active');
-            cartDropdown.style.zIndex = 1000; // ensure it appears above most things
-
-            // Toggle on click
-            cartIcon.addEventListener('click', function (event) {
-                event.stopPropagation(); // prevent document click from closing immediately
-                cartDropdown.classList.toggle('active');
-                // For accessibility
-                const isShown = cartDropdown.classList.contains('active');
-                cartDropdown.setAttribute('aria-hidden', isShown ? 'false' : 'true');
-                console.log('Cart icon clicked. Dropdown active:', isShown);
-            });
-
-            // Close when clicking outside
-            document.addEventListener('click', function (event) {
-                if (!cartContainer.contains(event.target)) {
-                    if (cartDropdown.classList.contains('active')) {
-                        cartDropdown.classList.remove('active');
-                        cartDropdown.setAttribute('aria-hidden', 'true');
-                        console.log('Clicked outside cart. Dropdown hidden.');
-                    }
-                }
-            });
-
-            // Helpful debug: show bounding rects if click seems not to register
-            cartIcon.addEventListener('mouseenter', function () {
-                // small visual debug in console when hovering
-                const rect = cartIcon.getBoundingClientRect();
-                console.log('Cart icon bounding rect:', rect);
-            });
-
-        });
-
-
-        // document.addEventListener('DOMContentLoaded', function () {
-        //     document.querySelectorAll('.remove-item-btn').forEach(button => {
-        //         button.addEventListener('click', function () {
-        //             const itemId = this.dataset.itemId;
-        //             const cartItemElement = this.closest('.cart-item');
-
-        //             fetch(`/remove_from_cart/${itemId}/`, {
-        //                 method: 'POST',
-        //                 headers: {
-        //                     'X-CSRFToken': '{{ csrf_token }}',
-        //                     'X-Requested-With': 'XMLHttpRequest'
-        //                 }
-        //             })
-        //                 .then(res => res.json())
-        //                 .then(data => {
-        //                     if (data.success) {
-        //                         // Remove only this item's DOM element
-        //                         cartItemElement.remove();
-
-        //                         // Update cart count and subtotal
-        //                         document.querySelector('.cart-count').textContent = data.cart_count;
-        //                         document.getElementById('cartSubtotal').textContent = 'Rs ' + data.cart_subtotal;
-
-        //                         // Show empty message if last item removed
-        //                         if (data.cart_count === 0) {
-        //                             document.getElementById('cartItemsContainer').innerHTML = `
-        //                         <div class="cart-item">
-        //                             <div class="item-details">
-        //                                 <div class="item-name">Your cart is empty</div>
-        //                                 <div class="item-quantity">Add items to see them here</div>
-        //                             </div>
-        //                         </div>
-        //                     `;
-        //                         }
-        //                     } else {
-        //                         alert('Failed to remove item.');
-        //                     }
-        //                 })
-        //                 .catch(err => console.error(err));
-        //         });
-        //     });
-        // });
+        // ── CSRF helper ───────────────────────────────────────────────────
         function getCookie(name) {
-            let cookieValue = null;
+            let value = null;
             if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let cookie of cookies) {
-                    cookie = cookie.trim();
-                    if (cookie.startsWith(name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
+                $.each(document.cookie.split(';'), function (_, c) {
+                    c = $.trim(c);
+                    if (c.startsWith(name + '=')) {
+                        value = decodeURIComponent(c.substring(name.length + 1));
+                        return false; // break $.each
                     }
-                }
+                });
             }
-            return cookieValue;
+            return value;
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            // Delegate click to handle dynamically removed items
-            document.querySelector('.cart-items').addEventListener('click', function (e) {
-                if (e.target.classList.contains('remove-item-btn')) {
-                    const button = e.target;
-                    const itemId = button.dataset.itemId;
-                    const cartItemElement = button.closest('.cart-item');
+        // Apply CSRF token to every AJAX request automatically
+        $.ajaxSetup({
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
 
-                    fetch(`/remove_from_cart/${itemId}/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': getCookie('csrftoken'), // CSRF token
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Remove only this item's DOM element
-                                cartItemElement.remove();
 
-                                // Update cart count and subtotal
-                                document.querySelector('.cart-count').textContent = data.cart_count;
-                                document.getElementById('cartSubtotal').textContent = 'Rs ' + data.cart_subtotal;
+        // ── 1. Scroll header shadow ────────────────────────────────────────
+        function checkScroll() {
+            $('header').toggleClass('scrolled', $(window).scrollY > 0);
+        }
+        checkScroll();
+        $(window).on('scroll', checkScroll);
 
-                                // Show empty message if last item removed
-                                if (data.cart_count === 0) {
-                                    document.getElementById('cartItemsContainer').innerHTML = `
-                            <div class="cart-item">
-                                <div class="item-details">
-                                    <div class="item-name">Your cart is empty</div>
-                                    <div class="item-quantity">Add items to see them here</div>
-                                </div>
-                            </div>
-                        `;
-                                }
-                            } else {
-                                alert('Failed to remove item.');
-                            }
-                        })
-                        .catch(err => console.error(err));
+
+        // ── 2. Cart dropdown toggle ────────────────────────────────────────
+        const $cartIcon     = $('#cartIcon');
+        const $cartDropdown = $('#cartDropdown');
+        const $cartContainer = $('.cart-container');
+
+        if ($cartIcon.length && $cartDropdown.length) {
+            $cartDropdown.removeClass('active');
+
+            // Open / close on icon click
+            $cartIcon.on('click', function (e) {
+                e.stopPropagation();
+                $cartDropdown.toggleClass('active');
+                $cartDropdown.attr('aria-hidden', $cartDropdown.hasClass('active') ? 'false' : 'true');
+            });
+
+            // Close when clicking outside the cart container
+            $(document).on('click', function (e) {
+                if (!$cartContainer.is(e.target) && $cartContainer.has(e.target).length === 0) {
+                    $cartDropdown.removeClass('active').attr('aria-hidden', 'true');
+                }
+            });
+        }
+
+
+
+        $(document).on('click', '.remove-item-btn', function (e) {
+            e.preventDefault();
+            const itemId       = $(this).data('item-id');
+            const $cartItem    = $(this).closest('.cart-item');
+
+            $.ajax({
+                url:         '/api/cart/remove/',
+                type:        'POST',
+                contentType: 'application/json',
+                data:        JSON.stringify({ item_id: itemId }),  // JSON production
+                success: function (data) {                          // JSON consumption
+                    $cartItem.remove();
+                    $('.cart-count').text(data.cart_count || 0);
+                    $('#cartSubtotal').text('Rs ' + parseFloat(data.cart_subtotal || 0).toFixed(0));
+
+                    if (data.cart_count === 0) {
+                        $('#cartItemsContainer').html(
+                            '<div class="cart-item">' +
+                              '<div class="item-details">' +
+                                '<div class="item-name">Your cart is empty</div>' +
+                                '<div class="item-quantity">Add items to see them here</div>' +
+                              '</div>' +
+                            '</div>'
+                        );
+                    }
+                },
+                error: function (xhr) {
+                    console.error('Failed to remove item:', xhr.responseJSON);
                 }
             });
         });
 
+        function refreshCartDropdown() {
+            $.ajax({
+                url:     '/api/cart/',
+                type:    'GET',
+                success: function (data) {            
+                    $('.cart-count').text(data.count || 0);
+                    $('#cartSubtotal').text('Rs ' + parseFloat(data.subtotal || 0).toFixed(0));
 
+                    const $container = $('#cartItemsContainer');
+                    if (!$container.length) return;
 
+                    if (!data.items || data.items.length === 0) {
+                        $container.html(
+                            '<div class="cart-item">' +
+                              '<div class="item-details">' +
+                                '<div class="item-name">Your cart is empty</div>' +
+                                '<div class="item-quantity">Add items to see them here</div>' +
+                              '</div>' +
+                            '</div>'
+                        );
+                        return;
+                    }
 
+                    let html = '';
+                    $.each(data.items, function (_, item) {
+                        html +=
+                            '<div class="cart-item">' +
+                              '<div class="item-details">' +
+                                '<div class="item-name">' + item.name + '</div>' +
+                                '<div class="item-quantity">Qty: ' + item.quantity + '</div>' +
+                                '<div class="item-price">Rs ' + item.price + ' × ' + item.quantity + '</div>' +
+                              '</div>' +
+                              '<button class="remove-item-btn" data-item-id="' + item.item_id + '">Remove</button>' +
+                            '</div>';
+                    });
+                    $container.html(html);
+                },
+                error: function (xhr) {
+                    console.error('Cart load failed:', xhr.responseJSON);
+                }
+            });
+        }
+
+        refreshCartDropdown();
+
+        // Also refresh when the menu page fires its custom cartUpdated event
+        window.addEventListener('cartUpdated', function () {
+            refreshCartDropdown();
+        });
+
+    });
     </script>
 </body>
 
