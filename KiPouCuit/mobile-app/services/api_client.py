@@ -10,6 +10,7 @@ class ApiClient:
         self.token = None
         self.username = None
         self.is_homecook = False
+        self._session = requests.Session()  # persists session cookies for cart
 
     def _h(self):
         h = {"Content-Type": "application/json"}
@@ -20,7 +21,7 @@ class ApiClient:
     # SAFE GET
     def _get(self, path, params=None):
         try:
-            r = requests.get(
+            r = self._session.get(
                 f"{BASE_URL}{path}",
                 params=params,
                 headers=self._h(),
@@ -38,7 +39,7 @@ class ApiClient:
     # SAFE POST
     def _post(self, path, data=None):
         try:
-            r = requests.post(
+            r = self._session.post(
                 f"{BASE_URL}{path}",
                 json=data or {},
                 headers=self._h(),
@@ -101,6 +102,9 @@ class ApiClient:
 
     def add_to_cart(self, iid):
         return self._post("/cart/add/", {"item_id": iid})
+
+    def decrease_cart_item(self, iid):
+        return self._post("/cart/add/", {"item_id": iid, "quantity": -1})
 
     def remove_from_cart(self, iid):
         return self._post("/cart/remove/", {"item_id": iid})

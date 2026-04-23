@@ -55,11 +55,24 @@ def create_meals_view(page: ft.Page, api, snack) -> ft.View:
         if not api.token:
             snack("⚠️ Please login first")
             return
-        _, code = api.add_to_cart(item["id"])
-        if code == 200:
-            snack(f"✅ {item['name']} added to cart")
-        else:
-            snack("❌ Failed to add item")
+
+        def _do():
+            _, code = api.add_to_cart(item.get("id") or item.get("item_id"))
+            if code == 200:
+                page.snack_bar = ft.SnackBar(
+                    content=ft.Text(f"✅ {item.get('name', 'Item')} added to cart"),
+                    action="View Cart",
+                    on_action=lambda e: page.go("/cart"),
+                )
+                page.snack_bar.open = True
+            else:
+                page.snack_bar = ft.SnackBar(
+                    content=ft.Text(f"❌ Failed to add item (code {code})"),
+                )
+                page.snack_bar.open = True
+            page.update()
+
+        threading.Thread(target=_do, daemon=True).start()
 
     def load_menu(e=None):
         content.controls.clear()
