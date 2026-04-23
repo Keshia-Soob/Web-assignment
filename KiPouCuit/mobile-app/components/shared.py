@@ -99,10 +99,10 @@ def bottom_nav(selected, page):
         ft.NavigationBarDestination(icon=ft.Icons.ACCOUNT_CIRCLE, label="Profile"),
     ]
 
-    async def on_nav_change(e):
+    def on_nav_change(e):
         index = e.control.selected_index
         if index < len(routes):
-            await page.push_route(routes[index])
+            page.push_route(routes[index])
 
     return ft.NavigationBar(
         destinations=destinations,
