@@ -102,7 +102,7 @@ def bottom_nav(selected, page):
     def on_nav_change(e):
         index = e.control.selected_index
         if index < len(routes):
-            page.push_route(routes[index])
+            page.go(routes[index])
 
     return ft.NavigationBar(
         destinations=destinations,
