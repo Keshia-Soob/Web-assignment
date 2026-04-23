@@ -9,7 +9,8 @@ from screens.meals_screen import create_meals_view
 from screens.profile_screen import create_profile_view
 from screens.nearby_screen import create_nearby_view
 from screens.reviews_screen import create_reviews_view
-from screens.orders_screen import create_orders_view 
+from screens.cart_screen import create_cart_view
+from screens.orders_screen import create_orders_view
 
 def main(page: ft.Page):
     # ─────────────────────────────────────────────
@@ -87,7 +88,14 @@ def main(page: ft.Page):
         elif page.route == "/reviews":
                 page.views.append(create_reviews_view(page, api, show_snack))
 
-        elif page.route == "/orders":                          # ← NEW
+        elif page.route == "/cart":
+            if api.token:
+                page.views.append(create_cart_view(page, api, show_snack))
+            else:
+                page.go("/login")
+                return
+
+        elif page.route == "/orders":
             if api.token:
                 page.views.append(create_orders_view(page, api, show_snack))
             else:
