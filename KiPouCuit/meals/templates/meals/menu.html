@@ -7,8 +7,6 @@
 <link rel="stylesheet" href="{% static 'meals/MenuStyle.css' %}">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-{% url 'add_to_cart' 0 as ADD_TO_CART_BASE %}
-
 
 <div class="menu-container">
   <div class="menu-title">
@@ -18,11 +16,7 @@
 
   <!-- Search + Filter Controls -->
   <div class="menu-controls">
-
-    <!--SEARCH BAR -->
     <input type="text" id="searchInput" placeholder="Search by meal or cuisine...">
-
-    <!-- Cuisine filter -->
     <div class="cuisine-selector">
       <select id="cuisineFilter">
         <option value="all">All Cuisines</option>
@@ -35,7 +29,7 @@
     </div>
   </div>
 
-  <!-- Global "no results" message -->
+  <!-- Global "no results" message (shown by JS) -->
   <p id="noResultsMessage" style="display:none; text-align:center; font-weight:bold; margin-top:20px;">
     No meals found.
   </p>
@@ -51,13 +45,13 @@
     <div class="food-grid">
       {% for item in items %}
       <div class="food-item"
-        data-cuisine="{{ item.cuisine|lower }}"
-        data-name="{{ item.name|lower }}"
-        data-id="{{ item.id }}"
-        data-price="{{ item.price|floatformat:0 }}">
-        
+           data-cuisine="{{ item.cuisine|lower }}"
+           data-name="{{ item.name|lower }}"
+           data-id="{{ item.id }}"
+           data-price="{{ item.price|floatformat:0 }}">
+
         <div class="food-image" style="background-image: url('{{ item.display_image_url }}');"></div>
-        
+
         <div class="food-details">
           <h3 class="food-name">{{ item.name }}</h3>
           <p class="food-description">{{ item.description }}</p>
@@ -65,11 +59,11 @@
           <div class="food-footer">
             <span class="food-price">Rs {{ item.price|floatformat:0 }}</span>
 
-            <form class="add-to-cart-form" data-id="{{ item.id }}">
-              {% csrf_token %}
-              <button type="submit" class="add-btn">Add</button>
-            </form>
-
+            <button class="add-btn api-add-to-cart"
+                    data-id="{{ item.id }}"
+                    data-name="{{ item.name }}">
+              Add
+            </button>
           </div>
         </div>
       </div>
@@ -78,7 +72,6 @@
       {% endfor %}
     </div>
 
-    <!-- Cuisine-level "no match" -->
     <p class="no-cuisine-results" style="display:none; font-weight:bold;">
       No meals found in this cuisine.
     </p>
@@ -91,96 +84,105 @@
 <!-- Toast container -->
 <div id="toast-container"></div>
 
-
-
 <script>
+
 $(document).ready(function () {
 
-  // =========================
-  // SEARCH + FILTER
-  // =========================
-  function applyFilters() {
-    const search = $("#searchInput").val().toLowerCase();
-    const cuisineVal = $("#cuisineFilter").val();
-
-    let globalMatchFound = false;
-
-    $(".cuisine-section").each(function () {
-      const section = $(this);
-      const sectionCuisine = section.data("cuisine");
-      const items = section.find(".food-item");
-      const noMatchMsg = section.find(".no-cuisine-results");
-
-      let cuisineHasMatch = false;
-
-      items.each(function () {
-        const item = $(this);
-        const name = item.data("name");
-        const cuisine = item.data("cuisine");
-
-        const matchesSearch =
-          name.includes(search) || cuisine.includes(search);
-
-        const matchesCuisine =
-          (cuisineVal === "all" || cuisineVal === sectionCuisine);
-
-        const show = matchesSearch && matchesCuisine;
-
-        if (show) {
-          item.show();
-          cuisineHasMatch = true;
-          globalMatchFound = true;
-        } else {
-          item.hide();
+  // =========================================================================
+  // CSRF helper (required for POST requests in Django)
+  // =========================================================================
+  function getCookie(name) {
+    let value = null;
+    if (document.cookie && document.cookie !== '') {
+      document.cookie.split(';').forEach(function (c) {
+        c = $.trim(c);
+        if (c.startsWith(name + '=')) {
+          value = decodeURIComponent(c.substring(name.length + 1));
         }
       });
+    }
+    return value;
+  }
 
-      noMatchMsg.toggle(!cuisineHasMatch);
-      section.toggle(cuisineHasMatch);
+  // Add CSRF token to every AJAX request automatically
+  $.ajaxSetup({
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "X-Requested-With": "XMLHttpRequest"
+    }
+  });
+
+
+  // =========================================================================
+  // SEARCH + FILTER  (client-side, no API call needed)
+  // =========================================================================
+  function applyFilters() {
+    const search     = $("#searchInput").val().toLowerCase();
+    const cuisineVal = $("#cuisineFilter").val();
+    let   globalMatch = false;
+
+    $(".cuisine-section").each(function () {
+      const section       = $(this);
+      const sectionCuisine = section.data("cuisine");
+      let   cuisineMatch  = false;
+
+      section.find(".food-item").each(function () {
+        const item    = $(this);
+        const nameMatch    = item.data("name").includes(search) || item.data("cuisine").includes(search);
+        const cuisineOk    = (cuisineVal === "all" || cuisineVal === sectionCuisine);
+        const visible      = nameMatch && cuisineOk;
+
+        item.toggle(visible);
+        if (visible) { cuisineMatch = true; globalMatch = true; }
+      });
+
+      section.find(".no-cuisine-results").toggle(!cuisineMatch);
+      section.toggle(cuisineMatch);
     });
 
-    $("#noResultsMessage").toggle(!globalMatchFound);
+    $("#noResultsMessage").toggle(!globalMatch);
   }
 
   $("#searchInput").on("input", applyFilters);
   $("#cuisineFilter").on("change", applyFilters);
-  applyFilters();
+  applyFilters();   // run once on page load
 
 
-  // =========================
-  // ADD TO CART (AJAX)
-  // =========================
-  $(document).on("submit", ".add-to-cart-form", function (e) {
-    e.preventDefault();
-
-    const form = $(this);
-    const id = form.data("id");
-    const base = "{{ ADD_TO_CART_BASE }}";
-    const url = base.replace("/0/", `/${id}/`);
-    const btn = form.find("button");
+  // =========================================================================
+  // ADD TO CART  –  JSON production via REST API
+  //
+  // Sends:  POST /api/cart/add/  with JSON body { "item_id": N, "quantity": 1 }
+  // Reads:  JSON response        { "success": true, "cart_count": N }
+  // =========================================================================
+  $(document).on("click", ".api-add-to-cart", function () {
+    const btn      = $(this);
+    const itemId   = btn.data("id");
+    const itemName = btn.data("name");
 
     btn.prop("disabled", true);
 
     $.ajax({
-      url: url,
-      type: "POST",
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-      data: form.serialize(),
-      success: function (data) {
-        if ($(".cart-count").length && data.cart_count !== undefined) {
+      url:         "/api/cart/add/",
+      type:        "POST",
+      contentType: "application/json",       // send as JSON
+      data:        JSON.stringify({           // produce JSON
+        item_id:  itemId,
+        quantity: 1
+      }),
+      success: function (data) {             // consume JSON response
+        // Update the badge counter in the navbar
+        if (data.cart_count !== undefined) {
           $(".cart-count").text(data.cart_count);
         }
-
-        updateCartDropdown();
-
-        const itemName = form.closest(".food-item").data("name") || "Item";
-        showAddToCartFeedback(itemName);
+        // Refresh the cart dropdown from the API
+        refreshCartDropdown();
+        showToast(itemName + " added to cart!");
       },
-      error: function (err) {
-        console.error(err);
+      error: function (xhr) {
+        const msg = xhr.responseJSON && xhr.responseJSON.error
+          ? xhr.responseJSON.error
+          : "Could not add item. Please try again.";
+        showToast("⚠️ " + msg);
       },
       complete: function () {
         btn.prop("disabled", false);
@@ -189,124 +191,95 @@ $(document).ready(function () {
   });
 
 
-  // =========================
-  // UPDATE CART DROPDOWN
-  // =========================
-  function updateCartDropdown() {
+  // =========================================================================
+  // REMOVE FROM CART  –  JSON production via REST API
+  //
+  // Sends:  POST /api/cart/remove/  with JSON body { "item_id": N }
+  // Reads:  JSON response           { "success": true, "cart_count": N }
+  // =========================================================================
+  $(document).on("click", ".remove-item-btn", function (e) {
+    e.preventDefault();
+    const itemId = $(this).data("item-id");
+
     $.ajax({
-      url: "/cart/data/",
-      type: "GET",
-      headers: { "X-Requested-With": "XMLHttpRequest" },
+      url:         "/api/cart/remove/",
+      type:        "POST",
+      contentType: "application/json",
+      data:        JSON.stringify({ item_id: itemId }),
       success: function (data) {
-
         $(".cart-count").text(data.cart_count || 0);
+        refreshCartDropdown();
+      },
+      error: function (xhr) {
+        console.error("Remove failed:", xhr.responseJSON);
+      }
+    });
+  });
 
-        $("#cartSubtotal").text(`Rs ${data.cart_subtotal.toFixed(0)}`);
+
+  // =========================================================================
+  // REFRESH CART DROPDOWN  –  JSON consumption via REST API
+  //
+  // Fetches: GET /api/cart/
+  // Reads:   { "items": [...], "subtotal": N, "count": N }
+  // =========================================================================
+  function refreshCartDropdown() {
+    $.ajax({
+      url:     "/api/cart/",
+      type:    "GET",
+      success: function (data) {           // consume JSON from REST API
+        $(".cart-count").text(data.count || 0);
+        $("#cartSubtotal").text("Rs " + parseFloat(data.subtotal || 0).toFixed(0));
 
         const container = $("#cartItemsContainer");
-
         if (!container.length) return;
 
-        if (!data.cart_items || Object.keys(data.cart_items).length === 0) {
+        if (!data.items || data.items.length === 0) {
           container.html(`
             <div class="cart-item">
               <div class="item-details">
                 <div class="item-name">Your cart is empty</div>
                 <div class="item-quantity">Add items to see them here</div>
               </div>
-            </div>
-          `);
+            </div>`);
           return;
         }
 
-        let html = '';
-        $.each(data.cart_items, function (itemId, item) {
+        let html = "";
+        $.each(data.items, function (_, item) {
           html += `
             <div class="cart-item">
               <div class="item-details">
                 <div class="item-name">${item.name}</div>
                 <div class="item-quantity">Qty: ${item.quantity}</div>
-                <div class="item-price">Rs ${item.price} x ${item.quantity}</div>
+                <div class="item-price">Rs ${item.price} × ${item.quantity}</div>
               </div>
-              <button class="remove-item-btn" data-item-id="${itemId}">Remove</button>
+              <button class="remove-item-btn" data-item-id="${item.item_id}">Remove</button>
             </div>`;
         });
-
         container.html(html);
       },
-      error: function (err) {
-        console.error(err);
+      error: function (xhr) {
+        console.error("Cart fetch failed:", xhr.responseJSON);
       }
     });
   }
 
-
-  // =========================
-  // REMOVE ITEM
-  // =========================
-  $(document).on("click", ".remove-item-btn", function (e) {
-    e.preventDefault();
-
-    const itemId = $(this).data("item-id");
-
-    $.ajax({
-      url: `/remove_from_cart/${itemId}/`,
-      type: "POST",
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-      success: function (data) {
-        if (data.success) {
-          updateCartDropdown();
-
-          window.dispatchEvent(new CustomEvent('cartUpdated', {
-            detail: {
-              cart_count: data.cart_count,
-              cart_subtotal: data.cart_subtotal
-            }
-          }));
-        }
-      },
-      error: function (err) {
-        console.error(err);
-      }
-    });
-  });
+  // Load the cart once on page init so the dropdown is up to date
+  refreshCartDropdown();
 
 
-  // =========================
-  // TOAST FEEDBACK
-  // =========================
-  function showAddToCartFeedback(itemName) {
-    const toast = $("<div class='toast'></div>").text(`${itemName} added to cart!`);
+  // =========================================================================
+  // TOAST HELPER
+  // =========================================================================
+  function showToast(message) {
+    const toast = $("<div class='toast'></div>").text(message);
     $("#toast-container").append(toast);
-
     setTimeout(() => toast.addClass("show"), 50);
-
     setTimeout(() => {
       toast.removeClass("show");
       setTimeout(() => toast.remove(), 300);
     }, 2500);
-  }
-
-
-  // =========================
-  // CSRF HELPER
-  // =========================
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      $.each(cookies, function (_, cookie) {
-        cookie = $.trim(cookie);
-        if (cookie.startsWith(name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          return false;
-        }
-      });
-    }
-    return cookieValue;
   }
 
 });

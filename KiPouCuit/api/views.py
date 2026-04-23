@@ -1,39 +1,59 @@
 """
 KiPouCuit REST API Views
 ========================
-Drop this file into a new `api` app inside the KiPouCuit Django project.
+Endpoints:
 
-Endpoints exposed:
-  GET  /api/menu/                        – list all menu items (filter ?cuisine=)
-  GET  /api/menu/<id>/                   – single menu item
-  GET  /api/menu/nearby/?lat=&lng=       – items from cooks near a GPS coordinate
-  POST /api/cart/add/                    – add item to session cart
-  POST /api/cart/remove/                 – remove item from cart
-  GET  /api/cart/                        – view cart contents
-  POST /api/orders/place/               – place an order (requires auth token)
-  GET  /api/orders/                      – list orders for logged-in user
-  GET  /api/orders/<id>/status/          – order status polling
-  GET  /api/cooks/                       – list all home cooks
-  POST /api/reviews/                     – submit a review (requires auth)
-  GET  /api/reviews/                     – list all reviews
-  POST /api/auth/login/                  – obtain token
-  POST /api/auth/logout/                 – invalidate token
-  POST /api/location/update/            – update cook's current GPS location
+  AUTH
+    POST /api/auth/login/              – obtain token (AllowAny)
+    POST /api/auth/logout/             – delete token  (IsAuthenticated)
+    POST /api/auth/register/           – create account (AllowAny)
+
+  MENU  (full CRUD – showcases all four operations)
+    GET    /api/menu/                  – list all items          (AllowAny)
+    GET    /api/menu/<id>/             – retrieve one item       (AllowAny)
+    POST   /api/menu/                  – create item             (IsAuthenticated + IsHomeCook)
+    PUT    /api/menu/<id>/             – full update             (IsAuthenticated + IsOwner)
+    PATCH  /api/menu/<id>/             – partial update          (IsAuthenticated + IsOwner)
+    DELETE /api/menu/<id>/             – delete item             (IsAuthenticated + IsOwner)
+    GET    /api/menu/nearby/           – items from nearby cooks (AllowAny)
+
+  CART  (session-based)
+    GET  /api/cart/                    – view cart  (AllowAny)
+    POST /api/cart/add/                – add item   (AllowAny)
+    POST /api/cart/remove/             – remove     (AllowAny)
+
+  ORDERS
+    POST /api/orders/place/            – place order from cart   (IsAuthenticated)
+    GET  /api/orders/                  – list user orders        (IsAuthenticated)
+    GET  /api/orders/<id>/status/      – poll status             (IsAuthenticated)
+
+  HOME COOKS
+    GET  /api/cooks/                   – list all cooks          (AllowAny)
+
+  REVIEWS
+    GET  /api/reviews/                 – list all reviews        (AllowAny)
+    POST /api/reviews/create/          – submit review           (IsAuthenticated)
+
+  LOCATION
+    POST /api/location/update/         – update GPS location     (IsAuthenticated)
+
+  HOME COOK DASHBOARD
+    GET  /api/homecook/items/                   – dashboard items (IsAuthenticated + IsHomeCook)
+    POST /api/homecook/accept/<item_id>/        – accept item
+    POST /api/homecook/ready/<item_id>/         – mark ready
+    POST /api/homecook/delivered/<item_id>/     – mark delivered
 """
 
 import math
-import json
-
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_GET
-from django.views import View
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.shortcuts import get_object_or_404
+
+from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.permissions import IsAuthenticated, AllowAny, BasePermission
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -43,19 +63,48 @@ from orders.models import Order, OrderItem
 from homecook.models import HomeCook
 from reviews.models import Review
 
-from collections import Counter
+from .serializers import (
+    MenuItemSerializer, OrderSerializer,
+    ReviewSerializer, HomeCookSerializer, RegisterSerializer,
+)
 
-# ---------------------------------------------------------------------------
-# Haversine formula  →  distance in km between two (lat, lng) points
-# ---------------------------------------------------------------------------
-def _haversine(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
-    R = 6371.0                          # Earth radius in km
+
+# ─────────────────────────────────────────────
+#  CUSTOM PERMISSIONS
+# ─────────────────────────────────────────────
+
+class IsHomeCook(BasePermission):
+    """Allows access only to users that have a HomeCook profile."""
+    message = "You must be a registered home cook to perform this action."
+
+    def has_permission(self, request, view):
+        return (
+            request.user and
+            request.user.is_authenticated and
+            HomeCook.objects.filter(user=request.user).exists()
+        )
+
+
+class IsAdminOrReadOnly(BasePermission):
+    """Staff users can write; everyone else is read-only."""
+    def has_permission(self, request, view):
+        if request.method in ("GET", "HEAD", "OPTIONS"):
+            return True
+        return request.user and request.user.is_staff
+
+
+# ─────────────────────────────────────────────
+#  HELPERS
+# ─────────────────────────────────────────────
+
+def _haversine(lat1, lng1, lat2, lng2):
+    R = 6371.0
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
-    dphi       = math.radians(lat2 - lat1)
-    dlambda    = math.radians(lng2 - lng1)
-    a = (math.sin(dphi / 2) ** 2
-         + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2)
+    dphi = math.radians(lat2 - lat1)
+    dlam = math.radians(lng2 - lng1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlam / 2) ** 2
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
 
 CUISINE_EMOJI = {
     "indian":    "🍛",
@@ -66,61 +115,6 @@ CUISINE_EMOJI = {
 }
 
 
-def _menu_item_to_dict(item):
-    return {
-        "id": item.id,
-        "name": item.name,
-        "price": float(item.price),
-        "description": item.description,
-        "cuisine": item.cuisine,
-        "image_url": item.display_image_url,
-    }
-
-
-def _order_to_dict(order):
-    return {
-        "id": order.id,
-        "client_name": order.client_name,
-        "status": order.status,
-        "human_status": order.human_readable_status,
-        "subtotal": float(order.subtotal),
-        "created_at": order.created_at.isoformat(),
-        "items": [
-            {
-                "id": oi.id,
-                "name": oi.menu_item.name,
-                "quantity": oi.quantity,
-                "price": float(oi.menu_item.price),
-                "status": oi.status,
-            }
-            for oi in order.items.select_related("menu_item").all()
-        ],
-    }
-
-
-def _review_to_dict(r):
-    return {
-        "id": r.id,
-        "first_name": r.first_name,
-        "last_name": r.last_name,
-        "rating": r.rating,
-        "message": r.message,
-        "created_at": r.created_at.isoformat(),
-    }
-
-
-def _cook_to_dict(cook):
-    return {
-        "id": cook.id,
-        "name": cook.name,
-        "surname": cook.surname,
-        "cuisine": cook.cuisine,
-        "bio": cook.bio or "",
-        "address": cook.address or "",
-        "phone": cook.phone or "",
-    }
-
-
 # ─────────────────────────────────────────────
 #  AUTH
 # ─────────────────────────────────────────────
@@ -128,67 +122,55 @@ def _cook_to_dict(cook):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def api_login(request):
+    """
+    POST /api/auth/login/
+    Body: { "username": "...", "password": "..." }
+    Returns a DRF auth token.  Used by jQuery on the login page and by
+    the Flet mobile app.
+    """
     username = request.data.get("username")
     password = request.data.get("password")
 
     user = authenticate(username=username, password=password)
-
     if user is None:
         return Response({"error": "Invalid credentials"}, status=400)
 
     token, _ = Token.objects.get_or_create(user=user)
+    is_homecook = HomeCook.objects.filter(user=user).exists()
 
     return Response({
-        "token": token.key,
-        "username": user.username,
-        "user_id": user.id
+        "token":       token.key,
+        "username":    user.username,
+        "user_id":     user.id,
+        "first_name":  user.first_name,
+        "last_name":   user.last_name,
+        "is_homecook": is_homecook,
     })
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def api_logout(request):
-    """DELETE the user's auth token."""
+    """POST /api/auth/logout/ – invalidates the current token."""
     request.auth.delete()
-    return Response({"detail": "Logged out."})
+    return Response({"detail": "Logged out successfully."})
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def api_register(request):
-    from users.models import UserProfile
+    """
+    POST /api/auth/register/
+    Body: { "first_name", "last_name", "email", "password", "phone", "address" }
+    Validates with RegisterSerializer then issues a token.
+    """
+    serializer = RegisterSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=400)
 
-    first_name       = request.data.get("first_name", "").strip()
-    last_name        = request.data.get("last_name",  "").strip()
-    email            = request.data.get("email",      "").strip()
-    phone            = request.data.get("phone",      "").strip()
-    address          = request.data.get("address",    "").strip()
-    password         = request.data.get("password",   "")
-
-    if not all([first_name, last_name, email, password]):
-        return Response({"error": "All required fields must be filled in."}, status=400)
-
-    if len(password) < 8:
-        return Response({"error": "Password must be at least 8 characters."}, status=400)
-
-    if User.objects.filter(username=email).exists():
-        return Response({"error": "An account with this email already exists."}, status=400)
-
-    user = User.objects.create_user(
-        username=email,
-        email=email,
-        password=password,
-        first_name=first_name,
-        last_name=last_name,
-    )
-
-    profile, _ = UserProfile.objects.get_or_create(user=user)
-    if phone:
-        profile.phone = phone
-    if address:
-        profile.address = address
-    profile.save()
-
+    user  = serializer.save()
     token, _ = Token.objects.get_or_create(user=user)
+
     return Response({
         "token":       token.key,
         "user_id":     user.id,
@@ -196,54 +178,123 @@ def api_register(request):
         "is_homecook": False,
     }, status=201)
 
+
 # ─────────────────────────────────────────────
-#  MENU
+#  MENU  –  FULL CRUD
 # ─────────────────────────────────────────────
 
-@api_view(["GET"])
-@permission_classes([AllowAny])
+@api_view(["GET", "POST"])
+@permission_classes([AllowAny])          # GET open; POST restricted in body
+@parser_classes([MultiPartParser, FormParser, JSONParser])
 def api_menu_list(request):
     """
-    GET /api/menu/
-    Optional query params:
-      ?cuisine=mauritian
-      ?search=chicken
-    Returns paginated list of menu items.
+    GET  /api/menu/   – list all menu items (supports ?cuisine= and ?search=).
+                        Publicly accessible.
+
+    POST /api/menu/   – create a new menu item.
+                        Requires authentication AND a HomeCook profile.
+                        Accepts multipart/form-data (with image file) or JSON.
+
+    This endpoint demonstrates both JSON consumption (reading the list) and
+    JSON production (serializing the newly created item back to the caller).
+    jQuery on the addmenu page calls this via $.ajax().
     """
-    qs = MenuItem.objects.all()
+    if request.method == "GET":
+        qs = MenuItem.objects.all()
 
-    cuisine = request.query_params.get("cuisine")
-    if cuisine:
-        qs = qs.filter(cuisine__iexact=cuisine)
+        cuisine = request.query_params.get("cuisine")
+        if cuisine:
+            qs = qs.filter(cuisine__iexact=cuisine)
 
-    search = request.query_params.get("search")
-    if search:
-        qs = qs.filter(name__icontains=search)
+        search = request.query_params.get("search")
+        if search:
+            qs = qs.filter(name__icontains=search)
 
-    return Response([_menu_item_to_dict(i) for i in qs])
+        serializer = MenuItemSerializer(qs, many=True, context={"request": request})
+        return Response(serializer.data)
+
+    # ── POST: create a new menu item ──────────────────────────────────────
+    # Enforce authentication + HomeCook restriction for write operations
+    if not request.user.is_authenticated:
+        return Response(
+            {"error": "Authentication required. Please log in."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    if not HomeCook.objects.filter(user=request.user).exists():
+        return Response(
+            {"error": "Only registered home cooks can add menu items."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    serializer = MenuItemSerializer(
+        data=request.data, context={"request": request}
+    )
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET"])
+@api_view(["GET", "PUT", "PATCH", "DELETE"])
 @permission_classes([AllowAny])
+@parser_classes([MultiPartParser, FormParser, JSONParser])
 def api_menu_detail(request, item_id):
-    """GET /api/menu/<id>/"""
-    try:
-        item = MenuItem.objects.get(pk=item_id)
-    except MenuItem.DoesNotExist:
-        return Response({"error": "Not found"}, status=404)
-    return Response(_menu_item_to_dict(item))
+    """
+    GET    /api/menu/<id>/  – retrieve a single menu item  (public)
+    PUT    /api/menu/<id>/  – full update                  (HomeCook only)
+    PATCH  /api/menu/<id>/  – partial update               (HomeCook only)
+    DELETE /api/menu/<id>/  – delete the item              (HomeCook only)
+
+    Together with api_menu_list, these four operations showcase full CRUD
+    via the REST API, all consumed by jQuery AJAX calls.
+    """
+    item = get_object_or_404(MenuItem, pk=item_id)
+
+    if request.method == "GET":
+        serializer = MenuItemSerializer(item, context={"request": request})
+        return Response(serializer.data)
+
+    # Write operations require authentication
+    if not request.user.is_authenticated:
+        return Response(
+            {"error": "Authentication required."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    if not HomeCook.objects.filter(user=request.user).exists():
+        return Response(
+            {"error": "Only registered home cooks can modify menu items."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    if request.method == "DELETE":
+        item.delete()
+        return Response(
+            {"detail": "Menu item deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
+    partial = (request.method == "PATCH")
+    serializer = MenuItemSerializer(
+        item, data=request.data, partial=partial,
+        context={"request": request},
+    )
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
 @require_GET
 def api_menu_nearby(request):
     """
-    Query params:
-        lat     float   user latitude          (required)
-        lng     float   user longitude         (required)
-        radius  float   search radius in km    (optional, default 20)
+    GET /api/menu/nearby/?lat=&lng=&radius=
+    Returns nearby home cooks + their menu items based on GPS distance.
+    No authentication required.
     """
-    # --- parse & validate query params -----------------------------------
     try:
         user_lat = float(request.GET["lat"])
         user_lng = float(request.GET["lng"])
@@ -252,104 +303,87 @@ def api_menu_nearby(request):
             {"error": "Missing or invalid 'lat' / 'lng' query parameters."},
             status=400,
         )
- 
+
     radius_km = float(request.GET.get("radius", 20))
- 
-    # --- fetch all HomeCooks that have coordinates -----------------------
+
     cooks_qs = HomeCook.objects.filter(
         latitude__isnull=False,
         longitude__isnull=False,
     ).select_related("user")
- 
-    if not cooks_qs.exists():
-        return JsonResponse(
-            {"error": "No home cooks with location data found."},
-            status=404,
-        )
- 
-    # --- compute distances & filter by radius ----------------------------
-    cooks_with_distance = []
-    for cook in cooks_qs:
-        dist = _haversine(user_lat, user_lng, cook.latitude, cook.longitude)
-        if dist <= radius_km:
-            cooks_with_distance.append((cook, dist))
- 
-    # Sort nearest first
+
+    cooks_with_distance = [
+        (cook, _haversine(user_lat, user_lng, cook.latitude, cook.longitude))
+        for cook in cooks_qs
+    ]
+    cooks_with_distance = [
+        (c, d) for c, d in cooks_with_distance if d <= radius_km
+    ]
     cooks_with_distance.sort(key=lambda x: x[1])
- 
+
     if not cooks_with_distance:
         return JsonResponse(
-            {
-                "error": f"No home cooks found within {radius_km} km of your location.",
-                "user_location": {"lat": user_lat, "lng": user_lng},
-            },
+            {"error": f"No home cooks found within {radius_km} km."},
             status=404,
         )
- 
-    # --- build response --------------------------------------------------
-    nearest_cook, nearest_dist = cooks_with_distance[0]
-    suggested_cuisine = nearest_cook.cuisine
- 
-    nearest_cooks_data = []
+
+    nearest_cook = cooks_with_distance[0][0]
+
+    result = []
     for cook, dist in cooks_with_distance:
-        # Profile picture URL
         profile_pic = None
         if cook.profile_picture:
             profile_pic = request.build_absolute_uri(cook.profile_picture.url)
- 
-        nearest_cooks_data.append({
-            "id":           cook.id,
-            "name":         f"{cook.name} {cook.surname}",
-            "cuisine":      cook.cuisine,
-            "cuisine_label": cook.get_cuisine_display(),
-            "cuisine_emoji": CUISINE_EMOJI.get(cook.cuisine, "🍽️"),
-            "distance_km":  round(dist, 2),
-            "address":      cook.address or "Mauritius",
-            "phone":        cook.phone or "",
-            "bio":          cook.bio or "",
+
+        result.append({
+            "id":             cook.id,
+            "name":           f"{cook.name} {cook.surname}",
+            "cuisine":        cook.cuisine,
+            "cuisine_label":  cook.get_cuisine_display(),
+            "cuisine_emoji":  CUISINE_EMOJI.get(cook.cuisine, "🍽️"),
+            "distance_km":    round(dist, 2),
+            "address":        cook.address or "Mauritius",
+            "phone":          cook.phone or "",
+            "bio":            cook.bio or "",
             "profile_picture": profile_pic,
-            "location": {
-                "lat": cook.latitude,
-                "lng": cook.longitude,
-            },
+            "location": {"lat": cook.latitude, "lng": cook.longitude},
         })
- 
+
     return JsonResponse({
-        "suggested_cuisine":  suggested_cuisine,
-        "suggested_emoji":    CUISINE_EMOJI.get(suggested_cuisine, "🍽️"),
-        "user_location":      {"lat": user_lat, "lng": user_lng},
-        "nearest_cooks":      nearest_cooks_data,
-        "radius_km":          radius_km,
-        "total_found":        len(nearest_cooks_data),
+        "suggested_cuisine": nearest_cook.cuisine,
+        "suggested_emoji":   CUISINE_EMOJI.get(nearest_cook.cuisine, "🍽️"),
+        "user_location":     {"lat": user_lat, "lng": user_lng},
+        "nearest_cooks":     result,
+        "radius_km":         radius_km,
+        "total_found":       len(result),
     })
 
-# ─────────────────────────────────────────────
-#  CART  (session-based, mirrors web app)
-# ─────────────────────────────────────────────
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def api_cart_view(request):
-    """GET /api/cart/  – returns current session cart with item details."""
-    cart = request.session.get("cart", {})
-    result = []
+    """GET /api/cart/ – returns the session cart with full item details as JSON."""
+    cart     = request.session.get("cart", {})
+    items    = []
     subtotal = 0.0
+
     for item_id_str, qty in cart.items():
         try:
             item = MenuItem.objects.get(pk=int(item_id_str))
-            line = float(item.price) * int(qty)
+            line  = float(item.price) * int(qty)
             subtotal += line
-            result.append({
-                "item_id": item.id,
-                "name": item.name,
-                "price": float(item.price),
-                "quantity": int(qty),
+            items.append({
+                "item_id":   item.id,
+                "name":      item.name,
+                "price":     float(item.price),
+                "quantity":  int(qty),
                 "line_total": line,
                 "image_url": item.display_image_url,
             })
         except MenuItem.DoesNotExist:
             pass
-    return Response({"items": result, "subtotal": subtotal, "count": len(result)})
+
+    return Response({"items": items, "subtotal": subtotal, "count": len(items)})
 
 
 @api_view(["POST"])
@@ -358,19 +392,19 @@ def api_cart_add(request):
     """
     POST /api/cart/add/
     Body: { "item_id": 3, "quantity": 1 }
+    Called via jQuery $.ajax() – demonstrates JSON consumption on the client side.
     """
-    item_id = request.data.get("item_id")
+    item_id  = request.data.get("item_id")
     quantity = int(request.data.get("quantity", 1))
-    try:
-        MenuItem.objects.get(pk=item_id)
-    except MenuItem.DoesNotExist:
+
+    if not MenuItem.objects.filter(pk=item_id).exists():
         return Response({"error": "Item not found"}, status=404)
 
-    cart = request.session.get("cart", {})
-    key = str(item_id)
+    cart     = request.session.get("cart", {})
+    key      = str(item_id)
     cart[key] = int(cart.get(key, 0)) + quantity
-    request.session["cart"] = cart
-    request.session.modified = True
+    request.session["cart"]    = cart
+    request.session.modified   = True
 
     return Response({"success": True, "cart_count": sum(cart.values())})
 
@@ -383,34 +417,31 @@ def api_cart_remove(request):
     Body: { "item_id": 3 }
     """
     item_id = str(request.data.get("item_id", ""))
-    cart = request.session.get("cart", {})
+    cart    = request.session.get("cart", {})
     cart.pop(item_id, None)
-    request.session["cart"] = cart
+    request.session["cart"]  = cart
     request.session.modified = True
     return Response({"success": True, "cart_count": sum(cart.values())})
 
 
-# ─────────────────────────────────────────────
-#  ORDERS
-# ─────────────────────────────────────────────
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def api_place_order(request):
     """
     POST /api/orders/place/
-    Body: { "client_name": "...", "delivery_lat": 0.0, "delivery_lng": 0.0 }
-
-    Converts the session cart into a real Order.
-    delivery_lat / delivery_lng are stored for driver routing (sensor data).
+    Converts the current session cart into a persisted Order.
+    Requires authentication (token or session).
     """
     cart = request.session.get("cart", {})
     if not cart:
         return Response({"error": "Cart is empty"}, status=400)
 
-    client_name = request.data.get("client_name", request.user.get_full_name() or request.user.username)
+    client_name = request.data.get(
+        "client_name",
+        request.user.get_full_name() or request.user.username,
+    )
 
-    # Create order items
     order_items = []
     for item_id_str, qty in cart.items():
         try:
@@ -425,7 +456,7 @@ def api_place_order(request):
             pass
 
     if not order_items:
-        return Response({"error": "No valid items"}, status=400)
+        return Response({"error": "No valid items in cart"}, status=400)
 
     order = Order.objects.create(
         client_name=client_name,
@@ -434,100 +465,99 @@ def api_place_order(request):
     order.items.set(order_items)
     order.save()
 
-    # Clear cart
-    request.session["cart"] = {}
+    # Clear the session cart after placing
+    request.session["cart"]  = {}
     request.session.modified = True
 
-    return Response({"success": True, "order_id": order.id, "status": order.status}, status=201)
+    serializer = OrderSerializer(order)
+    return Response(serializer.data, status=201)
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def api_order_list(request):
-    """GET /api/orders/ – list all orders for the authenticated user."""
-    orders = Order.objects.filter(user=request.user).prefetch_related("items__menu_item").order_by("-created_at")
-    return Response([_order_to_dict(o) for o in orders])
+    """GET /api/orders/ – all orders belonging to the authenticated user."""
+    orders = (
+        Order.objects
+        .filter(user=request.user)
+        .prefetch_related("items__menu_item")
+        .order_by("-created_at")
+    )
+    serializer = OrderSerializer(orders, many=True)
+    return Response(serializer.data)
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def api_order_status(request, order_id):
-    """GET /api/orders/<id>/status/ – lightweight status poll for live tracking."""
-    try:
-        order = Order.objects.get(pk=order_id, user=request.user)
-    except Order.DoesNotExist:
-        return Response({"error": "Not found"}, status=404)
+    """GET /api/orders/<id>/status/ – lightweight status poll (e.g. for live tracking)."""
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
     return Response({
-        "order_id": order.id,
-        "status": order.status,
+        "order_id":    order.id,
+        "status":      order.status,
         "human_status": order.human_readable_status,
     })
 
 
-# ─────────────────────────────────────────────
-#  HOME COOKS
-# ─────────────────────────────────────────────
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def api_cooks_list(request):
-    """GET /api/cooks/  – list all registered home cooks."""
+    """GET /api/cooks/ – list all registered home cooks."""
     cooks = HomeCook.objects.all()
-    return Response([_cook_to_dict(c) for c in cooks])
+    serializer = HomeCookSerializer(cooks, many=True, context={"request": request})
+    return Response(serializer.data)
 
 
-# ─────────────────────────────────────────────
-#  REVIEWS
-# ─────────────────────────────────────────────
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def api_reviews_list(request):
-    """GET /api/reviews/"""
-    reviews = Review.objects.order_by("-id")
-    return Response([_review_to_dict(r) for r in reviews])
+    """GET /api/reviews/ – public list of all reviews."""
+    reviews    = Review.objects.order_by("-id")
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def api_reviews_create(request):
     """
-    POST /api/reviews/
-    Body: { "rating": 5, "message": "..." }
-    Requires the user to have at least one delivered order (mirrors web logic).
+    POST /api/reviews/create/
+    Body: { "rating": 5, "message": "Great food!" }
+
+    Restriction: the user must have at least one fully-delivered order.
+    This mirrors the web-app review logic.
     """
     user = request.user
-    delivered_count = 0
-    for order in Order.objects.filter(user=user):
-        statuses = set(order.items.values_list("status", flat=True))
-        if statuses == {OrderItem.Status.DELIVERED}:
-            delivered_count += 1
 
-    if delivered_count < 1:
+
+    has_delivered = any(
+        set(order.items.values_list("status", flat=True)) == {OrderItem.Status.DELIVERED}
+        for order in Order.objects.filter(user=user).prefetch_related("items")
+    )
+
+    if not has_delivered:
         return Response(
-            {"error": "You need at least one delivered order to post a review."},
-            status=403
+            {"error": "You need at least one fully-delivered order to post a review."},
+            status=status.HTTP_403_FORBIDDEN,
         )
 
-    rating = request.data.get("rating")
-    message = request.data.get("message", "").strip()
+    serializer = ReviewSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(
+            first_name=user.first_name or user.username,
+            last_name=user.last_name  or "",
+            email=user.email,
+        )
+        return Response(serializer.data, status=201)
 
-    if not rating or not message:
-        return Response({"error": "rating and message are required"}, status=400)
-
-    review = Review.objects.create(
-        first_name=user.first_name or user.username,
-        last_name=user.last_name or "",
-        email=user.email,
-        rating=int(rating),
-        message=message,
-    )
-    return Response(_review_to_dict(review), status=201)
+    return Response(serializer.errors, status=400)
 
 
-# ─────────────────────────────────────────────
-#  LOCATION UPDATE  (sensor data endpoint)
-# ─────────────────────────────────────────────
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -536,70 +566,57 @@ def api_location_update(request):
     POST /api/location/update/
     Body: { "lat": -20.162, "lng": 57.499, "role": "cook" | "customer" }
 
-    Receives GPS coordinates from the mobile device.
-    - For cooks: updates their live location so customers can track delivery.
-    - For customers: records delivery pin for the current active order.
-
-    NOTE: You need to add a CookLocation model (or lat/lng fields on HomeCook)
-    to persist this. The endpoint is wired and ready — just add the model.
+    For cooks: persists their live GPS to HomeCook.latitude / longitude
+               so the nearby endpoint returns fresh results.
     """
-    lat = request.data.get("lat")
-    lng = request.data.get("lng")
+    lat  = request.data.get("lat")
+    lng  = request.data.get("lng")
     role = request.data.get("role", "customer")
 
     if lat is None or lng is None:
-        return Response({"error": "lat and lng required"}, status=400)
+        return Response({"error": "lat and lng are required"}, status=400)
 
-    # TODO: persist to HomeCook.latitude / HomeCook.longitude or a
-    # dedicated LiveLocation model for real-time delivery tracking.
-    # Example:
-    #   if role == "cook":
-    #       cook = request.user.homecook
-    #       cook.latitude = lat
-    #       cook.longitude = lng
-    #       cook.save(update_fields=["latitude", "longitude"])
+    if role == "cook":
+        try:
+            cook = request.user.homecook
+            cook.latitude  = float(lat)
+            cook.longitude = float(lng)
+            cook.save(update_fields=["latitude", "longitude"])
+        except HomeCook.DoesNotExist:
+            return Response({"error": "No HomeCook profile for this user."}, status=403)
 
     return Response({
         "received": True,
-        "lat": lat,
-        "lng": lng,
-        "role": role,
-        "message": "Location noted. Add lat/lng fields to HomeCook to persist.",
+        "lat":      lat,
+        "lng":      lng,
+        "role":     role,
     })
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  HOMECOOK DASHBOARD API  (used by the mobile Cook screen)
-# ─────────────────────────────────────────────────────────────────────────────
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsHomeCook])
 def api_homecook_items(request):
     """
     GET /api/homecook/items/
-    Returns available (PENDING) orders for this cook's cuisine,
-    and orders already accepted/delivering by this cook.
-    Mirrors what the homecook_log view does on the website.
+    Returns pending orders the cook can accept, plus orders already in progress.
     """
-    try:
-        cook = request.user.homecook
-    except HomeCook.DoesNotExist:
-        return Response({"error": "You do not have a HomeCook profile."}, status=403)
+    cook = request.user.homecook
 
     available = (
         OrderItem.objects
         .select_related("menu_item")
-        .filter(menu_item__cuisine=cook.cuisine,
-                status=OrderItem.Status.PENDING)
+        .filter(menu_item__cuisine=cook.cuisine, status=OrderItem.Status.PENDING)
         .order_by("created_at")
     )
 
     my_items = (
         OrderItem.objects
         .select_related("menu_item")
-        .filter(prepared_by=cook,
-                status__in=[OrderItem.Status.ACCEPTED,
-                            OrderItem.Status.DELIVERING])
+        .filter(
+            prepared_by=cook,
+            status__in=[OrderItem.Status.ACCEPTED, OrderItem.Status.DELIVERING],
+        )
         .order_by("created_at")
     )
 
@@ -613,28 +630,20 @@ def api_homecook_items(request):
             "order_id": order.id if order else None,
         }
 
+    cook_data = HomeCookSerializer(cook, context={"request": request}).data
     return Response({
-        "cook":      _cook_to_dict(cook),
+        "cook":      cook_data,
         "available": [_item_dict(i) for i in available],
         "my_items":  [_item_dict(i) for i in my_items],
     })
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsHomeCook])
 def api_accept_item(request, item_id):
     """POST /api/homecook/accept/<item_id>/"""
-    try:
-        cook = request.user.homecook
-    except HomeCook.DoesNotExist:
-        return Response({"error": "No HomeCook profile."}, status=403)
-
-    try:
-        item = OrderItem.objects.get(pk=item_id,
-                                     status=OrderItem.Status.PENDING)
-    except OrderItem.DoesNotExist:
-        return Response({"error": "Item not found or already taken."}, status=404)
-
+    cook = request.user.homecook
+    item = get_object_or_404(OrderItem, pk=item_id, status=OrderItem.Status.PENDING)
     item.status      = OrderItem.Status.ACCEPTED
     item.prepared_by = cook
     item.save()
@@ -642,32 +651,28 @@ def api_accept_item(request, item_id):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsHomeCook])
 def api_mark_ready(request, item_id):
     """POST /api/homecook/ready/<item_id>/"""
-    try:
-        cook = request.user.homecook
-    except HomeCook.DoesNotExist:
-        return Response({"error": "No HomeCook profile."}, status=403)
-
-    item = get_object_or_404(OrderItem, pk=item_id, prepared_by=cook,
-                             status=OrderItem.Status.ACCEPTED)
+    cook = request.user.homecook
+    item = get_object_or_404(
+        OrderItem, pk=item_id,
+        prepared_by=cook, status=OrderItem.Status.ACCEPTED,
+    )
     item.status = OrderItem.Status.DELIVERING
     item.save()
     return Response({"success": True, "status": item.status})
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsHomeCook])
 def api_mark_delivered(request, item_id):
     """POST /api/homecook/delivered/<item_id>/"""
-    try:
-        cook = request.user.homecook
-    except HomeCook.DoesNotExist:
-        return Response({"error": "No HomeCook profile."}, status=403)
-
-    item = get_object_or_404(OrderItem, pk=item_id, prepared_by=cook,
-                             status=OrderItem.Status.DELIVERING)
+    cook = request.user.homecook
+    item = get_object_or_404(
+        OrderItem, pk=item_id,
+        prepared_by=cook, status=OrderItem.Status.DELIVERING,
+    )
     item.status = OrderItem.Status.DELIVERED
     item.save()
     return Response({"success": True, "status": item.status})
