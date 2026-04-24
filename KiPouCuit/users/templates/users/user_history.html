@@ -135,38 +135,31 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const initialMessage = document.getElementById('initial-message');
-    const tabContents = document.querySelectorAll('.tab-content');
+$(document).ready(function () {
 
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
+    $('.tab-button').on('click', function (e) {
+        e.preventDefault();
 
-            const tabName = this.getAttribute('data-tab');
+        const tabName = $(this).data('tab');
 
-            // Hide initial message
-            initialMessage.style.display = 'none';
+        // Hide initial message
+        $('#initial-message').hide();
 
-            // Hide all tab contents
-            tabContents.forEach(tab => {
-                tab.style.display = 'none';
-            });
+        // Hide all tab contents
+        $('.tab-content').hide();
 
-            // Remove active class from all buttons
-            tabButtons.forEach(btn => {
-                btn.classList.remove('active');
-            });
+        // Remove active class from all buttons
+        $('.tab-button').removeClass('active');
 
-            // Show the selected tab
-            document.getElementById(tabName + '-content').style.display = 'block';
+        // Show the selected tab
+        $('#' + tabName + '-content').show();
 
-            // Activate the clicked button
-            this.classList.add('active');
-        });
+        // Activate the clicked button
+        $(this).addClass('active');
     });
+
 });
 </script>
 {% endblock %}
