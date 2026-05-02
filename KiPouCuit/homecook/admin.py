@@ -1,7 +1,6 @@
 from django.contrib import admin
 from .models import HomeCook
 
-# Register your models here.
 
 @admin.register(HomeCook)
 class HomeCookAdmin(admin.ModelAdmin):

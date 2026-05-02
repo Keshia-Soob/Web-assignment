@@ -151,7 +151,6 @@
     box-shadow: 0 6px 20px rgba(255, 140, 0, 0.3);
 }
 
-/*  Responsive */
 
 @media (max-width: 768px) {
     .onboarding-container {

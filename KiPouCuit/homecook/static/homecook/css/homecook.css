@@ -1,4 +1,4 @@
-/* Main Content Styles */
+
 .main-content {
     padding: 60px 0;
 }
@@ -68,7 +68,6 @@
     content: none;
 }
 
-/* Form Styles */
 
 .center{
     max-width: 1200px;
@@ -125,7 +124,6 @@ textarea {
     background-color: #d35400;
 }
 
-/* Profile Picture Styles */
 .profile-img-container {
     position: relative;
     width: 150px;
@@ -170,7 +168,6 @@ textarea {
     display: none;
 }
 
-/* About Section Styles */
 .about-content {
     color: #666;
     line-height: 1.8;
