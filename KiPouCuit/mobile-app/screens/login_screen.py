@@ -1,6 +1,5 @@
 import flet as ft
 
-# ── Colour palette ────────────────────────────────────────────
 ORANGE     = "#E65100"
 BG         = "#FFFFFF"   # white background
 CARD_BG    = "#F7F7F7"   # very light grey card
@@ -12,7 +11,6 @@ ERROR_RED  = "#EF5350"
 
 def LoginScreen(page, api, auth, go_menu):
 
-    # ── Fields ────────────────────────────────────────────────
     email = ft.TextField(
         label="Email address",
         hint_text="you@example.com",
@@ -66,7 +64,6 @@ def LoginScreen(page, api, auth, go_menu):
         on_click=lambda e: do_login(e),
     )
 
-    # ── Handlers ──────────────────────────────────────────────
     def _set_loading(on: bool):
         login_btn.disabled = on
         loading.visible    = on
@@ -105,7 +102,6 @@ def LoginScreen(page, api, auth, go_menu):
     def go_register(e):
         page.go("/register")
 
-    # ── Branding header ───────────────────────────────────────
     header = ft.Column(
         [
             ft.Container(
@@ -122,7 +118,6 @@ def LoginScreen(page, api, auth, go_menu):
         spacing=2,
     )
 
-    # ── Card ──────────────────────────────────────────────────
     card = ft.Container(
         width=360,
         padding=ft.Padding(left=28, right=28, top=32, bottom=28),
@@ -190,8 +185,6 @@ def LoginScreen(page, api, auth, go_menu):
         ),
     )
 
-    # ── Full screen view ──────────────────────────────────────
-    # ft.Alignment(0, 0) = dead centre: x=0 (horizontal), y=0 (vertical)
     return ft.View(
         route="/login",
         bgcolor=BG,

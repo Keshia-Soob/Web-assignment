@@ -1,6 +1,5 @@
 import flet as ft
 
-# ── Colour palette (matches login screen exactly) ─────────────
 ORANGE     = "#E65100"
 BG         = "#FFFFFF"
 CARD_BG    = "#F7F7F7"
@@ -12,7 +11,6 @@ ERROR_RED  = "#EF5350"
 
 def RegisterScreen(page, api, auth, go_menu):
 
-    # ── Fields ────────────────────────────────────────────────
     def _field(label, hint, icon, keyboard=ft.KeyboardType.TEXT,
                password=False):
         return ft.TextField(
@@ -62,8 +60,7 @@ def RegisterScreen(page, api, auth, go_menu):
         width=305,
         on_click=lambda e: do_register(e),
     )
-
-    # ── Handlers ──────────────────────────────────────────────
+    
     def _set_loading(on: bool):
         register_btn.disabled = on
         loading.visible       = on
@@ -83,7 +80,6 @@ def RegisterScreen(page, api, auth, go_menu):
         _clear_errors()
         status.visible = False
 
-        # Required field validation
         required = {
             "First name is required": first_name,
             "Last name is required":  last_name,
@@ -129,7 +125,6 @@ def RegisterScreen(page, api, auth, go_menu):
     def go_login(e):
         page.go("/login")
 
-    # ── Branding header ───────────────────────────────────────
     header = ft.Column(
         [
             ft.Container(
@@ -146,7 +141,6 @@ def RegisterScreen(page, api, auth, go_menu):
         spacing=2,
     )
 
-    # ── Card ──────────────────────────────────────────────────
     card = ft.Container(
         width=360,
         padding=ft.Padding(left=28, right=28, top=32, bottom=28),
@@ -228,7 +222,6 @@ def RegisterScreen(page, api, auth, go_menu):
         ),
     )
 
-    # ── Full screen view ──────────────────────────────────────
     return ft.View(
         route="/register",
         bgcolor=BG,

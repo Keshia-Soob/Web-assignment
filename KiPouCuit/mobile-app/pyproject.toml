@@ -18,18 +18,14 @@ company = "KiPouCuit"
 copyright = "Copyright (C) 2026 KiPouCuit"
 permissions = ["location"]
 
-# -----------------------------
-# ANDROID PERMISSIONS
-# -----------------------------
+
 [tool.flet.android.permission]
 "android.permission.ACCESS_FINE_LOCATION" = true
 "android.permission.ACCESS_COARSE_LOCATION" = true
 "android.permission.ACCESS_BACKGROUND_LOCATION" = true
 "android.permission.FOREGROUND_SERVICE_LOCATION" = true
  
-# -----------------------------
-# iOS PERMISSIONS
-# -----------------------------
+
 [tool.flet.ios.info]
 NSLocationWhenInUseUsageDescription = "KiPouCuit uses your location to show nearby home cooks."
 NSLocationAlwaysAndWhenInUseUsageDescription = "KiPouCuit uses your location for live tracking of nearby home cooks."

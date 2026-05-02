@@ -1,5 +1,3 @@
-# services/api_client.py
-
 import requests
 
 BASE_URL = "http://127.0.0.1:8000/api"
@@ -18,7 +16,6 @@ class ApiClient:
             h["Authorization"] = f"Token {self.token}"
         return h
 
-    # SAFE GET
     def _get(self, path, params=None):
         try:
             r = self._session.get(
@@ -36,7 +33,6 @@ class ApiClient:
         except Exception as e:
             return {"error": str(e)}, 0
 
-    # SAFE POST
     def _post(self, path, data=None):
         try:
             r = self._session.post(
@@ -54,7 +50,6 @@ class ApiClient:
         except Exception as e:
             return {"error": str(e)}, 0
 
-    # AUTH
     def login(self, username, password):
         print("LOGIN REQUEST SENT")
         print("USERNAME:", username)
@@ -80,7 +75,7 @@ class ApiClient:
         self.username = None
         self.is_homecook = False
 
-    # MENU
+
     def get_menu(self, cuisine=None, search=None):
         p = {}
         if cuisine:
@@ -96,7 +91,7 @@ class ApiClient:
             "radius_km": radius_km
         })
 
-    # CART
+
     def get_cart(self):
         return self._get("/cart/")
 
@@ -109,7 +104,7 @@ class ApiClient:
     def remove_from_cart(self, iid):
         return self._post("/cart/remove/", {"item_id": iid})
 
-    # ORDERS
+
     def place_order(self, name, lat=None, lng=None):
         return self._post("/orders/place/", {
             "client_name": name,
@@ -120,7 +115,6 @@ class ApiClient:
     def get_orders(self):
         return self._get("/orders/")
 
-    # REVIEWS
     def get_reviews(self):
         return self._get("/reviews/")
 
@@ -130,11 +124,10 @@ class ApiClient:
             "message": message
         })
 
-    # PROFILE
+
     def get_homecook_dashboard(self):
         return self._get("/homecook/items/")
 
-    # LOCATION
     def send_location(self, lat, lng, role="customer"):
         return self._post("/location/update/", {
             "lat": lat,

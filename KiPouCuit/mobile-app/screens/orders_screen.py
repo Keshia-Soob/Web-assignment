@@ -15,7 +15,6 @@ def create_orders_view(page: ft.Page, api, snack) -> ft.View:
 
     body = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=0)
 
-    # ── payment fields — defined once so values persist ───────────────────────
     f_name   = ft.TextField(
         label="Name on card",
         prefix_icon=ft.Icons.PERSON_OUTLINE,
@@ -212,7 +211,6 @@ def create_orders_view(page: ft.Page, api, snack) -> ft.View:
 
             threading.Thread(target=_do, daemon=True).start()
 
-        # Order summary section
         body.controls.append(
             _section("Order Summary", ft.Icons.RECEIPT_LONG, [
                 *[
@@ -241,7 +239,7 @@ def create_orders_view(page: ft.Page, api, snack) -> ft.View:
             ])
         )
 
-        # Payment section
+
         body.controls.append(
             _section("Payment", ft.Icons.LOCK_OUTLINE, [
                 ft.Row([
@@ -255,7 +253,7 @@ def create_orders_view(page: ft.Page, api, snack) -> ft.View:
             ])
         )
 
-        # Place order button
+
         body.controls.append(
             ft.Container(
                 content=ft.ElevatedButton(
