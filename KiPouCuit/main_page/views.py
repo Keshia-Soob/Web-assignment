@@ -5,9 +5,8 @@ from reviews.models import Review
 from django.contrib.auth.models import User
 from meals.models import MenuItem  
 
-# Home Page
 def home(request):
-    # Get one random meal from each cuisine for best sellers
+   
     best_sellers = []
     cuisines = ['indian', 'mauritian', 'english', 'french', 'asian']
     
@@ -20,18 +19,17 @@ def home(request):
         'best_sellers': best_sellers
     })
 
-# About Page with dynamic testimonials
+
 def about(request):
-    # Get the 3 latest reviews (newest first)
+
     raw_reviews = Review.objects.order_by('-created_at')[:3]
 
-    # Attach a profile photo URL when a matching user exists (by email)
     reviews_with_photos = []
     for r in raw_reviews:
         photo_url = None
         try:
             user = User.objects.get(email=r.email)
-            # Ensure user has a profile and a photo
+            o
             if hasattr(user, 'userprofile') and user.userprofile.photo:
                 try:
                     photo_url = user.userprofile.photo.url
@@ -44,7 +42,7 @@ def about(request):
 
     return render(request, 'main_page/about.html', {'latest_reviews': reviews_with_photos})
 
-# Contact Page
+
 def contact(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -58,6 +56,6 @@ def contact(request):
                 message=message_text
             )
             messages.success(request, "Your message has been sent successfully!")
-            return redirect('contact')  # prevents resubmission
+            return redirect('contact')  
 
     return render(request, 'main_page/contact.html')

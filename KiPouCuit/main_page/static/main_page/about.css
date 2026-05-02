@@ -1,4 +1,4 @@
-/* Base & reset */
+
 * {
     margin: 0;
     padding: 0;
@@ -12,7 +12,6 @@ body {
     min-width: 1200px; 
 }
 
-/* Container */
 .container {
     width: 1200px; 
     margin: 0 auto;
@@ -23,7 +22,6 @@ body {
     padding: 0;
 }
 
-/* Labels */
 .label {
     display: block;
     font-size: 13px;
@@ -33,7 +31,6 @@ body {
     margin-bottom: 15px;
 }
 
-/* Buttons */
 .btn {
     display: inline-block;
     background: #e67e22;
@@ -69,7 +66,6 @@ body {
     color: white;
 }
 
-/* HERO */
 .about-hero {
     padding: 80px 0;
     background: #fff;
@@ -113,7 +109,6 @@ body {
     display: block;
 }
 
-/* FEATURES */
 .features {
     padding: 80px 0;
     background: #f9f9f9;
@@ -165,7 +160,6 @@ body {
     line-height: 1.6;
 }
 
-/* CHEF/DELIVERY */
 .chef-delivery {
     padding: 80px 0;
     background: #fff;
@@ -228,7 +222,6 @@ body {
     font-weight: 500;
 }
 
-/* TESTIMONIAL */
 .testimonial {
     padding: 60px 0;
     background: #f9f9f9;
@@ -393,7 +386,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* APP DOWNLOAD */
 .app-download {
     padding: 80px 0;
     background: #fff;
@@ -474,7 +466,6 @@ body {
     object-fit: contain;
 }
 
-/* RESPONSIVE */
 
 @media (max-width: 1240px) {
     body {
@@ -492,7 +483,6 @@ body {
     }
 }
 
-/* Tablets */
 @media (max-width: 968px) {
     .about-hero .container,
     .chef-delivery-container,
@@ -523,7 +513,6 @@ body {
     }
 }
 
-/* Tablet portrait */
 @media (max-width: 768px) {
     .container {
         padding: 0 15px;
@@ -583,7 +572,6 @@ body {
     }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
     .container {
         padding: 0 12px;
@@ -634,7 +622,7 @@ body {
     }
 
     .slider-wrapper {
-        width: calc(100% - 90px); /* Account for arrow space */
+        width: calc(100% - 90px); 
         max-width: calc(100% - 90px);
         margin: 0 auto;
     }
@@ -708,13 +696,12 @@ body {
     }
 }
 
-/* SWIPE */
 .slider-wrapper {
-    touch-action: pan-y; /* Allow vertical scrolling but capture horizontal swipes */
-    user-select: none; /* Prevent text selection during swipe */
+    touch-action: pan-y; 
+    user-select: none; 
     -webkit-user-drag: none;
 }
 
 .testimonial-card {
-    pointer-events: auto; /* Allow interaction with card content */
+    pointer-events: auto; 
 }

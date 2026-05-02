@@ -1,6 +1,5 @@
 from django.db import models
 '''lp[okhuvgf] '''
-# Create your models here.
 
 class ContactMessage(models.Model):
     name = models.CharField(max_length=100)
