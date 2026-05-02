@@ -1,12 +1,3 @@
-"""
-KiPouCuit – DRF Serializers
-============================
-Provides serializers for all major models so the REST API can
-produce and consume proper JSON.  These serializers are used by
-both the token-authenticated Flet mobile app and jQuery AJAX calls
-in the browser templates.
-"""
-
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
@@ -18,7 +9,6 @@ from homecook.models import HomeCook
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    """Used by POST /api/auth/register/"""
     phone   = serializers.CharField(required=False, allow_blank=True)
     address = serializers.CharField(required=False, allow_blank=True)
     password = serializers.CharField(write_only=True, min_length=8)
@@ -66,10 +56,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
-    """
-    Read  : returns display_image_url so the client always gets a usable URL.
-    Write : accepts `image` (file upload) or `image_url` (URL string).
-    """
     display_image_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:

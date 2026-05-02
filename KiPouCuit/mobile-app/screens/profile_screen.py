@@ -1,4 +1,3 @@
-# screens/profile_screen.py
 import flet as ft
 import threading
 
@@ -7,7 +6,7 @@ from components.shared import app_bar, bottom_nav, ORANGE, CUISINE_EMOJI, spinne
 
 def create_profile_view(page: ft.Page, api, auth) -> ft.View:
 
-    # Wrapper switches between a centred spinner and the scrollable profile content
+
     wrapper = ft.Container(expand=True, alignment=ft.Alignment(0, 0), content=spinner())
 
     def logout(e):
@@ -44,10 +43,7 @@ def create_profile_view(page: ft.Page, api, auth) -> ft.View:
         bgcolor=ft.Colors.GREY_50,
         controls=[wrapper],
     )
-
-
-# ── CUSTOMER LAYOUT ────────────────────────────────────────────────────────────
-
+    
 def _customer_controls(username, total_orders, delivered, logout):
     return [
         # Avatar
@@ -75,7 +71,6 @@ def _customer_controls(username, total_orders, delivered, logout):
             ),
         ),
 
-        # Stats
         ft.Container(
             padding=ft.padding.symmetric(horizontal=16, vertical=4),
             content=ft.Row(
@@ -88,7 +83,6 @@ def _customer_controls(username, total_orders, delivered, logout):
             ),
         ),
 
-        # Account Details
         _card(
             title="Account Details",
             controls=[
@@ -97,7 +91,7 @@ def _customer_controls(username, total_orders, delivered, logout):
             ],
         ),
 
-        # Quick Links
+
         _card(
             title="Quick Links",
             controls=[
@@ -109,12 +103,10 @@ def _customer_controls(username, total_orders, delivered, logout):
             ],
         ),
 
-        # Logout
+
         _logout_button(logout),
     ]
 
-
-# ── HOMECOOK LAYOUT ────────────────────────────────────────────────────────────
 
 def _homecook_controls(data, username, logout):
     cook = data.get("cook", {})
@@ -131,7 +123,6 @@ def _homecook_controls(data, username, logout):
     pending_orders = sum(1 for o in my_items if o.get("status") in ("pending", "accepted"))
 
     return [
-        # Avatar
         ft.Container(
             alignment=ft.Alignment(0, 0),
             padding=ft.padding.symmetric(vertical=28),
@@ -161,7 +152,7 @@ def _homecook_controls(data, username, logout):
             ),
         ),
 
-        # Stats
+   
         ft.Container(
             padding=ft.padding.symmetric(horizontal=16, vertical=4),
             content=ft.Row(
@@ -174,7 +165,6 @@ def _homecook_controls(data, username, logout):
             ),
         ),
 
-        # Cook Details
         _card(
             title="Cook Details",
             controls=[
@@ -189,7 +179,7 @@ def _homecook_controls(data, username, logout):
             ],
         ),
 
-        # Quick Links
+   
         _card(
             title="Manage",
             controls=[
@@ -199,12 +189,9 @@ def _homecook_controls(data, username, logout):
             ],
         ),
 
-        # Logout
+     
         _logout_button(logout),
     ]
-
-
-# ── SHARED HELPERS ─────────────────────────────────────────────────────────────
 
 def _card(title, controls):
     return ft.Container(

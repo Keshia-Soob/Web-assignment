@@ -1,16 +1,3 @@
-# screens/nearby_screen.py
-"""
-Nearby HomeCook screen — interactive map edition.
-
-Features:
-  • Real interactive map via flet_map (OpenStreetMap tiles, no API key needed)
-  • Live GPS via ft.Geolocator with async permission flow
-  • OSRM driving route drawn between user and selected cook
-  • Suggestion banner showing nearest cuisine type
-  • Scrollable cook cards below the map
-  • Tap a map marker → action bar appears (Get Directions / View Menu)
-"""
-
 import flet as ft
 import flet_map as fm
 import requests
@@ -22,23 +9,15 @@ from components.shared import (
 )
 from services.nearby_service import get_nearby
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CONFIG
-# ─────────────────────────────────────────────────────────────────────────────
 TILE_URL       = "https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}"
 DEFAULT_ZOOM   = 12
 DEFAULT_RADIUS = 50          # km
 
-# Mauritius centre – fallback when GPS unavailable
 FALLBACK_LAT = -20.2484
 FALLBACK_LNG =  57.4834
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# OSRM route helper  (free, no key needed)
-# ─────────────────────────────────────────────────────────────────────────────
 def _get_route(user_lat, user_lng, cook_lat, cook_lng):
-    """Returns a list of fm.MapLatitudeLongitude points for the driving route."""
     url = (
         f"http://router.project-osrm.org/route/v1/driving/"
         f"{user_lng},{user_lat};{cook_lng},{cook_lat}"
@@ -48,10 +27,6 @@ def _get_route(user_lat, user_lng, cook_lat, cook_lng):
     coords = res["routes"][0]["geometry"]["coordinates"]
     return [fm.MapLatitudeLongitude(lat, lng) for lng, lat in coords]
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Cook card (below the map)
-# ─────────────────────────────────────────────────────────────────────────────
 def _cook_card(cook: dict, is_nearest: bool, on_directions, on_menu) -> ft.Card:
     emoji   = cook.get("cuisine_emoji", "🍽️")
     cuisine = cook.get("cuisine_label", cook.get("cuisine", "")).capitalize()
@@ -139,25 +114,17 @@ def _cook_card(cook: dict, is_nearest: bool, on_directions, on_menu) -> ft.Card:
         ),
     )
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Main screen factory
-# ─────────────────────────────────────────────────────────────────────────────
 def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
 
-    # ── shared mutable state ──────────────────────────────────────────────────
     state = {
         "user_lat":  FALLBACK_LAT,
         "user_lng":  FALLBACK_LNG,
         "cooks":     [],
         "selected":  None,
-        "route":     [],      # list of fm.MapLatitudeLongitude
+        "route":     [],     
     }
 
-    # ── map container (content replaced on every render) ─────────────────────
     map_ref = ft.Container(expand=True, height=320)
-
-    # ── action bar (appears when a map marker is tapped) ─────────────────────
     action_name_text    = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
     action_cuisine_text = ft.Text("", size=12, color=ft.Colors.GREY_600)
 
@@ -191,10 +158,8 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
         ),
     )
 
-    # ── suggestion banner ─────────────────────────────────────────────────────
     suggestion_banner = ft.Container(visible=False, bgcolor=ft.Colors.TRANSPARENT)
 
-    # ── status text ───────────────────────────────────────────────────────────
     status_text = ft.Text(
         "Detecting your location…",
         size=13,
@@ -202,12 +167,8 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
         text_align="center",
     )
 
-    # ── cook cards column ─────────────────────────────────────────────────────
     cooks_column = ft.Column(spacing=0)
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Build & render the flet_map
-    # ─────────────────────────────────────────────────────────────────────────
     def _render_map():
         markers = []
 
@@ -238,7 +199,6 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
                 )
             )
 
-        # User marker
         markers.append(
             fm.Marker(
                 coordinates=fm.MapLatitudeLongitude(
@@ -261,7 +221,6 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
             fm.MarkerLayer(markers=markers),
         ]
 
-        # Route drawn as small dot markers along the path
         if state["route"]:
             route_markers = [
                 fm.Marker(
@@ -285,10 +244,6 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
             layers=layers,
         )
         page.update()
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Marker tap
-    # ─────────────────────────────────────────────────────────────────────────
     def _on_marker_tap(cook: dict):
         state["selected"] = cook
         state["route"]    = []
@@ -302,9 +257,6 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
         action_bar.visible = True
         _render_map()
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Get directions (OSRM)
-    # ─────────────────────────────────────────────────────────────────────────
     def _get_directions(cook: dict):
         if not cook:
             return
@@ -329,9 +281,6 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
 
         threading.Thread(target=_fetch_route, daemon=True).start()
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Fetch nearby cooks from Django
-    # ─────────────────────────────────────────────────────────────────────────
     def _fetch():
         lat = state["user_lat"]
         lng = state["user_lng"]
@@ -377,8 +326,6 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
             f"📍 ({lat:.4f}, {lng:.4f})  •  "
             f"{data.get('total_found', 0)} cooks within {DEFAULT_RADIUS} km"
         )
-
-        # Suggestion banner
         if cuisine:
             suggestion_banner.visible = True
             suggestion_banner.content = ft.Container(
@@ -402,7 +349,7 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
                 ], spacing=4),
             )
 
-        # Render map with all markers
+
         _render_map()
 
         # Cook cards
@@ -439,11 +386,6 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
 
         page.update()
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # GPS via flet-geolocator
-    # overlay.append only on mobile — on desktop it renders as a red column.
-    # The Geolocator object itself works on desktop without being in overlay.
-    # ─────────────────────────────────────────────────────────────────────────
     _gl = None
     _is_mobile = page.platform in (
         ft.PagePlatform.ANDROID,
@@ -507,15 +449,10 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
 
     page.run_task(_init_gps)
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Refresh FAB
-    # ─────────────────────────────────────────────────────────────────────────
     def _on_refresh(e):
         page.run_task(_init_gps)
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Layout
-    # ─────────────────────────────────────────────────────────────────────────
+
     body = ft.Column(
         scroll="auto",
         expand=True,
@@ -535,7 +472,6 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
                 height=320,
                 clip_behavior="hardEdge",
             ),
-            # Legend
             ft.Container(
                 content=ft.Row([
                     ft.Container(width=12, height=12,
@@ -550,7 +486,7 @@ def create_nearby_view(page: ft.Page, api, snack) -> ft.View:
                 ], spacing=6),
                 padding=ft.Padding.symmetric(horizontal=18, vertical=2),
             ),
-            # Action bar (tap a marker to reveal)
+
             action_bar,
             ft.Container(
                 content=ft.Text("Nearby Home Cooks", size=16,

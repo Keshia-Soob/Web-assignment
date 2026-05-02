@@ -53,7 +53,6 @@ def err_banner(msg):
 
 
 def item_card(item, on_add):
-    """Menu item card — mirrors the website"""
     emoji = CUISINE_EMOJI.get(item.get("cuisine", ""), "🍽️")
     return ft.Card(
         content=ft.Container(

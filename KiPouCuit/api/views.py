@@ -1,49 +1,3 @@
-"""
-KiPouCuit REST API Views
-========================
-Endpoints:
-
-  AUTH
-    POST /api/auth/login/              – obtain token (AllowAny)
-    POST /api/auth/logout/             – delete token  (IsAuthenticated)
-    POST /api/auth/register/           – create account (AllowAny)
-
-  MENU  (full CRUD – showcases all four operations)
-    GET    /api/menu/                  – list all items          (AllowAny)
-    GET    /api/menu/<id>/             – retrieve one item       (AllowAny)
-    POST   /api/menu/                  – create item             (IsAuthenticated + IsHomeCook)
-    PUT    /api/menu/<id>/             – full update             (IsAuthenticated + IsOwner)
-    PATCH  /api/menu/<id>/             – partial update          (IsAuthenticated + IsOwner)
-    DELETE /api/menu/<id>/             – delete item             (IsAuthenticated + IsOwner)
-    GET    /api/menu/nearby/           – items from nearby cooks (AllowAny)
-
-  CART  (session-based)
-    GET  /api/cart/                    – view cart  (AllowAny)
-    POST /api/cart/add/                – add item   (AllowAny)
-    POST /api/cart/remove/             – remove     (AllowAny)
-
-  ORDERS
-    POST /api/orders/place/            – place order from cart   (IsAuthenticated)
-    GET  /api/orders/                  – list user orders        (IsAuthenticated)
-    GET  /api/orders/<id>/status/      – poll status             (IsAuthenticated)
-
-  HOME COOKS
-    GET  /api/cooks/                   – list all cooks          (AllowAny)
-
-  REVIEWS
-    GET  /api/reviews/                 – list all reviews        (AllowAny)
-    POST /api/reviews/create/          – submit review           (IsAuthenticated)
-
-  LOCATION
-    POST /api/location/update/         – update GPS location     (IsAuthenticated)
-
-  HOME COOK DASHBOARD
-    GET  /api/homecook/items/                   – dashboard items (IsAuthenticated + IsHomeCook)
-    POST /api/homecook/accept/<item_id>/        – accept item
-    POST /api/homecook/ready/<item_id>/         – mark ready
-    POST /api/homecook/delivered/<item_id>/     – mark delivered
-"""
-
 import math
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -67,12 +21,6 @@ from .serializers import (
     MenuItemSerializer, OrderSerializer,
     ReviewSerializer, HomeCookSerializer, RegisterSerializer,
 )
-
-
-# ─────────────────────────────────────────────
-#  CUSTOM PERMISSIONS
-# ─────────────────────────────────────────────
-
 class IsHomeCook(BasePermission):
     """Allows access only to users that have a HomeCook profile."""
     message = "You must be a registered home cook to perform this action."
@@ -84,18 +32,12 @@ class IsHomeCook(BasePermission):
             HomeCook.objects.filter(user=request.user).exists()
         )
 
-
 class IsAdminOrReadOnly(BasePermission):
     """Staff users can write; everyone else is read-only."""
     def has_permission(self, request, view):
         if request.method in ("GET", "HEAD", "OPTIONS"):
             return True
         return request.user and request.user.is_staff
-
-
-# ─────────────────────────────────────────────
-#  HELPERS
-# ─────────────────────────────────────────────
 
 def _haversine(lat1, lng1, lat2, lng2):
     R = 6371.0
@@ -114,20 +56,9 @@ CUISINE_EMOJI = {
     "asian":     "🥢",
 }
 
-
-# ─────────────────────────────────────────────
-#  AUTH
-# ─────────────────────────────────────────────
-
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def api_login(request):
-    """
-    POST /api/auth/login/
-    Body: { "username": "...", "password": "..." }
-    Returns a DRF auth token.  Used by jQuery on the login page and by
-    the Flet mobile app.
-    """
     username = request.data.get("username")
     password = request.data.get("password")
 
@@ -178,27 +109,10 @@ def api_register(request):
         "is_homecook": False,
     }, status=201)
 
-
-# ─────────────────────────────────────────────
-#  MENU  –  FULL CRUD
-# ─────────────────────────────────────────────
-
 @api_view(["GET", "POST"])
-@permission_classes([AllowAny])          # GET open; POST restricted in body
+@permission_classes([AllowAny])         
 @parser_classes([MultiPartParser, FormParser, JSONParser])
 def api_menu_list(request):
-    """
-    GET  /api/menu/   – list all menu items (supports ?cuisine= and ?search=).
-                        Publicly accessible.
-
-    POST /api/menu/   – create a new menu item.
-                        Requires authentication AND a HomeCook profile.
-                        Accepts multipart/form-data (with image file) or JSON.
-
-    This endpoint demonstrates both JSON consumption (reading the list) and
-    JSON production (serializing the newly created item back to the caller).
-    jQuery on the addmenu page calls this via $.ajax().
-    """
     if request.method == "GET":
         qs = MenuItem.objects.all()
 
@@ -213,8 +127,6 @@ def api_menu_list(request):
         serializer = MenuItemSerializer(qs, many=True, context={"request": request})
         return Response(serializer.data)
 
-    # ── POST: create a new menu item ──────────────────────────────────────
-    # Enforce authentication + HomeCook restriction for write operations
     if not request.user.is_authenticated:
         return Response(
             {"error": "Authentication required. Please log in."},
@@ -241,22 +153,12 @@ def api_menu_list(request):
 @permission_classes([AllowAny])
 @parser_classes([MultiPartParser, FormParser, JSONParser])
 def api_menu_detail(request, item_id):
-    """
-    GET    /api/menu/<id>/  – retrieve a single menu item  (public)
-    PUT    /api/menu/<id>/  – full update                  (HomeCook only)
-    PATCH  /api/menu/<id>/  – partial update               (HomeCook only)
-    DELETE /api/menu/<id>/  – delete the item              (HomeCook only)
-
-    Together with api_menu_list, these four operations showcase full CRUD
-    via the REST API, all consumed by jQuery AJAX calls.
-    """
     item = get_object_or_404(MenuItem, pk=item_id)
 
     if request.method == "GET":
         serializer = MenuItemSerializer(item, context={"request": request})
         return Response(serializer.data)
 
-    # Write operations require authentication
     if not request.user.is_authenticated:
         return Response(
             {"error": "Authentication required."},
@@ -357,8 +259,6 @@ def api_menu_nearby(request):
         "total_found":       len(result),
     })
 
-
-
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def api_cart_view(request):
@@ -424,7 +324,6 @@ def api_cart_remove(request):
     return Response({"success": True, "cart_count": sum(cart.values())})
 
 
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def api_place_order(request):
@@ -465,7 +364,6 @@ def api_place_order(request):
     order.items.set(order_items)
     order.save()
 
-    # Clear the session cart after placing
     request.session["cart"]  = {}
     request.session.modified = True
 
@@ -476,7 +374,6 @@ def api_place_order(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def api_order_list(request):
-    """GET /api/orders/ – all orders belonging to the authenticated user."""
     orders = (
         Order.objects
         .filter(user=request.user)
@@ -490,7 +387,6 @@ def api_order_list(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def api_order_status(request, order_id):
-    """GET /api/orders/<id>/status/ – lightweight status poll (e.g. for live tracking)."""
     order = get_object_or_404(Order, pk=order_id, user=request.user)
     return Response({
         "order_id":    order.id,
@@ -499,23 +395,17 @@ def api_order_status(request, order_id):
     })
 
 
-
-
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def api_cooks_list(request):
-    """GET /api/cooks/ – list all registered home cooks."""
     cooks = HomeCook.objects.all()
     serializer = HomeCookSerializer(cooks, many=True, context={"request": request})
     return Response(serializer.data)
 
 
-
-
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def api_reviews_list(request):
-    """GET /api/reviews/ – public list of all reviews."""
     reviews    = Review.objects.order_by("-id")
     serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data)
@@ -524,13 +414,6 @@ def api_reviews_list(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def api_reviews_create(request):
-    """
-    POST /api/reviews/create/
-    Body: { "rating": 5, "message": "Great food!" }
-
-    Restriction: the user must have at least one fully-delivered order.
-    This mirrors the web-app review logic.
-    """
     user = request.user
 
 
@@ -557,18 +440,9 @@ def api_reviews_create(request):
     return Response(serializer.errors, status=400)
 
 
-
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def api_location_update(request):
-    """
-    POST /api/location/update/
-    Body: { "lat": -20.162, "lng": 57.499, "role": "cook" | "customer" }
-
-    For cooks: persists their live GPS to HomeCook.latitude / longitude
-               so the nearby endpoint returns fresh results.
-    """
     lat  = request.data.get("lat")
     lng  = request.data.get("lng")
     role = request.data.get("role", "customer")
@@ -597,10 +471,6 @@ def api_location_update(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated, IsHomeCook])
 def api_homecook_items(request):
-    """
-    GET /api/homecook/items/
-    Returns pending orders the cook can accept, plus orders already in progress.
-    """
     cook = request.user.homecook
 
     available = (
@@ -641,7 +511,6 @@ def api_homecook_items(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated, IsHomeCook])
 def api_accept_item(request, item_id):
-    """POST /api/homecook/accept/<item_id>/"""
     cook = request.user.homecook
     item = get_object_or_404(OrderItem, pk=item_id, status=OrderItem.Status.PENDING)
     item.status      = OrderItem.Status.ACCEPTED
@@ -652,8 +521,7 @@ def api_accept_item(request, item_id):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated, IsHomeCook])
-def api_mark_ready(request, item_id):
-    """POST /api/homecook/ready/<item_id>/"""
+def api_mark_ready(request, item_id):    
     cook = request.user.homecook
     item = get_object_or_404(
         OrderItem, pk=item_id,
@@ -667,7 +535,6 @@ def api_mark_ready(request, item_id):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated, IsHomeCook])
 def api_mark_delivered(request, item_id):
-    """POST /api/homecook/delivered/<item_id>/"""
     cook = request.user.homecook
     item = get_object_or_404(
         OrderItem, pk=item_id,

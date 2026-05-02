@@ -1,8 +1,3 @@
-# screens/meals_screen.py
-"""
-MEALS / MENU SCREEN - Pretty version with natural image sizes (like website)
-"""
-
 import flet as ft
 import threading
 
@@ -109,7 +104,6 @@ def create_meals_view(page: ft.Page, api, snack) -> ft.View:
         page.update()
 
     def enhanced_item_card(item, on_add):
-        # Improved image URL handling
         raw_image = item.get("image") or item.get("image_url") or item.get("photo")
         
         if raw_image:
@@ -120,7 +114,7 @@ def create_meals_view(page: ft.Page, api, snack) -> ft.View:
         else:
             image_url = None
 
-        # Debug print (remove after testing)
+
         print(f"Item: {item.get('name')} → Image: {raw_image}")
 
         return ft.Card(
@@ -128,19 +122,16 @@ def create_meals_view(page: ft.Page, api, snack) -> ft.View:
             margin=ft.margin.symmetric(horizontal=12, vertical=8),
             content=ft.Container(
                 content=ft.Column([
-                    # Image with natural aspect ratio - NO forced height
                     ft.Container(
                         content=ft.Image(
                             src=image_url or "https://picsum.photos/id/292/400/250",
-                            fit="cover",                    # zoom/crop where needed (same as website)
-                            width=400,                      # let it fill width
-                            # Do NOT set fixed height → allows natural aspect ratio
+                            fit="cover",                 
+                            width=400,                      
                         ),
                         clip_behavior=ft.ClipBehavior.HARD_EDGE,
                         border_radius=ft.border_radius.only(top_left=16, top_right=16),
                     ),
                     
-                    # Details Section
                     ft.Container(
                         content=ft.Column([
                             ft.Row([
