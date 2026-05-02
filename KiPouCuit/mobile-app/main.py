@@ -13,46 +13,33 @@ from screens.cart_screen import create_cart_view
 from screens.orders_screen import create_orders_view
 
 def main(page: ft.Page):
-    # ─────────────────────────────────────────────
-    # APP CONFIG
-    # ─────────────────────────────────────────────
     page.title = "KiPouCuit"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 0
     page.window.width = 390
     page.window.height = 844
 
-    # ─────────────────────────────────────────────
-    # SERVICES
-    # ─────────────────────────────────────────────
     api = ApiClient()
     auth = AuthService()
 
     saved = auth.load_token()
 
-    # DO NOT auto-force menu route anymore
-    # (prevents unwanted redirect confusion)
+
     if saved:
         api.token = saved.get("token")
         api.username = saved.get("username")
 
-    # ─────────────────────────────────────────────
-    # SNACKBAR
-    # ─────────────────────────────────────────────
+
     def show_snack(msg):
         page.snack_bar = ft.SnackBar(ft.Text(msg))
         page.snack_bar.open = True
         page.update()
 
-    # ─────────────────────────────────────────────
-    # NAVIGATION
-    # ─────────────────────────────────────────────
+
     def go_menu():
         page.go("/menu")
 
-    # ─────────────────────────────────────────────
-    # ROUTING
-    # ─────────────────────────────────────────────
+
     def route_change(e):
         page.views.clear()
 
@@ -63,7 +50,7 @@ def main(page: ft.Page):
             page.views.append(RegisterScreen(page, api, auth, go_menu))
 
         elif page.route == "/menu":
-            # Only allow menu if token exists
+     
             if api.token:
                 page.views.append(create_meals_view(page, api, show_snack))
             else:
@@ -78,7 +65,7 @@ def main(page: ft.Page):
                 return
         
         elif page.route == "/nearby":
-            # Only allow menu if token exists
+
             if api.token:
                 page.views.append(create_nearby_view(page, api, show_snack))
             else:
@@ -107,12 +94,8 @@ def main(page: ft.Page):
 
         page.update()
 
-    # ─────────────────────────────────────────────
-    # EVENTS
-    # ─────────────────────────────────────────────
     page.on_route_change = route_change
 
-    # START ALWAYS FROM LOGIN (clean + predictable)
     page.route = "/login"
     route_change(None)
 

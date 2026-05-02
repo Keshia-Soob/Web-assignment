@@ -1,33 +1,14 @@
-"""
-screens/reviews_screen.py
-─────────────────────────
-KiPouCuit mobile app – Reviews screen.
-
-Mirrors the Django web app logic exactly:
-  • GET  /api/reviews/         → list all reviews (public)
-  • POST /api/reviews/create/  → submit a review (auth + ≥1 delivered order)
-
-Review model fields: first_name, last_name, rating, message, created_at
-The API auto-fills first_name / last_name / email from the logged-in user.
-"""
-
 import threading
 import flet as ft
 
 from components.shared import app_bar, spinner, err_banner, bottom_nav, ORANGE
 
 
-# ─────────────────────────────────────────────
-#  HELPERS
-# ─────────────────────────────────────────────
-
 def _star_display(rating: int) -> str:
-    """Return filled + empty stars as a unicode string."""
     return "★" * rating + "☆" * (5 - rating)
 
 
 def _review_card(review: dict) -> ft.Card:
-    """Read-only card for a single review – mirrors review_list.html."""
     full_name = f"{review.get('first_name', '')} {review.get('last_name', '')}".strip()
     rating = review.get("rating", 0)
     message = review.get("message", "")
@@ -71,23 +52,12 @@ def _review_card(review: dict) -> ft.Card:
         ),
     )
 
-
-# ─────────────────────────────────────────────
-#  MAIN VIEW FACTORY
-# ─────────────────────────────────────────────
-
 def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
-    """
-    Build and return the ft.View for /reviews.
-    Call  page.views.append(create_reviews_view(...))  from the router.
-    """
 
-    # ── shared state ────────────────────────────────────────────
-    selected_rating = [0]          # mutable container so closures can write
+    selected_rating = [0]          
     star_buttons: list[ft.IconButton] = []
     is_loading = [False]
 
-    # ── refs to mutable controls ────────────────────────────────
     message_field = ft.TextField(
         label="Your message",
         multiline=True,
@@ -108,7 +78,6 @@ def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
 
     loading_bar = ft.ProgressBar(visible=False)
 
-    # ── star picker ──────────────────────────────────────────────
     def _on_star_click(e):
         selected_rating[0] = e.control.data
         _refresh_stars()
@@ -135,7 +104,6 @@ def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
 
     stars_row = ft.Row(star_buttons, spacing=0)
 
-    # ── submit handler ───────────────────────────────────────────
     submit_btn = ft.ElevatedButton(
         "Post your Review",
         icon=ft.Icons.SEND_ROUNDED,
@@ -150,7 +118,6 @@ def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
         if is_loading[0]:
             return
 
-        # Client-side validation
         errors = []
         if selected_rating[0] == 0:
             errors.append("Please select a star rating.")
@@ -163,7 +130,6 @@ def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
             page.update()
             return
 
-        # Disable UI
         is_loading[0] = True
         submit_btn.disabled = True
         loading_bar.visible = True
@@ -181,13 +147,13 @@ def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
             loading_bar.visible = False
 
             if code == 201:
-                # Reset form
+     
                 selected_rating[0] = 0
                 _refresh_stars()
                 message_field.value = ""
                 form_feedback.value = "✅ Your review has been posted!"
                 form_feedback.color = ft.Colors.GREEN_700
-                _load_reviews()   # refresh the list
+                _load_reviews()   
             elif code == 403:
                 form_feedback.value = (
                     data.get("error")
@@ -204,7 +170,7 @@ def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
 
     submit_btn.on_click = _submit
 
-    # ── load reviews ─────────────────────────────────────────────
+
     def _load_reviews():
         loading_bar.visible = True
         reviews_col.controls.clear()
@@ -239,7 +205,7 @@ def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
 
         page.update()
 
-    # ── assemble form section ────────────────────────────────────
+
     if not api.token:
         form_section = ft.Container(
             padding=ft.padding.all(20),
@@ -276,7 +242,6 @@ def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
             ),
         )
 
-    # ── full view ────────────────────────────────────────────────
     view = ft.View(
         route="/reviews",
         padding=0,
@@ -288,10 +253,8 @@ def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
                 scroll=ft.ScrollMode.AUTO,
                 controls=[
                     loading_bar,
-                    # ── Post a Review form ──
-                    form_section,
+                      form_section,
                     ft.Divider(height=1),
-                    # ── All Reviews header ──
                     ft.Container(
                         padding=ft.padding.symmetric(horizontal=16, vertical=8),
                         content=ft.Text(
@@ -300,14 +263,12 @@ def create_reviews_view(page: ft.Page, api, show_snack) -> ft.View:
                             weight=ft.FontWeight.W_600,
                         ),
                     ),
-                    # ── Review list ──
                     reviews_col,
                 ],
             )
         ],
     )
 
-    # Kick off the initial load
     threading.Thread(target=_load_reviews, daemon=True).start()
 
     return view
