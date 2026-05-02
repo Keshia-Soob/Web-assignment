@@ -7,18 +7,7 @@
 <link rel="stylesheet" href="{% static 'reviews/reviews.css' %}">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!--
-  review.html
-  ─────────────────────────────────────────────────────────────────────────────
-  Demonstrates CREATE (POST) via the REST API using jQuery AJAX.
 
-  The form sends a JSON payload to POST /api/reviews/create/.
-  The REST API:
-    • Requires authentication (401 if not logged in)
-    • Requires at least one delivered order (403 otherwise)
-    • Validates with ReviewSerializer and returns the new review as JSON
-  ─────────────────────────────────────────────────────────────────────────────
--->
 
 <div class="container">
   <div class="review-container">
@@ -107,22 +96,10 @@
 </div>
 
 <script>
-/**
- * review.html – jQuery REST API integration
- * ==========================================
- * Demonstrates CREATE (POST /api/reviews/create/) via jQuery $.ajax():
- *
- *   1. User fills in the form.
- *   2. jQuery intercepts submit (e.preventDefault).
- *   3. Builds a JSON object from the form fields (JSON production).
- *   4. POSTs to /api/reviews/create/ with Content-Type: application/json.
- *   5. On 201: reads the returned JSON review object (JSON consumption)
- *              and shows a success banner.
- *   6. On 4xx: reads the DRF error object and shows the message.
- */
+
 $(document).ready(function () {
 
-  // ── Star-rating UI ────────────────────────────────────────────────────
+
   const stars        = $(".rating-stars i");
   const ratingSelect = $("#rating");
 
@@ -153,7 +130,6 @@ $(document).ready(function () {
   }
 
 
-  // ── CSRF helper ───────────────────────────────────────────────────────
   function getCookie(name) {
     let value = null;
     if (document.cookie && document.cookie !== '') {
@@ -168,39 +144,37 @@ $(document).ready(function () {
   }
 
 
-  // ── Form submit → REST API POST ───────────────────────────────────────
+
   $("#reviewForm").on("submit", function (e) {
     e.preventDefault();
 
-    // Reset banners
+  
     $("#apiSuccess").hide();
     $("#apiError").hide();
 
     const btn = $("#reviewSubmitBtn");
     btn.prop("disabled", true).text("Posting…");
 
-    // Build JSON payload (JSON production)
     const payload = {
       rating:  parseInt($("#rating").val(), 10),
       message: $("#message").val().trim()
     };
 
-    // Retrieve stored token (set during login)
+  
     const token = localStorage.getItem("authToken") || "";
 
     $.ajax({
       url:         "/api/reviews/create/",
       type:        "POST",
-      contentType: "application/json",       // tell the server we send JSON
-      data:        JSON.stringify(payload),  // produce JSON
+      contentType: "application/json",     
+      data:        JSON.stringify(payload),  
       headers: {
         "X-CSRFToken": getCookie("csrftoken"),
         ...(token ? { "Authorization": "Token " + token } : {})
       },
 
-      // ── 201 Created: JSON consumption ─────────────────────────────────
+
       success: function (data) {
-        // `data` is the serialised Review object returned by DRF
         console.log("Review created via REST API:", data);
         $("#apiSuccessMsg").text(
           "Thank you, " + (data.first_name || "valued customer") +
@@ -211,7 +185,7 @@ $(document).ready(function () {
         updateStars(0);
       },
 
-      // ── 4xx Error ─────────────────────────────────────────────────────
+
       error: function (xhr) {
         let msg = "An error occurred. Please try again.";
 

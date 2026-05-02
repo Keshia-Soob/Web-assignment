@@ -12,7 +12,7 @@
 
   <div class="profile-container">
 
-    <!-- Profile Photo Preview -->
+
     <div class="profile-photo-container">
       {% if profile.photo %}
         <img id="photoPreview" src="{{ profile.photo.url }}" class="profile-photo">
@@ -21,23 +21,22 @@
       {% endif %}
     </div>
 
-    <!-- Upload/Edit + Save -->
+
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
 
-      <!-- Hidden file input -->
+
       <input type="file" name="photo" id="fileInput" style="display:none;">
 
-      <!-- Custom Upload/Edit Button -->
+  
       <button type="button" id="uploadBtn" class="upload-btn">
         {% if profile.photo %}Edit Photo{% else %}Upload Photo{% endif %}
       </button>
 
-      <!-- Save Button (hidden initially) -->
       <input type="submit" id="saveBtn" value="Save" class="upload-btn" style="display:none;">
     </form>
 
-    <!-- User Info -->
+
     <h2 class="profile-name">{{ request.user.first_name }} {{ request.user.last_name }}</h2>
     <div class="profile-details-container">
       <div class="detail-row">

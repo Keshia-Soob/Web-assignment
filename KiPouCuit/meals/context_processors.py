@@ -2,10 +2,7 @@
 from .models import MenuItem
 
 def _normalize_qty(v):
-    """
-    Accept int/str/dict variants and return a positive int.
-    We won't write back to the session here.
-    """
+   
     if isinstance(v, int):
         return max(1, v)
     if isinstance(v, str):
@@ -24,11 +21,7 @@ def _normalize_qty(v):
     return 1
 
 def cart_context(request):
-    """
-    Provides cart data to all templates.
-    Converts integer cart format { '2': 3 } to dict format
-    { '2': {'name': 'Butter Chicken', 'price': 250, 'quantity': 3} }
-    """
+
     raw_cart = request.session.get("cart") or {}
     cart_count = 0
     cart_data = {}

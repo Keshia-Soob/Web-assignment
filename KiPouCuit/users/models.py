@@ -67,7 +67,7 @@ class PaymentMethod(models.Model):
     """
     user = models.ForeignKey("auth.User", on_delete=models.CASCADE, related_name="payment_methods")
     card_holder_name = models.CharField(max_length=150)
-    masked_card_number = models.CharField(max_length=32)  # e.g. **** **** **** 4242
+    masked_card_number = models.CharField(max_length=32)  
     signed_card = models.TextField()  # signed/encrypted representation
     expiry_month = models.PositiveSmallIntegerField()
     expiry_year = models.PositiveSmallIntegerField()
@@ -92,7 +92,7 @@ class PaymentMethod(models.Model):
 
     @classmethod
     def create_from_plain(cls, user, card_number, holder_name, expiry_month, expiry_year, is_default=False):
-        # mask last 4
+  
         s = "".join(ch for ch in card_number if ch.isdigit())
         last4 = s[-4:] if len(s) >= 4 else s
         masked = f"**** **** **** {last4}"

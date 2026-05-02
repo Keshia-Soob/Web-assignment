@@ -4,10 +4,7 @@ from meals.models import MenuItem
 
 
 class OrderItem(models.Model):
-    """
-    Single line item inside an Order. Status flows:
-      pending -> accepted -> delivering -> delivered
-    """
+
     class Status(models.TextChoices):
         PENDING = "pending", "Pending"          
         ACCEPTED = "accepted", "Accepted"        
@@ -39,13 +36,7 @@ class OrderItem(models.Model):
 
 
 class Order(models.Model):
-    """
-    An Order that groups many OrderItem rows.
 
-    Important: status is computed from the contained OrderItem objects,
-    so we don't keep a redundant status field on the Order itself.
-    Use the `status` property to get the overall state.
-    """
     items = models.ManyToManyField(OrderItem, related_name="orders")
     client_name = models.CharField(max_length=150, default="Anonymous")
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="orders")
@@ -56,40 +47,26 @@ class Order(models.Model):
 
     @property
     def subtotal(self):
-        """Sum of all item totals."""
         return sum(item.total_price for item in self.items.all())
 
     @property
     def status(self):
-        """
-        Compute overall order status from item statuses.
-        Priority (highest → lowest):
-          - delivered   (all items delivered)
-          - delivering  (any item delivering)
-          - accepted    (any item accepted)
-          - pending     (default)
-        Returns one of: "delivered", "delivering", "accepted", "pending"
-        """
-        # Gather unique statuses among items
+
+ 
         statuses = set(self.items.values_list("status", flat=True))
 
-        # If there are no items, treat as pending
         if not statuses:
             return "pending"
-
-        # If every item is delivered -> delivered
+        
         if statuses == {OrderItem.Status.DELIVERED}:
             return "delivered"
 
-        # If any item is delivering -> delivering
         if OrderItem.Status.DELIVERING in statuses:
             return "delivering"
 
-        # If any item is accepted -> accepted
         if OrderItem.Status.ACCEPTED in statuses:
             return "accepted"
 
-        # Otherwise pending
         return "pending"
 
     def is_fully_delivered(self) -> bool:

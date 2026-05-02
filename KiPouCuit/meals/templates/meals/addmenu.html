@@ -17,22 +17,19 @@
 
   <div class="form-container">
 
-    <!-- Success banner (shown by jQuery on 201 response) -->
+    <!-- Success banner-->
     <div class="success-message" id="successMessage" style="display:none;">
       <i class="fas fa-check-circle"></i>
       Your menu item has been added successfully!
       <a href="{% url 'menu' %}" style="margin-left:10px;">View Menu</a>
     </div>
 
-    <!-- Error banner (shown by jQuery on 4xx response) -->
+    <!-- Error banner -->
     <div class="error-message" id="errorMessage" style="display:none;">
       <ul id="errorList"></ul>
     </div>
 
-    <!--
-      NOTE: enctype="multipart/form-data" is still needed for image upload.
-      We intercept the submit with jQuery instead of letting the browser POST.
-    -->
+
     <form id="menuForm" enctype="multipart/form-data">
       {% csrf_token %}
 
@@ -90,7 +87,7 @@
 
 $(document).ready(function () {
 
-  // ── Image preview ─────────────────────────────────────────────────────
+
   $("#itemImage").on("change", function () {
     const file = this.files[0];
     if (!file) { $("#imagePreview").empty(); return; }
@@ -103,7 +100,6 @@ $(document).ready(function () {
   });
 
 
-  // ── CSRF helper ───────────────────────────────────────────────────────
   function getCookie(name) {
     let value = null;
     if (document.cookie && document.cookie !== '') {
@@ -118,29 +114,28 @@ $(document).ready(function () {
   }
 
 
-  // ── Form submit → REST API POST ───────────────────────────────────────
+  
   $("#menuForm").on("submit", function (e) {
     e.preventDefault();   // stop browser default POST
 
-    // Hide any previous messages
     $("#successMessage").hide();
     $("#errorMessage").hide().find("#errorList").empty();
 
     const submitBtn = $("#submitBtn");
     submitBtn.prop("disabled", true).text("Adding…");
 
-    // Build FormData (handles text fields + file upload)
+   
     const formData = new FormData(this);
 
-    // Retrieve the stored auth token (set during login / registration)
+
     const token = localStorage.getItem("authToken") || "";
 
     $.ajax({
       url:         "/api/menu/",
       type:        "POST",
-      data:        formData,               // JSON production via FormData
-      processData: false,                  // don't let jQuery serialise it
-      contentType: false,                  // let the browser set multipart boundary
+      data:        formData,              
+      processData: false,                  
+      contentType: false,                 
       headers: {
         "X-CSRFToken":  getCookie("csrftoken"),
         // If the user has a token (logged in via Flet / API), include it.
@@ -148,19 +143,18 @@ $(document).ready(function () {
         ...(token ? { "Authorization": "Token " + token } : {})
       },
 
-      // ── 201 Created: JSON consumption ─────────────────────────────────
+
       success: function (data) {
-        // `data` is the newly-created MenuItem object serialised by DRF
+
         $("#successMessage").show();
         $("#menuForm")[0].reset();
         $("#imagePreview").empty();
 
         console.log("New item created via REST API:", data);
-        // Optionally redirect to menu page after a short delay
-        // setTimeout(() => window.location.href = "/menu/", 1500);
+
       },
 
-      // ── 4xx Error: read JSON error response ───────────────────────────
+
       error: function (xhr) {
         let errors = [];
 
@@ -171,7 +165,7 @@ $(document).ready(function () {
             ? xhr.responseJSON.error
             : "Only home cooks can add menu items."];
         } else if (xhr.responseJSON) {
-          // DRF returns field-level errors as { field: ["error msg"] }
+
           $.each(xhr.responseJSON, function (field, msgs) {
             if (Array.isArray(msgs)) {
               msgs.forEach(function (m) {

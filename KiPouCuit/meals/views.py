@@ -50,7 +50,7 @@ def menu(request):
     })
 
 
-# ADD MENU ITEM (ADMIN/FORM)
+
 
 def addmenu(request):
 
@@ -67,7 +67,7 @@ def addmenu(request):
         errors = []
         data = _form_data()
 
-        # Required fields
+  
         for field, label in [
             ("itemName", "Item name"),
             ("itemPrice", "Price"),
@@ -76,19 +76,18 @@ def addmenu(request):
             if not data[field]:
                 errors.append(f"{label} is required.")
 
-        # Price validation
+
         try:
             price_val = Decimal(data["itemPrice"])
         except:
             errors.append("Price must be a valid number (e.g., 150).")
             price_val = None
 
-        # Cuisine validation
+
         valid_cuisines = dict(MenuItem.CUISINE_CHOICES)
         if data["itemCuisine"] not in valid_cuisines:
             errors.append("Invalid cuisine type.")
 
-        # STAY HERE IF THERE ARE ERRORS
         if errors:
             return render(
                 request,
@@ -101,7 +100,7 @@ def addmenu(request):
             )
 
 
-        # EVERYTHING VALID → CREATE THE ENTRY
+
 
         image_file = request.FILES.get("itemImage")
 
@@ -124,7 +123,7 @@ def addmenu(request):
             },
         )
 
-    # GET request
+
     return render(
         request,
         "meals/addmenu.html",
@@ -135,7 +134,6 @@ def addmenu(request):
     )
 
 
-# ADD TO CART
 
 def add_to_cart(request, item_id):
     """Adds an item to the cart — keeps cart format { '2': 1 }."""
@@ -144,19 +142,19 @@ def add_to_cart(request, item_id):
 
     item_id_str = str(item_id)
 
-    # Convert old dict-style to int
+
     current_val = cart.get(item_id_str, 0)
     if isinstance(current_val, dict):
         current_val = current_val.get("quantity", 1)
 
-    # Increment or set quantity
+
     new_qty = int(current_val) + 1
     cart[item_id_str] = new_qty
 
     request.session["cart"] = cart
     request.session.modified = True
 
-    # Compute subtotal for AJAX
+
     items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
     cart_subtotal = sum(float(i.price) * cart[str(i.id)] for i in items)
     cart_count = sum(cart.values())
@@ -171,7 +169,6 @@ def add_to_cart(request, item_id):
     return redirect(reverse("menu"))
 
 
-# REMOVE FROM CART
 
 def remove_from_cart(request, item_id):
     """Removes an item from the cart."""
@@ -198,7 +195,7 @@ def remove_from_cart(request, item_id):
     return redirect("order_summary")
 
 
-# VIEW CART
+
 
 def view_cart(request):
     cart = request.session.get("cart", {})
@@ -207,7 +204,7 @@ def view_cart(request):
     return render(request, "cart.html", {"cart": cart, "items": items, "subtotal": subtotal})
 
 
-# CLEAR CART
+
 
 def clear_cart(request):
     request.session["cart"] = {}
@@ -217,7 +214,7 @@ def clear_cart(request):
     return redirect(reverse("menu"))
 
 
-# CART DATA (AJAX)
+
 
 def get_cart_data(request):
     """Returns enriched cart data for AJAX requests"""
@@ -233,13 +230,11 @@ def get_cart_data(request):
             item_id_str = str(item.id)
             quantity = cart.get(item_id_str, 0)
             
-            # Handle old dict format if it exists
             if isinstance(quantity, dict):
                 quantity = quantity.get('quantity', 1)
             
             quantity = int(quantity)
             
-            # Build enriched cart item data
             cart_items[item_id_str] = {
                 'name': item.name,
                 'price': float(item.price),
@@ -261,7 +256,7 @@ def update_cart_quantity(request, item_id):
         cart = request.session.get('cart', {})
         item_id_str = str(item_id)
         
-        # Get action from JSON body or POST data
+        
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             data = json.loads(request.body)
             action = data.get('action')
@@ -269,12 +264,12 @@ def update_cart_quantity(request, item_id):
             action = request.POST.get('action')
         
         if item_id_str in cart:
-            # Get current quantity (your cart stores integers directly)
+
             current_qty = cart[item_id_str]
             if isinstance(current_qty, dict):
                 current_qty = current_qty.get('quantity', 1)
             
-            # Update quantity
+
             if action == 'inc':
                 cart[item_id_str] = int(current_qty) + 1
             elif action == 'dec':
@@ -287,10 +282,10 @@ def update_cart_quantity(request, item_id):
             request.session['cart'] = cart
             request.session.modified = True
             
-            # Get item from database for price
+
             item = get_object_or_404(MenuItem, id=item_id)
             
-            # Calculate totals
+
             items = MenuItem.objects.filter(id__in=[int(k) for k in cart.keys()])
             cart_total = sum(float(i.price) * cart[str(i.id)] for i in items)
             cart_count = sum(cart.values())

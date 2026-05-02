@@ -9,7 +9,7 @@
     <h1>Checkout</h1>
 
     <div class="checkout-grid">
-        <!-- Left: Order Summary -->
+
         <div class="order-summary-section">
             <h2>Order Summary</h2>
 
@@ -36,7 +36,6 @@
             </div>
         </div>
 
-        <!-- Right: Payment & Delivery Info -->
         <div class="payment-section">
             <h2>Delivery Information</h2>
             <div class="delivery-info">
@@ -51,12 +50,12 @@
                 {% csrf_token %}
 
                 <div class="payment-methods">
-                    <!-- Existing saved methods -->
+
                 {% if payment_methods %}
                     {% for method in payment_methods %}
                     <label class="payment-card {% if method.is_default %}default{% endif %}">
 
-                        <!-- Always keep same name, and select default card -->
+
                         <input type="radio" name="payment_method_id" value="{{ method.id }}" 
                         {% if method.is_default %}checked{% endif %}>
 
@@ -77,7 +76,6 @@
                     <hr class="divider">
                     {% endif %}
 
-                    <!-- New Card block -->
                     <div class="new-card">
                         <h3>Use a new card</h3>
 

@@ -24,7 +24,7 @@
         <h2 class="profile-name">{{ request.user.first_name }} {{ request.user.last_name }}</h2>
     </div>
 
-    <!-- Menu with Pretty Boxed Buttons -->
+
     <div class="history-menu">
         <div class="buttons-container">
             <a href="#" class="tab-button" data-tab="address">
@@ -36,12 +36,11 @@
         </div>
     </div>
 
-    <!-- Initial Message (ONLY THIS SHOWS INITIALLY) -->
     <div id="initial-message">
         <p>Please select an option above to view your information</p>
     </div>
 
-    <!-- Address Section (HIDDEN BY DEFAULT) -->
+
     <div id="address-content" class="tab-content" style="display: none;">
         <div class="address-section">
             <h3>Your Address</h3>
@@ -54,7 +53,7 @@
         </div>
     </div>
 
-    <!-- Order History Section (HIDDEN BY DEFAULT) -->
+
     <div id="history-content" class="tab-content" style="display: none;">
         <div class="order-history">
             <h3>Order History</h3>
@@ -93,7 +92,6 @@
                             </div>
 
                             <div class="order-right">
-                                {# Status display for each item #}
                                 <div class="status-block">
                                     {% if order_item.status == 'pending' %}
                                         <span class="status pill status-pending">Pending (kitchen)</span>
