@@ -7,7 +7,7 @@ from orders.models import Order, OrderItem
 
 @login_required(login_url='login')
 def review(request):
-    user = request.user  # the logged-in user
+    user = request.user
 
     user_orders = Order.objects.filter(user=user)
     completed_orders = 0

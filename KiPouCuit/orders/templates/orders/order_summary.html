@@ -20,7 +20,7 @@
       </div>
       <div class="item-price">Rs {{ item.price|floatformat:0 }}</div>
 
-      <!-- Quantity controls – jQuery intercepts submit -->
+
       <div class="item-qty">
         <form class="qty-form" action="{% url 'update_quantity' item.id %}" method="post" style="display:inline;">
           {% csrf_token %}
@@ -37,7 +37,6 @@
         </form>
       </div>
 
-      <!-- Remove button – jQuery intercepts submit -->
       <div class="item-actions">
         <form class="remove-form" action="{% url 'remove_from_order' item.id %}" method="post">
           {% csrf_token %}
@@ -59,7 +58,7 @@
     {% endif %}
   </section>
 
-  <!-- Summary sidebar -->
+
   <div class="summary-box">
     <div class="sum-left">
       <h2>Summary</h2>
@@ -81,7 +80,7 @@
 
 $(document).ready(function () {
 
-    // ── CSRF helper (also set globally in base.html via $.ajaxSetup) ─────
+
     function getCookie(name) {
         let value = null;
         if (document.cookie && document.cookie !== '') {
@@ -119,9 +118,8 @@ $(document).ready(function () {
     });
 
 
-    // ── 2. UPDATE quantity ────────────────────────────────────────────────
-    //
-    // Intercepts the .qty-form submit.
+
+
     $(document).on('submit', '.qty-form', function (e) {
         e.preventDefault();
         const $form = $(this);
@@ -149,8 +147,8 @@ $(document).ready(function () {
         $.ajax({
             url:     '/api/cart/',
             type:    'GET',
-            success: function (data) {             // JSON consumption
-                // Build a simple snapshot string for comparison
+            success: function (data) {             
+
                 const snapshot = JSON.stringify(
                     (data.items || []).map(function (i) {
                         return { id: i.item_id, qty: i.quantity };
@@ -163,13 +161,13 @@ $(document).ready(function () {
                     window.location.reload();
                 }
 
-                // Keep the cart badge up to date
+
                 $('.cart-count').text(data.count || 0);
             }
         });
     }
 
-    // Initial snapshot + start polling
+
     pollCartState();
     setInterval(pollCartState, 3000);
 

@@ -3,7 +3,7 @@
 from django import forms
 
 class NewCardForm(forms.Form):
-    # Make all fields NOT required by default
+
     card_holder_name = forms.CharField(
         max_length=150, 
         label="Name on card",
@@ -47,11 +47,11 @@ class NewCardForm(forms.Form):
         exp_month = cleaned_data.get('expiry_month')
         exp_year = cleaned_data.get('expiry_year')
         
-        # Check if user is trying to enter a new card
+
         any_card_field_filled = any([card_holder, card_number, exp_month, exp_year])
         
         if any_card_field_filled:
-            # If they started filling new card, all fields must be complete
+
             if not card_holder:
                 self.add_error('card_holder_name', 'Please enter the name on card')
             if not card_number:

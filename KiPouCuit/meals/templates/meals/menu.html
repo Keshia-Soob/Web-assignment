@@ -29,7 +29,7 @@
     </div>
   </div>
 
-  <!-- Global "no results" message (shown by JS) -->
+
   <p id="noResultsMessage" style="display:none; text-align:center; font-weight:bold; margin-top:20px;">
     No meals found.
   </p>
@@ -81,16 +81,14 @@
   {% endif %}
 </div>
 
-<!-- Toast container -->
+
 <div id="toast-container"></div>
 
 <script>
 
 $(document).ready(function () {
 
-  // =========================================================================
-  // CSRF helper (required for POST requests in Django)
-  // =========================================================================
+
   function getCookie(name) {
     let value = null;
     if (document.cookie && document.cookie !== '') {
@@ -104,7 +102,7 @@ $(document).ready(function () {
     return value;
   }
 
-  // Add CSRF token to every AJAX request automatically
+ 
   $.ajaxSetup({
     headers: {
       "X-CSRFToken": getCookie("csrftoken"),
@@ -113,9 +111,7 @@ $(document).ready(function () {
   });
 
 
-  // =========================================================================
-  // SEARCH + FILTER  (client-side, no API call needed)
-  // =========================================================================
+
   function applyFilters() {
     const search     = $("#searchInput").val().toLowerCase();
     const cuisineVal = $("#cuisineFilter").val();
@@ -145,15 +141,10 @@ $(document).ready(function () {
 
   $("#searchInput").on("input", applyFilters);
   $("#cuisineFilter").on("change", applyFilters);
-  applyFilters();   // run once on page load
+  applyFilters();   
 
 
-  // =========================================================================
-  // ADD TO CART  –  JSON production via REST API
-  //
-  // Sends:  POST /api/cart/add/  with JSON body { "item_id": N, "quantity": 1 }
-  // Reads:  JSON response        { "success": true, "cart_count": N }
-  // =========================================================================
+
   $(document).on("click", ".api-add-to-cart", function () {
     const btn      = $(this);
     const itemId   = btn.data("id");
@@ -170,11 +161,11 @@ $(document).ready(function () {
         quantity: 1
       }),
       success: function (data) {             // consume JSON response
-        // Update the badge counter in the navbar
+
         if (data.cart_count !== undefined) {
           $(".cart-count").text(data.cart_count);
         }
-        // Refresh the cart dropdown from the API
+
         refreshCartDropdown();
         showToast(itemName + " added to cart!");
       },
@@ -191,12 +182,6 @@ $(document).ready(function () {
   });
 
 
-  // =========================================================================
-  // REMOVE FROM CART  –  JSON production via REST API
-  //
-  // Sends:  POST /api/cart/remove/  with JSON body { "item_id": N }
-  // Reads:  JSON response           { "success": true, "cart_count": N }
-  // =========================================================================
   $(document).on("click", ".remove-item-btn", function (e) {
     e.preventDefault();
     const itemId = $(this).data("item-id");
@@ -217,12 +202,7 @@ $(document).ready(function () {
   });
 
 
-  // =========================================================================
-  // REFRESH CART DROPDOWN  –  JSON consumption via REST API
-  //
-  // Fetches: GET /api/cart/
-  // Reads:   { "items": [...], "subtotal": N, "count": N }
-  // =========================================================================
+ 
   function refreshCartDropdown() {
     $.ajax({
       url:     "/api/cart/",
@@ -269,9 +249,7 @@ $(document).ready(function () {
   refreshCartDropdown();
 
 
-  // =========================================================================
-  // TOAST HELPER
-  // =========================================================================
+
   function showToast(message) {
     const toast = $("<div class='toast'></div>").text(message);
     $("#toast-container").append(toast);

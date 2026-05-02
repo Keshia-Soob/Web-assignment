@@ -53,7 +53,7 @@ def _normalize_cart(cart):
     out = {}
     for k, v in cart.items():
         try:
-            item_id_str = str(int(k))  # ensure numeric keys only
+            item_id_str = str(int(k))  
         except (TypeError, ValueError):
             continue
         qty = _normalize_qty(v)
@@ -83,7 +83,6 @@ def _cart_items_and_totals(cart):
         })
     return items, subtotal
 
-# Pages 
 
 def order(request):
     return render(request, 'orders/order.html')
@@ -101,7 +100,6 @@ def order_summary(request):
     }
     return render(request, 'orders/order_summary.html', context)
 
-#Cart endpoints
 
 def update_quantity(request, item_id):
     """Update quantity from order summary page - supports AJAX and regular POST"""
@@ -124,7 +122,7 @@ def update_quantity(request, item_id):
                 else:
                     cart[item_id_str] = new_qty
             else:
-                # Handle direct quantity setting
+
                 qty = _normalize_qty(request.POST.get("quantity", 1))
                 if qty <= 0:
                     cart.pop(item_id_str, None)
@@ -134,7 +132,7 @@ def update_quantity(request, item_id):
             request.session['cart'] = cart
             request.session.modified = True
         
-        # Handle AJAX requests
+
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             cart_count = sum(cart.values())
             cart_subtotal = 0
@@ -160,7 +158,6 @@ def remove_from_order(request, item_id):
             request.session["cart"] = cart
             request.session.modified = True
 
-        # Handle AJAX requests
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
             cart_count = sum(cart.values())
             cart_subtotal = 0
@@ -183,7 +180,7 @@ def clear_order(request):
 
 @require_POST
 def add_to_order(request, item_id):
-    # ensure the item exists
+
     get_object_or_404(MenuItem, id=item_id)
     cart = _get_cart(request)
     key = str(item_id)
@@ -234,14 +231,13 @@ def checkout(request):
     cart = _get_cart(request)
     items, subtotal = _cart_items_and_totals(cart)
 
-    # Build payment_methods list for the template
     payment_methods = PaymentMethod.objects.filter(user=request.user)
 
     if request.method == "POST":
         checkout_form = CheckoutForm(request.POST)
         new_card_form = NewCardForm(request.POST)
         
-        #First check if user selected an existing payment method
+
         pm_id = request.POST.get("payment_method_id")
         chosen_payment = None
 
@@ -251,10 +247,9 @@ def checkout(request):
             except (ValueError, PaymentMethod.DoesNotExist):
                 chosen_payment = None
 
-        # Only validate new card form if no saved card was selected
-        # AND if any new card field has data
+
         if not chosen_payment:
-            # Check if user is trying to add a new card
+
             has_new_card_data = any([
                 request.POST.get('card_holder_name'),
                 request.POST.get('card_number'),
@@ -274,7 +269,7 @@ def checkout(request):
                         is_default=cd.get("set_default", False),
                     )
                 else:
-                    # create an ephemeral PaymentMethod instance (not saved)
+
                     masked = "**** **** **** " + "".join(ch for ch in cd["card_number"] if ch.isdigit())[-4:]
                     chosen_payment = PaymentMethod(
                         user=request.user,
@@ -286,7 +281,7 @@ def checkout(request):
                         is_default=False
                     )
             elif has_new_card_data and not new_card_form.is_valid():
-                # User tried to enter new card but form has errors
+
                 context = {
                     "items": items,
                     "subtotal": subtotal,
@@ -296,7 +291,7 @@ def checkout(request):
                 }
                 return render(request, "orders/checkout.html", context)
             else:
-                # No saved card selected and no new card data entered
+
                 new_card_form.add_error(None, "Please select a saved card or enter new card details")
                 context = {
                     "items": items,
@@ -307,21 +302,17 @@ def checkout(request):
                 }
                 return render(request, "orders/checkout.html", context)
 
-        # At this point we have chosen_payment
-        # FAKE PROCESSING of payment (always succeed for assignment) 
-        # Create Order and OrderItems
         order = Order.objects.create(
             user=request.user,
             client_name=f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username,
             created_at=timezone.now()
         )
 
-        # For each cart item, create OrderItem and attach a HomeCook if found
         for line in items:
             menu_item_id = int(line["id"])
             menu_item = MenuItem.objects.get(id=menu_item_id)
             qty = int(line["quantity"])
-            # Find a homecook for this cuisine (simple heuristic)
+
             homecook = HomeCook.objects.filter(cuisine=menu_item.cuisine).first()
             order_item = OrderItem.objects.create(
                 menu_item=menu_item,
@@ -332,11 +323,10 @@ def checkout(request):
 
         order.save()
 
-        # Clear session cart
+
         request.session["cart"] = {}
         request.session.modified = True
 
-        # redirect to confirmation
         return redirect(reverse("order_confirmed"))
 
     else:

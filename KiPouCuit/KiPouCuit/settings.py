@@ -7,18 +7,18 @@ from pathlib import Path
 import os
 
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
+
 SECRET_KEY = 'django-insecure-krz%!93tw^rlt%ipnu_8b28x5q-spfuwfw7^wv@($krq*z2lb4'
 DEBUG = True
-ALLOWED_HOSTS = []  # add your domain(s) when deploying
+ALLOWED_HOSTS = []  
 HOMECOOK_ACCESS_CODE = "HOMECOOK2025"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Application definition
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
 
-    # Your apps
     'meals',
     'orders',
     'reviews',
@@ -73,7 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # Optional but handy for debugging template vars:
+
                 'django.template.context_processors.debug',
                 'meals.context_processors.cart_context'
             ],
@@ -83,7 +82,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'KiPouCuit.wsgi.application'
 
-# Database (SQLite for dev)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -91,7 +90,7 @@ DATABASES = {
     }
 }
 
-# Password validation
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -99,26 +98,25 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
+
 LANGUAGE_CODE = 'en-us'
-#Set to Mauritius time for correct timestamps in admin & templates
+
 TIME_ZONE = 'Indian/Mauritius'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JS, images served from /static/)
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "static",           #keep your project-level static folder
+    BASE_DIR / "static",           
 ]
-# For production you’ll usually add:
-# STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-#Media files (user uploads like dish images)
+
+
 MEDIA_URL = '/media/'               
 MEDIA_ROOT = BASE_DIR / 'media'         
 
-#Default PK type
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'
